@@ -1,0 +1,50 @@
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+
+# Environment
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Build
+/build
+client/dist
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Coverage
+/coverage
+
+# Uploads
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# Flutter
+flutter_student_app/.dart_tool/
+flutter_student_app/.packages
+flutter_student_app/build/
+flutter_student_app/.flutter-plugins
+flutter_student_app/.flutter-plugins-dependencies
+flutter_student_app/android/.gradle/
+flutter_student_app/android/local.properties
+flutter_student_app/ios/Pods/
+flutter_student_app/ios/.symlinks/
+flutter_student_app/pubspec.lock
+*.iml
