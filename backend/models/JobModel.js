@@ -60,6 +60,36 @@ const JobSchema = new mongoose.Schema(
         level_name: String,
       },
     ],
+    // Multi-round recruitment
+    has_multiple_rounds: { type: Boolean, default: false },
+    rounds: [
+      {
+        round_number: { type: Number, required: true },
+        round_type: {
+          type: String,
+          enum: [
+            "mcq", "technical_interview", "hr_interview",
+            "coding_test", "group_discussion", "aptitude_test",
+            "video_interview", "assignment", "custom",
+          ],
+          required: true,
+        },
+        round_name: { type: String, required: true },
+        round_description: { type: String, default: "" },
+        is_eliminatory: { type: Boolean, default: true },
+        interview_mode: {
+          type: String,
+          enum: ["video_conference", "in_person", "phone", "none"],
+          default: "none",
+        },
+        duration_minutes: { type: Number, default: 60 },
+        status: {
+          type: String,
+          enum: ["pending", "active", "completed", "cancelled"],
+          default: "pending",
+        },
+      },
+    ],
   },
   { timestamps: true }
 );

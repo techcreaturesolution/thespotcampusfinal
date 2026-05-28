@@ -36,6 +36,9 @@ import PaperRouter from "./routes/PaperRouter.js";
 import ContactRouter from "./routes/ContactRouter.js";
 import PaymentRouter from "./routes/PaymentRouter.js";
 import ExamPaymentRouter from "./routes/ExamPaymentRouter.js";
+import RoundRouter from "./routes/RoundRouter.js";
+import InterviewRouter from "./routes/InterviewRouter.js";
+import RecruitmentSubscriptionRouter from "./routes/RecruitmentSubscriptionRouter.js";
 
 // Middleware
 import errorHandlerMiddleware from "./middleware/errorHandlerMiddleware.js";
@@ -86,8 +89,56 @@ io.on("connection", (socket) => {
     });
   });
 
+  // Video Interview signaling
+  socket.on("join-interview", (data) => {
+    socket.join(`interview-${data.roomId}`);
+    socket.to(`interview-${data.roomId}`).emit("user-joined", {
+      userId: data.userId,
+      userName: data.userName,
+      role: data.role,
+    });
+  });
+
+  socket.on("interview-offer", (data) => {
+    socket.to(`interview-${data.roomId}`).emit("interview-offer", {
+      offer: data.offer,
+      userId: data.userId,
+    });
+  });
+
+  socket.on("interview-answer", (data) => {
+    socket.to(`interview-${data.roomId}`).emit("interview-answer", {
+      answer: data.answer,
+      userId: data.userId,
+    });
+  });
+
+  socket.on("interview-ice-candidate", (data) => {
+    socket.to(`interview-${data.roomId}`).emit("interview-ice-candidate", {
+      candidate: data.candidate,
+      userId: data.userId,
+    });
+  });
+
+  socket.on("interview-chat", (data) => {
+    io.to(`interview-${data.roomId}`).emit("interview-chat", {
+      userId: data.userId,
+      userName: data.userName,
+      message: data.message,
+      timestamp: new Date(),
+    });
+  });
+
+  socket.on("leave-interview", (data) => {
+    socket.to(`interview-${data.roomId}`).emit("user-left", {
+      userId: data.userId,
+      userName: data.userName,
+    });
+    socket.leave(`interview-${data.roomId}`);
+  });
+
   socket.on("disconnect", () => {
-    console.log("Proctoring client disconnected:", socket.id);
+    console.log("Client disconnected:", socket.id);
   });
 });
 
@@ -133,6 +184,9 @@ app.use("/api/v1/order", authenticateUser, PaymentRouter);
 app.use("/api/v1/aiexam", authenticateUser, ExamPaymentRouter);
 app.use("/api/v1/exam", authenticateUser, ExamRouter);
 app.use("/api/v1/paper", authenticateUser, PaperRouter);
+app.use("/api/v1/rounds", authenticateUser, RoundRouter);
+app.use("/api/v1/interviews", authenticateUser, InterviewRouter);
+app.use("/api/v1/recruitment-subscription", authenticateUser, RecruitmentSubscriptionRouter);
 app.use("/api/v1/company", CompanyRouter);
 app.use("/api/v1/application", authenticateUser, ApplicationRouter);
 app.use("/api/v1/college", authenticateUser, CollegeRouter);

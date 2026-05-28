@@ -56,3 +56,39 @@ export const DIFFICULTY_LEVEL = {
   MEDIUM: "medium",
   HARD: "hard",
 };
+
+export const ROUND_TYPE = {
+  MCQ: "mcq",
+  TECHNICAL_INTERVIEW: "technical_interview",
+  HR_INTERVIEW: "hr_interview",
+  CODING_TEST: "coding_test",
+  GROUP_DISCUSSION: "group_discussion",
+  APTITUDE_TEST: "aptitude_test",
+  VIDEO_INTERVIEW: "video_interview",
+  ASSIGNMENT: "assignment",
+  CUSTOM: "custom",
+};
+
+export const ROUND_STATUS = {
+  PENDING: "pending",
+  ACTIVE: "active",
+  COMPLETED: "completed",
+  CANCELLED: "cancelled",
+};
+
+export const CANDIDATE_ROUND_STATUS = {
+  PENDING: "pending",
+  IN_PROGRESS: "in_progress",
+  PASSED: "passed",
+  FAILED: "failed",
+  ABSENT: "absent",
+  ON_HOLD: "on_hold",
+};
+
+export const INTERVIEW_STATUS = {
+  SCHEDULED: "scheduled",
+  IN_PROGRESS: "in_progress",
+  COMPLETED: "completed",
+  CANCELLED: "cancelled",
+  NO_SHOW: "no_show",
+};

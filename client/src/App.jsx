@@ -29,6 +29,12 @@ import OpeningList from "./pages/OpeningList";
 import ApplyList from "./pages/ApplyList";
 import ContactList from "./pages/ContactList";
 import ErrorPage from "./pages/ErrorPage";
+import RoundManagement from "./pages/RoundManagement";
+import VideoInterview from "./pages/VideoInterview";
+import ManageRecruitmentPlans from "./pages/ManageRecruitmentPlans";
+import RecruitmentSubscription from "./pages/RecruitmentSubscription";
+import StudentInterviews from "./pages/StudentInterviews";
+import CompanyInterviews from "./pages/CompanyInterviews";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -80,6 +86,12 @@ const router = createBrowserRouter([
       { path: "apply-list", element: <ApplyList /> },
       { path: "contact-list", element: <ContactList /> },
       { path: "profile", element: <Profile /> },
+      { path: "round-management/:jobId", element: <RoundManagement /> },
+      { path: "video-interview/:roomId", element: <VideoInterview /> },
+      { path: "manage-recruitment-plans", element: <ManageRecruitmentPlans /> },
+      { path: "recruitment-subscription", element: <RecruitmentSubscription /> },
+      { path: "my-interviews", element: <StudentInterviews /> },
+      { path: "company-interviews", element: <CompanyInterviews /> },
     ],
   },
 ]);
