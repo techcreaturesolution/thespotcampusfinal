@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import {
   FiHome, FiBriefcase, FiUsers, FiBookOpen, FiSettings,
   FiLogOut, FiMenu, FiX, FiUser, FiFileText, FiGrid,
-  FiMessageSquare, FiChevronDown,
+  FiMessageSquare, FiChevronDown, FiVideo, FiLayers, FiDollarSign,
 } from "react-icons/fi";
 import customFetch from "../utils/customFetch";
 
@@ -48,17 +48,21 @@ const DashboardLayout = () => {
           { path: "/dashboard/manage-company", icon: <FiBriefcase />, label: "Companies" },
           { path: "/dashboard/manage-student", icon: <FiUsers />, label: "Students" },
           { path: "/dashboard/manage-tpo", icon: <FiUser />, label: "TPOs" },
+          { path: "/dashboard/manage-recruitment-plans", icon: <FiDollarSign />, label: "Recruitment Plans" },
           { path: "/dashboard/contact-list", icon: <FiMessageSquare />, label: "Contacts" },
         ];
       case "Company":
         return [...base,
-          { path: "/dashboard/manage-job", icon: <FiBriefcase />, label: "Jobs & Exams" },
+          { path: "/dashboard/manage-job", icon: <FiBriefcase />, label: "Jobs & Recruitment" },
+          { path: "/dashboard/company-interviews", icon: <FiVideo />, label: "Interviews" },
+          { path: "/dashboard/recruitment-subscription", icon: <FiLayers />, label: "Subscription" },
           { path: "/dashboard/profile", icon: <FiUser />, label: "Profile" },
         ];
       case "Student":
         return [...base,
           { path: "/dashboard/opening-list", icon: <FiBriefcase />, label: "Job Openings" },
           { path: "/dashboard/apply-list", icon: <FiFileText />, label: "My Applications" },
+          { path: "/dashboard/my-interviews", icon: <FiVideo />, label: "My Interviews" },
           { path: "/dashboard/profile", icon: <FiUser />, label: "Profile" },
         ];
       case "College":
