@@ -6,35 +6,42 @@ import {
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ToastContainer } from "react-toastify";
 
-import Landing from "./pages/Landing";
-import SignIn from "./pages/SignIn";
-import SignInAdmin from "./pages/SignInAdmin";
-import SignUpStudent from "./pages/SignUpStudent";
-import SignUpCompany from "./pages/SignUpCompany";
-import DashboardLayout from "./pages/DashboardLayout";
-import Dashboard from "./pages/Dashboard";
-import ManageJob from "./pages/ManageJob";
-import CreateJob from "./pages/CreateJob";
-import CreateExam from "./pages/CreateExam";
-import CreateExamFromJD from "./pages/CreateExamFromJD";
-import ExamPaper from "./pages/ExamPaper";
-import ExamResult from "./pages/ExamResult";
-import ManageCompany from "./pages/ManageCompany";
-import ManageStudent from "./pages/ManageStudent";
-import ManageCollege from "./pages/ManageCollege";
-import ManageUniversity from "./pages/ManageUniversity";
-import ManageTpo from "./pages/ManageTpo";
-import Profile from "./pages/Profile";
-import OpeningList from "./pages/OpeningList";
-import ApplyList from "./pages/ApplyList";
-import ContactList from "./pages/ContactList";
-import ErrorPage from "./pages/ErrorPage";
-import RoundManagement from "./pages/RoundManagement";
-import VideoInterview from "./pages/VideoInterview";
-import ManageRecruitmentPlans from "./pages/ManageRecruitmentPlans";
-import RecruitmentSubscription from "./pages/RecruitmentSubscription";
-import StudentInterviews from "./pages/StudentInterviews";
-import CompanyInterviews from "./pages/CompanyInterviews";
+// Common pages
+import Landing from "./common/pages/Landing";
+import SignIn from "./common/pages/SignIn";
+import DashboardLayout from "./common/pages/DashboardLayout";
+import Dashboard from "./common/pages/Dashboard";
+import Profile from "./common/pages/Profile";
+import VideoInterview from "./common/pages/VideoInterview";
+import ErrorPage from "./common/pages/ErrorPage";
+
+// Admin pages
+import SignInAdmin from "./admin/pages/SignInAdmin";
+import ManageUniversity from "./admin/pages/ManageUniversity";
+import ManageCollege from "./admin/pages/ManageCollege";
+import ManageCompany from "./admin/pages/ManageCompany";
+import ManageStudent from "./admin/pages/ManageStudent";
+import ManageTpo from "./admin/pages/ManageTpo";
+import ManageRecruitmentPlans from "./admin/pages/ManageRecruitmentPlans";
+import ContactList from "./admin/pages/ContactList";
+
+// Student pages
+import SignUpStudent from "./student/pages/SignUpStudent";
+import OpeningList from "./student/pages/OpeningList";
+import ApplyList from "./student/pages/ApplyList";
+import ExamPaper from "./student/pages/ExamPaper";
+import ExamResult from "./student/pages/ExamResult";
+import StudentInterviews from "./student/pages/StudentInterviews";
+
+// Company pages
+import SignUpCompany from "./company/pages/SignUpCompany";
+import ManageJob from "./company/pages/ManageJob";
+import CreateJob from "./company/pages/CreateJob";
+import CreateExam from "./company/pages/CreateExam";
+import CreateExamFromJD from "./company/pages/CreateExamFromJD";
+import CompanyInterviews from "./company/pages/CompanyInterviews";
+import RecruitmentSubscription from "./company/pages/RecruitmentSubscription";
+import RoundManagement from "./company/pages/RoundManagement";
 
 const queryClient = new QueryClient({
   defaultOptions: {

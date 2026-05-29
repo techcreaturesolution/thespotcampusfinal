@@ -16,33 +16,33 @@ import { fileURLToPath } from "url";
 import path from "path";
 
 // Routers
-import JobRouter from "./routes/JobRouter.js";
-import StatsRouter from "./routes/DashboardRouter.js";
-import UniversityRouter from "./routes/UniversityRouter.js";
-import CompanyRouter from "./routes/CompanyRouter.js";
-import ApplicationRouter from "./routes/ApplicationRouter.js";
-import CollegeRouter from "./routes/CollegeRouter.js";
-import BranchRouter from "./routes/BranchRouter.js";
-import DegreeRouter from "./routes/DegreeRouter.js";
-import DegreeMasterRoutes from "./routes/DegreeMasterRoutes.js";
-import StudentRouter from "./routes/StudentRouter.js";
-import TPORouter from "./routes/TPORouter.js";
-import authRouter from "./routes/authRouter.js";
-import LoginRouter from "./routes/LoginRouter.js";
-import userRouter from "./routes/userRouter.js";
-import DropdownRouter from "./routes/DropdownRouter.js";
-import ExamRouter from "./routes/ExamRouter.js";
-import PaperRouter from "./routes/PaperRouter.js";
-import ContactRouter from "./routes/ContactRouter.js";
-import PaymentRouter from "./routes/PaymentRouter.js";
-import ExamPaymentRouter from "./routes/ExamPaymentRouter.js";
-import RoundRouter from "./routes/RoundRouter.js";
-import InterviewRouter from "./routes/InterviewRouter.js";
-import RecruitmentSubscriptionRouter from "./routes/RecruitmentSubscriptionRouter.js";
+import JobRouter from "./src/modules/job/job.route.js";
+import StatsRouter from "./src/modules/dashboard/dashboard.route.js";
+import UniversityRouter from "./src/modules/university/university.route.js";
+import CompanyRouter from "./src/modules/company/company.route.js";
+import ApplicationRouter from "./src/modules/application/application.route.js";
+import CollegeRouter from "./src/modules/college/college.route.js";
+import BranchRouter from "./src/modules/branch/branch.route.js";
+import DegreeRouter from "./src/modules/degree/degree.route.js";
+import DegreeMasterRoutes from "./src/modules/degree/degreemaster.route.js";
+import StudentRouter from "./src/modules/student/student.route.js";
+import TPORouter from "./src/modules/tpo/tpo.route.js";
+import authRouter from "./src/modules/auth/auth.route.js";
+import LoginRouter from "./src/modules/auth/login.route.js";
+import userRouter from "./src/modules/auth/user.route.js";
+import DropdownRouter from "./src/modules/dropdown/dropdown.route.js";
+import ExamRouter from "./src/modules/exam/exam.route.js";
+import PaperRouter from "./src/modules/exam/paper.route.js";
+import ContactRouter from "./src/modules/contact/contact.route.js";
+import PaymentRouter from "./src/modules/subscription/payment.route.js";
+import ExamPaymentRouter from "./src/modules/subscription/exampayment.route.js";
+import RoundRouter from "./src/modules/interview/round.route.js";
+import InterviewRouter from "./src/modules/interview/interview.route.js";
+import RecruitmentSubscriptionRouter from "./src/modules/subscription/subscription.route.js";
 
 // Middleware
-import errorHandlerMiddleware from "./middleware/errorHandlerMiddleware.js";
-import { authenticateUser } from "./middleware/authMiddleware.js";
+import errorHandlerMiddleware from "./src/middleware/errorHandlerMiddleware.js";
+import { authenticateUser } from "./src/middleware/authMiddleware.js";
 
 const app = express();
 const server = http.createServer(app);
