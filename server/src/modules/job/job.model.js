@@ -7,8 +7,12 @@ const JobSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "tbl_company",
     },
-    job_title: String,
-    job_position: String,
+    job_title: {
+      type: String,
+    },
+    job_position: {
+      type: String,
+    },
     job_type: {
       type: String,
       enum: Object.values(JOB_TYPE),
@@ -24,12 +28,24 @@ const JobSchema = new mongoose.Schema(
       state: { type: String },
       city: { type: String },
     },
-    job_skills: String,
-    job_reg_end_date: String,
-    job_salary: String,
-    job_exp: String,
-    job_noofposition: String,
-    job_desc: String,
+    job_skills: {
+      type: String,
+    },
+    job_reg_end_date: {
+      type: String,
+    },
+    job_salary: {
+      type: String,
+    },
+    job_exp: {
+      type: String,
+    },
+    job_noofposition: {
+      type: String,
+    },
+    job_desc: {
+      type: String,
+    },
     job_status: {
       type: String,
       default: STATUS.ACTIVE,
@@ -68,9 +84,15 @@ const JobSchema = new mongoose.Schema(
         round_type: {
           type: String,
           enum: [
-            "mcq", "technical_interview", "hr_interview",
-            "coding_test", "group_discussion", "aptitude_test",
-            "video_interview", "assignment", "custom",
+            "mcq",
+            "technical_interview",
+            "hr_interview",
+            "coding_test",
+            "group_discussion",
+            "aptitude_test",
+            "video_interview",
+            "assignment",
+            "custom",
           ],
           required: true,
         },
@@ -91,7 +113,7 @@ const JobSchema = new mongoose.Schema(
       },
     ],
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export default mongoose.model("tbl_jobpost", JobSchema);

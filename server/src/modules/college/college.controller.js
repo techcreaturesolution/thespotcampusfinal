@@ -81,3 +81,21 @@ export const deleteCollege = async (req, res) => {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
   }
 };
+
+export const updateStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.params;
+
+    const updatedCollege = await tbl_college.findByIdAndUpdate(
+      id,
+      { college_verified: status },
+      { new: true }
+    );
+    if (!updatedCollege) throw new NotFoundError(`No college with id: ${id}`);
+
+    res.status(StatusCodes.OK).json({ msg: "College status modified", college: updatedCollege });
+  } catch (error) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
+  }
+};

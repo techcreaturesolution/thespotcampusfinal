@@ -12,7 +12,7 @@ const DegreeMasterSchema = new mongoose.Schema(
     total_semesters: { type: Number, required: true },
     branches: { type: [BranchSubSchema], default: [] },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export default mongoose.model("tbl_degree_master", DegreeMasterSchema);

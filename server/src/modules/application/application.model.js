@@ -11,8 +11,12 @@ const ApplicationSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "tbl_jobpost",
     },
-    company_reason: String,
-    student_reason: String,
+    company_reason: {
+      type: String,
+    },
+    student_reason: {
+      type: String,
+    },
     application_current_status: {
       type: String,
       default: STATUS.DEACTIVE,
@@ -30,7 +34,13 @@ const ApplicationSchema = new mongoose.Schema(
     total_rounds: { type: Number, default: 0 },
     round_status: {
       type: String,
-      enum: ["not_started", "in_progress", "all_cleared", "eliminated", "withdrawn"],
+      enum: [
+        "not_started",
+        "in_progress",
+        "all_cleared",
+        "eliminated",
+        "withdrawn",
+      ],
       default: "not_started",
     },
     final_result: {
@@ -39,7 +49,7 @@ const ApplicationSchema = new mongoose.Schema(
       default: "pending",
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export default mongoose.model("tbl_application", ApplicationSchema);

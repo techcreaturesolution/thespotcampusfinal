@@ -102,18 +102,18 @@ export const createJob = async (req, res) => {
 
     const jobcollegeData = req.body.jobEntries
       ? req.body.jobEntries.map((entry) => ({
-          job_university_id: entry.job_university_id,
-          job_college_id: entry.job_college_id,
-          job_degree_id: entry.job_degree_id,
-          job_branch_id: entry.job_branch_id,
-        }))
+        job_university_id: entry.job_university_id,
+        job_college_id: entry.job_college_id,
+        job_degree_id: entry.job_degree_id,
+        job_branch_id: entry.job_branch_id,
+      }))
       : [];
 
     const joblevelData = req.body.joblevel
       ? req.body.joblevel.map((level) => ({
-          level_type: level.level_type,
-          level_name: level.level_name,
-        }))
+        level_type: level.level_type,
+        level_name: level.level_name,
+      }))
       : [];
 
     const job = await tbl_jobpost.create({
@@ -149,6 +149,16 @@ export const getJob = async (req, res) => {
 export const updateJob = async (req, res) => {
   try {
     const { id } = req.params;
+    
+    if (req.body.jobEntries) {
+      req.body.job_college = req.body.jobEntries.map((entry) => ({
+        job_university_id: entry.job_university_id,
+        job_college_id: entry.job_college_id,
+        job_degree_id: entry.job_degree_id,
+        job_branch_id: entry.job_branch_id,
+      }));
+    }
+
     const updatedJob = await tbl_jobpost.findByIdAndUpdate(id, req.body, { new: true });
     if (!updatedJob) throw new NotFoundError(`No job with id: ${id}`);
     res.status(StatusCodes.OK).json({ msg: "Job modified", job: updatedJob });

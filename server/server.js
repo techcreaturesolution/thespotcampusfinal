@@ -1,6 +1,11 @@
 import "express-async-errors";
 import * as dotenv from "dotenv";
 dotenv.config();
+import dns from "dns";
+
+// Set DNS servers to Google's public DNS to bypass ISP/IPv6 DNS resolution bugs with MongoDB SRV records
+dns.setServers(["8.8.8.8", "8.8.4.4"]);
+
 import express from "express";
 import http from "http";
 import { Server } from "socket.io";
@@ -170,36 +175,36 @@ app.use(cookieParser());
 app.use(express.json({ limit: "10mb" }));
 
 // Health check
-app.get("/api/v1/test", (req, res) => {
+app.get("/api/test", (req, res) => {
   res.json({ message: "The Spot Campus Final API v2.0 - Running" });
 });
 
 // Routes
-app.use("/api/v1/jobs", authenticateUser, JobRouter);
-app.use("/api/v1/stats", authenticateUser, StatsRouter);
-app.use("/api/v1/contact", ContactRouter);
-app.use("/api/v1/university", UniversityRouter);
-app.use("/api/v1/dropdown", DropdownRouter);
-app.use("/api/v1/order", authenticateUser, PaymentRouter);
-app.use("/api/v1/aiexam", authenticateUser, ExamPaymentRouter);
-app.use("/api/v1/exam", authenticateUser, ExamRouter);
-app.use("/api/v1/paper", authenticateUser, PaperRouter);
-app.use("/api/v1/rounds", authenticateUser, RoundRouter);
-app.use("/api/v1/interviews", authenticateUser, InterviewRouter);
-app.use("/api/v1/recruitment-subscription", authenticateUser, RecruitmentSubscriptionRouter);
-app.use("/api/v1/company", CompanyRouter);
-app.use("/api/v1/application", authenticateUser, ApplicationRouter);
-app.use("/api/v1/college", authenticateUser, CollegeRouter);
-app.use("/api/v1/branch", authenticateUser, BranchRouter);
-app.use("/api/v1/degree", authenticateUser, DegreeRouter);
-app.use("/api/v1/degreeMaster", DegreeMasterRoutes);
-app.use("/api/v1/student", authenticateUser, StudentRouter);
-app.use("/api/v1/register", StudentRouter);
-app.use("/api/v1/tpo", authenticateUser, TPORouter);
-app.use("/api/v1/auth", authRouter);
-app.use("/api/v1/login", LoginRouter);
-app.use("/api/v1/logout", LoginRouter);
-app.use("/api/v1/users", authenticateUser, userRouter);
+app.use("/api/jobs", authenticateUser, JobRouter);
+app.use("/api/stats", authenticateUser, StatsRouter);
+app.use("/api/contact", ContactRouter);
+app.use("/api/university", UniversityRouter);
+app.use("/api/dropdown", DropdownRouter);
+app.use("/api/order", authenticateUser, PaymentRouter);
+app.use("/api/aiexam", authenticateUser, ExamPaymentRouter);
+app.use("/api/exam", authenticateUser, ExamRouter);
+app.use("/api/paper", authenticateUser, PaperRouter);
+app.use("/api/rounds", authenticateUser, RoundRouter);
+app.use("/api/interviews", authenticateUser, InterviewRouter);
+app.use("/api/recruitment-subscription", authenticateUser, RecruitmentSubscriptionRouter);
+app.use("/api/company", CompanyRouter);
+app.use("/api/application", authenticateUser, ApplicationRouter);
+app.use("/api/college", CollegeRouter);
+app.use("/api/branch", authenticateUser, BranchRouter);
+app.use("/api/degree", authenticateUser, DegreeRouter);
+app.use("/api/degreeMaster", DegreeMasterRoutes);
+app.use("/api/student", authenticateUser, StudentRouter);
+app.use("/api/register", StudentRouter);
+app.use("/api/tpo", authenticateUser, TPORouter);
+app.use("/api/auth", authRouter);
+app.use("/api/login", LoginRouter);
+app.use("/api/logout", LoginRouter);
+app.use("/api/users", authenticateUser, userRouter);
 
 // SPA fallback
 app.get("*", (req, res) => {

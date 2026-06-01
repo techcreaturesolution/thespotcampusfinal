@@ -308,10 +308,10 @@ const VideoInterview = () => {
               </div>
               <div className="p-3 border-t border-gray-100">
                 <div className="flex gap-2">
-                  <input type="text" className="input-field text-sm flex-1" value={messageInput}
+                  <input type="text" className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all duration-200 text-sm flex-1" value={messageInput}
                     onChange={(e) => setMessageInput(e.target.value)} placeholder="Type a message..."
                     onKeyDown={(e) => e.key === "Enter" && sendMessage()} />
-                  <button onClick={sendMessage} className="btn-primary p-2"><FiSend className="w-4 h-4" /></button>
+                  <button onClick={sendMessage} className="bg-primary-600 hover:bg-primary-700 text-white font-medium py-2.5 px-5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md p-2"><FiSend className="w-4 h-4" /></button>
                 </div>
               </div>
             </div>
@@ -378,14 +378,14 @@ const VideoInterview = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
-                <textarea rows="3" className="input-field" value={evaluation.notes}
+                <textarea rows="3" className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all duration-200" value={evaluation.notes}
                   onChange={(e) => setEvaluation({ ...evaluation, notes: e.target.value })}
                   placeholder="Interview notes and observations..." />
               </div>
             </div>
             <div className="flex justify-end gap-3 mt-6">
-              <button onClick={() => { cleanup(); navigate(-1); }} className="btn-secondary">Skip & End</button>
-              <button onClick={submitEvaluation} className="btn-primary flex items-center gap-1">
+              <button onClick={() => { cleanup(); navigate(-1); }} className="bg-white hover:bg-gray-50 text-gray-700 font-medium py-2.5 px-5 rounded-lg border border-gray-300 transition-all duration-200">Skip & End</button>
+              <button onClick={submitEvaluation} className="bg-primary-600 hover:bg-primary-700 text-white font-medium py-2.5 px-5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md flex items-center gap-1">
                 <FiCheck className="w-4 h-4" /> Submit Evaluation
               </button>
             </div>

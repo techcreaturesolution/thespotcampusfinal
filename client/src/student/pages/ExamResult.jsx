@@ -29,7 +29,7 @@ const ExamResult = () => {
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Exam Results</h1>
       <div className="space-y-4">
         {papers.map((paper) => (
-          <div key={paper._id} className="card">
+          <div key={paper._id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
@@ -55,7 +55,15 @@ const ExamResult = () => {
                   <p className="text-lg font-bold text-amber-600">{paper.proctoring?.totalViolations || 0}</p>
                   <p className="text-xs text-gray-500">Violations</p>
                 </div>
-                <span className={`badge ${paper.status === "submitted" ? "badge-success" : paper.status === "auto_submitted" ? "badge-danger" : "badge-warning"}`}>
+                <span
+                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                    paper.status === "submitted"
+                      ? "bg-emerald-100 text-emerald-800"
+                      : paper.status === "auto_submitted"
+                      ? "bg-red-100 text-red-800"
+                      : "bg-amber-100 text-amber-800"
+                  }`}
+                >
                   {paper.status}
                 </span>
               </div>

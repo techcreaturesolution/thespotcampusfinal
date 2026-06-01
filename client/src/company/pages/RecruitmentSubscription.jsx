@@ -6,6 +6,8 @@ import {
   FiClock, FiZap, FiShield, FiArrowLeft,
 } from "react-icons/fi";
 import customFetch from "../../utils/customFetch";
+import Loading from "../../common/components/Loading";
+import PageHeader from "../../common/components/PageHeader";
 
 const RecruitmentSubscription = () => {
   const navigate = useNavigate();
@@ -78,25 +80,28 @@ const RecruitmentSubscription = () => {
     }
   };
 
-  if (loading) {
-    return <div className="flex justify-center py-20"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600" /></div>;
-  }
+  if (loading) return <Loading />;
 
   return (
     <div>
-      <div className="flex items-center gap-3 mb-6">
-        <button onClick={() => navigate(-1)} className="p-2 hover:bg-gray-100 rounded-lg">
-          <FiArrowLeft className="w-5 h-5" />
-        </button>
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Recruitment Subscription</h1>
-          <p className="text-gray-500">Unlock multi-round recruitment & video interview features</p>
-        </div>
-      </div>
+      <PageHeader
+        icon={FiLayers}
+        title="Recruitment Subscription"
+        subtitle="Unlock multi-round recruitment and video interview features."
+        action={
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            className="bg-white hover:bg-gray-50 text-gray-700 font-medium py-2.5 px-4 rounded-lg border border-gray-300 transition-all duration-200 flex items-center gap-2 text-sm"
+          >
+            <FiArrowLeft className="w-4 h-4" /> Back
+          </button>
+        }
+      />
 
       {/* Current Subscription */}
       {currentSub && (
-        <div className="card mb-6 border-2 border-green-200 bg-green-50">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6 border-2 border-green-200 bg-green-50">
           <div className="flex items-center justify-between">
             <div>
               <div className="flex items-center gap-2 mb-1">
@@ -122,7 +127,7 @@ const RecruitmentSubscription = () => {
       <div className="grid md:grid-cols-3 gap-6 mb-8">
         {plans.map((plan, idx) => (
           <div key={plan._id}
-            className={`card relative overflow-hidden border-2 transition-all hover:shadow-lg ${
+            className={`bg-white rounded-xl shadow-sm border border-gray-200 p-6 relative overflow-hidden border-2 transition-all hover:shadow-lg ${
               idx === 1 ? "border-primary-400 ring-2 ring-primary-100" : "border-gray-200"
             }`}>
             {idx === 1 && (
@@ -183,7 +188,7 @@ const RecruitmentSubscription = () => {
           </div>
         ))}
         {plans.length === 0 && (
-          <div className="col-span-3 text-center py-12 text-gray-400 card">
+          <div className="col-span-3 text-center py-12 text-gray-400 bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <FiLayers className="w-10 h-10 mx-auto mb-3" />
             <p>No subscription plans available yet.</p>
             <p className="text-sm mt-1">Contact admin to set up recruitment plans.</p>
@@ -193,7 +198,7 @@ const RecruitmentSubscription = () => {
 
       {/* History */}
       {subscriptions.length > 0 && (
-        <div className="card">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <h2 className="text-lg font-semibold text-gray-800 mb-4">Subscription History</h2>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">

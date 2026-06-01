@@ -6,6 +6,8 @@ import {
   FiX, FiPlay, FiStar,
 } from "react-icons/fi";
 import customFetch from "../../utils/customFetch";
+import Loading from "../../common/components/Loading";
+import PageHeader from "../../common/components/PageHeader";
 
 const STATUS_STYLES = {
   scheduled: "bg-blue-100 text-blue-700",
@@ -48,32 +50,36 @@ const CompanyInterviews = () => {
 
   const filtered = filter === "all" ? interviews : interviews.filter((i) => i.status === filter);
 
-  if (loading) {
-    return <div className="flex justify-center py-20"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600" /></div>;
-  }
+  if (loading) return <Loading />;
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Interviews</h1>
-          <p className="text-gray-500 mt-1">{interviews.length} total interviews</p>
-        </div>
-        <div className="flex items-center gap-2">
-          {["all", "scheduled", "in_progress", "completed", "cancelled"].map((f) => (
-            <button key={f} onClick={() => setFilter(f)}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                filter === f ? "bg-primary-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-              }`}>
-              {f === "all" ? "All" : f.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase())}
-            </button>
-          ))}
-        </div>
-      </div>
+      <PageHeader
+        icon={FiVideo}
+        title="Interviews"
+        subtitle="Schedule, conduct, and review video interviews with candidates."
+        badge={`${interviews.length} total`}
+        action={
+          <div className="flex flex-wrap items-center gap-2">
+            {["all", "scheduled", "in_progress", "completed", "cancelled"].map((f) => (
+              <button
+                key={f}
+                type="button"
+                onClick={() => setFilter(f)}
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                  filter === f ? "bg-primary-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                }`}
+              >
+                {f === "all" ? "All" : f.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase())}
+              </button>
+            ))}
+          </div>
+        }
+      />
 
       <div className="space-y-3">
         {filtered.map((interview) => (
-          <div key={interview._id} className="card hover:shadow-md transition-shadow">
+          <div key={interview._id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
@@ -111,11 +117,11 @@ const CompanyInterviews = () => {
                 {(interview.status === "scheduled" || interview.status === "in_progress") && (
                   <>
                     <Link to={`/dashboard/video-interview/${interview.room_id}`}
-                      className="btn-primary text-sm flex items-center gap-1">
+                      className="bg-primary-600 hover:bg-primary-700 text-white font-medium py-2.5 px-5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md text-sm flex items-center gap-1">
                       <FiVideo className="w-3.5 h-3.5" /> {interview.status === "in_progress" ? "Rejoin" : "Start"}
                     </Link>
                     <button onClick={() => handleCancel(interview._id)}
-                      className="btn-danger text-sm flex items-center gap-1">
+                      className="bg-red-600 hover:bg-red-700 text-white font-medium py-2.5 px-5 rounded-lg transition-all duration-200 text-sm flex items-center gap-1">
                       <FiX className="w-3.5 h-3.5" /> Cancel
                     </button>
                   </>
@@ -126,8 +132,8 @@ const CompanyInterviews = () => {
         ))}
 
         {filtered.length === 0 && (
-          <div className="text-center py-16 text-gray-400">
-            <FiVideo className="w-10 h-10 mx-auto mb-3" />
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col items-center justify-center py-16 text-gray-500 text-sm">
+            <FiVideo className="w-10 h-10 text-gray-300 mb-3" />
             <p>No {filter !== "all" ? filter.replace("_", " ") : ""} interviews found</p>
           </div>
         )}

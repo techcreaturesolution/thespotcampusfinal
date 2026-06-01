@@ -25,18 +25,18 @@ const ApplyList = () => {
       <h1 className="text-2xl font-bold text-gray-900 mb-6">My Applications</h1>
       <div className="space-y-4">
         {applications.map((app) => (
-          <div key={app._id} className="card">
+          <div key={app._id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="font-semibold text-gray-900">{app.job_id?.job_title || "Job"}</h3>
                 <p className="text-sm text-gray-500">{app.job_id?.job_position}</p>
               </div>
               <div className="flex items-center gap-3">
-                <span className={app.status === "Selected" ? "badge-success" : app.status === "Rejected" ? "badge-danger" : "badge-warning"}>
+                <span className={app.status === "Selected" ? "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800" : app.status === "Rejected" ? "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800" : "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800"}>
                   {app.status || "Applied"}
                 </span>
                 {app.job_id && (
-                  <Link to={`/dashboard/exam-paper/${app.job_id._id}`} className="btn-primary text-sm flex items-center gap-1">
+                  <Link to={`/dashboard/exam-paper/${app.job_id._id}`} className="bg-primary-600 hover:bg-primary-700 text-white font-medium py-2.5 px-5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md text-sm flex items-center gap-1">
                     <FiFileText className="w-3.5 h-3.5" /> Take Exam
                   </Link>
                 )}

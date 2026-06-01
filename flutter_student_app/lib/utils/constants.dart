@@ -1,6 +1,6 @@
 class AppConstants {
   static const String appName = 'The Spot Campus';
-  static const String baseUrl = 'http://localhost:5000/api/v1';
+  static const String baseUrl = 'http://localhost:5000/api';
   static const String tokenKey = 'auth_token';
   static const String roleKey = 'user_role';
   static const String userIdKey = 'user_id';

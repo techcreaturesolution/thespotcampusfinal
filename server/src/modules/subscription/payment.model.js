@@ -20,7 +20,7 @@ const paymentSchema = new mongoose.Schema(
     paymentId: { type: String },
     signature: { type: String },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export default mongoose.model("tbl_payment", paymentSchema);

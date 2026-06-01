@@ -449,7 +449,7 @@ const ExamPaper = () => {
 
           <button
             onClick={startExam}
-            className="btn-primary w-full text-lg py-3 flex items-center justify-center gap-2"
+            className="bg-primary-600 hover:bg-primary-700 text-white font-medium py-2.5 px-5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md w-full text-lg py-3 flex items-center justify-center gap-2"
           >
             <FiShield className="w-5 h-5" /> Start Exam
           </button>
@@ -462,7 +462,7 @@ const ExamPaper = () => {
   const progress = (timeLeft / (exam.timeLimit * 60)) * 100;
 
   return (
-    <div className={`min-h-screen bg-gray-50 no-select ${exam.proctoring?.fullScreenRequired ? "exam-fullscreen" : ""}`}>
+    <div className={`min-h-screen bg-gray-50 select-none ${exam.proctoring?.fullScreenRequired ? "fixed inset-0 w-screen h-screen z-[9999] bg-white overflow-y-auto" : ""}`}>
       {/* Violation Warning Overlay */}
       {showViolationWarning && (
         <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-[10000]">
@@ -539,7 +539,7 @@ const ExamPaper = () => {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Question */}
           <div className="lg:col-span-3">
-            <div className="card">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
               <div className="mb-6">
                 <div className="flex items-center gap-2 mb-3">
                   <span className="bg-primary-100 text-primary-700 text-xs font-medium px-2.5 py-1 rounded-full">
@@ -608,7 +608,7 @@ const ExamPaper = () => {
                 <button
                   onClick={() => setCurrentQuestionIndex((prev) => Math.max(0, prev - 1))}
                   disabled={currentQuestionIndex === 0}
-                  className="btn-secondary flex items-center gap-2 disabled:opacity-50"
+                  className="bg-white hover:bg-gray-50 text-gray-700 font-medium py-2.5 px-5 rounded-lg border border-gray-300 transition-all duration-200 flex items-center gap-2 disabled:opacity-50"
                 >
                   <FiChevronLeft /> Previous
                 </button>
@@ -616,7 +616,7 @@ const ExamPaper = () => {
                 {currentQuestionIndex === exam.questions.length - 1 ? (
                   <button
                     onClick={handleSubmit}
-                    className="btn-primary flex items-center gap-2"
+                    className="bg-primary-600 hover:bg-primary-700 text-white font-medium py-2.5 px-5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md flex items-center gap-2"
                   >
                     <FiSend /> Submit Exam
                   </button>
@@ -627,7 +627,7 @@ const ExamPaper = () => {
                         Math.min(exam.questions.length - 1, prev + 1)
                       )
                     }
-                    className="btn-primary flex items-center gap-2"
+                    className="bg-primary-600 hover:bg-primary-700 text-white font-medium py-2.5 px-5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md flex items-center gap-2"
                   >
                     Next <FiChevronRight />
                   </button>
@@ -640,7 +640,7 @@ const ExamPaper = () => {
           <div className="space-y-4">
             {/* Camera preview */}
             {exam.proctoring?.cameraEnabled && (
-              <div className="card p-3">
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 p-3">
                 <div className="flex items-center gap-2 mb-2">
                   <FiCamera className="w-4 h-4 text-gray-600" />
                   <span className="text-xs font-medium text-gray-600">Camera</span>
@@ -659,7 +659,7 @@ const ExamPaper = () => {
             )}
 
             {/* Question palette */}
-            <div className="card p-3">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 p-3">
               <h4 className="text-xs font-medium text-gray-600 mb-3">Questions</h4>
               <div className="grid grid-cols-5 gap-1.5">
                 {exam.questions.map((q, i) => (

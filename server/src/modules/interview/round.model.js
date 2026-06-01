@@ -40,9 +40,12 @@ const CandidateRoundSchema = new mongoose.Schema(
     started_at: { type: Date },
     completed_at: { type: Date },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-CandidateRoundSchema.index({ job_id: 1, student_id: 1, round_number: 1 }, { unique: true });
+CandidateRoundSchema.index(
+  { job_id: 1, student_id: 1, round_number: 1 },
+  { unique: true },
+);
 
 export default mongoose.model("tbl_candidate_round", CandidateRoundSchema);

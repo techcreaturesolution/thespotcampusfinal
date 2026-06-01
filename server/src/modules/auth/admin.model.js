@@ -2,15 +2,27 @@ import mongoose from "mongoose";
 
 const AdminSchema = new mongoose.Schema(
   {
-    admin_name: String,
-    admin_email: String,
-    admin_password: String,
+    admin_name: {
+      type: String,
+    },
+    admin_email: {
+      type: String,
+    },
+    admin_password: {
+      type: String,
+    },
+    admin_image: {
+      type: String,
+    },
+    admin_imagePublicID: {
+      type: String,
+    },
     role: {
       type: String,
       default: "Admin",
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 AdminSchema.methods.toJSON = function () {

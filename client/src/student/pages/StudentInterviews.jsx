@@ -52,7 +52,7 @@ const StudentInterviews = () => {
 
       <div className="space-y-4">
         {interviews.map((interview) => (
-          <div key={interview._id} className="card hover:shadow-md transition-shadow">
+          <div key={interview._id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
@@ -87,7 +87,7 @@ const StudentInterviews = () => {
               <div className="flex items-center gap-2">
                 {isJoinable(interview) && interview.interview_mode === "video_conference" && (
                   <Link to={`/dashboard/video-interview/${interview.room_id}`}
-                    className="btn-primary flex items-center gap-2">
+                    className="bg-primary-600 hover:bg-primary-700 text-white font-medium py-2.5 px-5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md flex items-center gap-2">
                     <FiVideo className="w-4 h-4" /> Join Interview
                   </Link>
                 )}

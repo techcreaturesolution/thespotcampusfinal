@@ -10,8 +10,8 @@ async function seedMasterAdmin() {
     await mongoose.connect(process.env.MONGO_URL);
     console.log("Connected successfully!");
 
-    const adminEmail = process.env.ADMIN_EMAIL || "admin@thespotcampus.com";
-    const adminPassword = process.env.ADMIN_PASSWORD || "admin123";
+    const adminEmail = process.env.ADMIN_EMAIL;
+    const adminPassword = process.env.ADMIN_PASSWORD;
     const existingAdmin = await tbl_admin.findOne({ admin_email: adminEmail });
 
     if (existingAdmin) {
@@ -26,12 +26,6 @@ async function seedMasterAdmin() {
         admin_password: hashedPassword,
         role: "Admin"
       });
-
-      console.log("-----------------------------------------");
-      console.log("Master Admin created successfully!");
-      console.log(`Email:    ${adminEmail}`);
-      console.log(`Password: ${adminPassword}`);
-      console.log("-----------------------------------------");
     }
   } catch (error) {
     console.error("Error seeding master admin:", error);

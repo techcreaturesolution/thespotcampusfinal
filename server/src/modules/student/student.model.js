@@ -19,28 +19,52 @@ const StudentSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "tbl_branch",
     },
-    student_enrollment: String,
-    student_name: String,
-    student_email: String,
-    student_contact: String,
-    student_current_sem: String,
-    student_total_backlog: String,
-    student_skills: String,
-    student_last_marksheet: String,
-    student_last_marksheetPublicID: String,
-    student_image: String,
-    student_imagePublicID: String,
+    student_enrollment: {
+      type: String,
+    },
+    student_name: {
+      type: String,
+    },
+    student_email: {
+      type: String,
+    },
+    student_contact: {
+      type: String,
+    },
+    student_current_sem: {
+      type: String,
+    },
+    student_total_backlog: {
+      type: String,
+    },
+    student_skills: {
+      type: String,
+    },
+    student_last_marksheet: {
+      type: String,
+    },
+    student_last_marksheetPublicID: {
+      type: String,
+    },
+    student_image: {
+      type: String,
+    },
+    student_imagePublicID: {
+      type: String,
+    },
     student_status: {
       type: String,
       default: STATUS.DEACTIVE,
     },
-    student_password: String,
+    student_password: {
+      type: String,
+    },
     role: {
       type: String,
       default: "Student",
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 StudentSchema.methods.toJSON = function () {

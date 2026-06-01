@@ -8,7 +8,7 @@ const ErrorPage = () => {
       <div className="text-center">
         <h1 className="text-6xl font-bold text-gray-900 mb-4">{error?.status || "Error"}</h1>
         <p className="text-xl text-gray-600 mb-8">{error?.statusText || "Something went wrong"}</p>
-        <Link to="/" className="btn-primary">Go Home</Link>
+        <Link to="/" className="bg-primary-600 hover:bg-primary-700 text-white font-medium py-2.5 px-5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md">Go Home</Link>
       </div>
     </div>
   );

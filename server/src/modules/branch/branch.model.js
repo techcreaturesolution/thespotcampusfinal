@@ -10,10 +10,14 @@ const BranchSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "tbl_college",
     },
-    branch_code: String,
-    branch_name: String,
+    branch_code: {
+      type: String,
+    },
+    branch_name: {
+      type: String,
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export default mongoose.model("tbl_branch", BranchSchema);

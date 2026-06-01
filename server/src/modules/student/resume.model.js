@@ -6,18 +6,38 @@ const ResumeSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "tbl_student",
     },
-    punch_line: String,
-    linkedin: String,
-    github: String,
-    education: String,
-    skills: String,
-    experience: String,
-    projects: String,
-    certificates: String,
-    languages: String,
-    interests: String,
+    punch_line: {
+      type: String,
+    },
+    linkedin: {
+      type: String,
+    },
+    github: {
+      type: String,
+    },
+    education: {
+      type: String,
+    },
+    skills: {
+      type: String,
+    },
+    experience: {
+      type: String,
+    },
+    projects: {
+      type: String,
+    },
+    certificates: {
+      type: String,
+    },
+    languages: {
+      type: String,
+    },
+    interests: {
+      type: String,
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export default mongoose.model("tbl_resume", ResumeSchema);

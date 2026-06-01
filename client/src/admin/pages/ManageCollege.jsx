@@ -1,21 +1,140 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
-import { FiTrash2, FiBookOpen } from "react-icons/fi";
+import { FiTrash2, FiBookOpen, FiCheck, FiX } from "react-icons/fi";
 import customFetch from "../../utils/customFetch";
+import Loading from "../../common/components/Loading";
+import PageHeader from "../../common/components/PageHeader";
+import DataTable from "../../common/components/DataTable";
+import IconButton from "../../common/components/IconButton";
+
+const getStatusText = (status) => {
+  if (status === "0" || !status) return "Pending";
+  return status;
+};
+
+const statusBadge = (status) => {
+  const text = getStatusText(status);
+  if (text === "Approved") return "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800";
+  if (text === "Rejected") return "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800";
+  return "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800";
+};
 
 const ManageCollege = () => {
   const [colleges, setColleges] = useState([]);
   const [loading, setLoading] = useState(true);
-  const fetchData = async () => { try { const { data } = await customFetch.get("/college"); setColleges(data.colleges || []); } catch {} finally { setLoading(false); } };
-  useEffect(() => { fetchData(); }, []);
-  const handleDelete = async (id) => { if (!window.confirm("Delete?")) return; try { await customFetch.delete(`/college/${id}`); toast.success("Deleted"); fetchData(); } catch { toast.error("Failed"); } };
-  if (loading) return <div className="flex justify-center py-20"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600" /></div>;
+
+  const fetchData = async () => {
+    try {
+      const { data } = await customFetch.get("/college");
+      setColleges(data.colleges || []);
+    } catch {
+      setColleges([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const handleStatus = async (id, status) => {
+    try {
+      await customFetch.patch(`/college/${id}/status/${status}`);
+      toast.success(`College ${status.toLowerCase()}`);
+      fetchData();
+    } catch {
+      toast.error("Failed to update status");
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Delete this college?")) return;
+    try {
+      await customFetch.delete(`/college/${id}`);
+      toast.success("College deleted");
+      fetchData();
+    } catch {
+      toast.error("Failed to delete");
+    }
+  };
+
+  const pendingCount = colleges.filter((c) => getStatusText(c.college_verified) === "Pending").length;
+
+  if (loading) return <Loading />;
+
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Manage Colleges</h1>
-      <div className="overflow-x-auto"><table className="w-full"><thead><tr className="bg-gray-50 text-left text-sm text-gray-600"><th className="px-4 py-3">College</th><th className="px-4 py-3">University</th><th className="px-4 py-3">Email</th><th className="px-4 py-3">Actions</th></tr></thead>
-      <tbody className="divide-y">{colleges.map((c) => (<tr key={c._id} className="hover:bg-gray-50"><td className="px-4 py-3 font-medium">{c.college_name}</td><td className="px-4 py-3 text-sm text-gray-600">{c.college_university_id?.university_name || "-"}</td><td className="px-4 py-3 text-sm text-gray-600">{c.college_email}</td><td className="px-4 py-3"><button onClick={() => handleDelete(c._id)} className="p-1.5 text-red-600 hover:bg-red-50 rounded"><FiTrash2 /></button></td></tr>))}</tbody></table>
-      {colleges.length === 0 && <div className="text-center py-10 text-gray-400"><p>No colleges found</p></div>}</div>
+      <PageHeader
+        icon={FiBookOpen}
+        title="Colleges"
+        subtitle="View and manage college accounts linked to universities."
+        badge={pendingCount > 0 ? `${pendingCount} pending` : `${colleges.length} total`}
+        action={
+          <Link
+            to="/sign-up-college"
+            state={{ fromAdmin: true }}
+            className="bg-primary-600 hover:bg-primary-700 text-white font-medium py-2.5 px-5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md inline-flex items-center gap-2 text-sm"
+          >
+            Add College
+          </Link>
+        }
+      />
+      <DataTable
+        data={colleges}
+        searchKeys={["college_name", "college_email", "college_university_id.university_name"]}
+        searchPlaceholder="Search colleges…"
+        emptyMessage="No colleges found"
+        columns={[
+          {
+            key: "name",
+            label: "College",
+            render: (c) => <span className="font-semibold text-slate-900">{c.college_name}</span>,
+          },
+          {
+            key: "university",
+            label: "University",
+            render: (c) => c.college_university_id?.university_name || "—",
+          },
+          {
+            key: "email",
+            label: "Email",
+            render: (c) => c.college_email,
+          },
+          {
+            key: "status",
+            label: "Status",
+            render: (c) => (
+              <span className={statusBadge(c.college_verified)}>
+                {getStatusText(c.college_verified)}
+              </span>
+            ),
+          },
+          {
+            key: "actions",
+            label: "Actions",
+            className: "w-36",
+            render: (c) => (
+              <div className="flex gap-1">
+                {getStatusText(c.college_verified) !== "Approved" && (
+                  <>
+                    <IconButton variant="success" title="Approve" onClick={() => handleStatus(c._id, "Approved")}>
+                      <FiCheck className="w-4 h-4" />
+                    </IconButton>
+                    <IconButton variant="danger" title="Reject" onClick={() => handleStatus(c._id, "Rejected")}>
+                      <FiX className="w-4 h-4" />
+                    </IconButton>
+                  </>
+                )}
+                <IconButton variant="neutral" title="Delete" onClick={() => handleDelete(c._id)}>
+                  <FiTrash2 className="w-4 h-4" />
+                </IconButton>
+              </div>
+            ),
+          },
+        ]}
+      />
     </div>
   );
 };

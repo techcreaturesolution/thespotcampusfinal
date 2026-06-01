@@ -8,6 +8,7 @@ import {
   getUniversity,
   updateUniversity,
   deleteUniversity,
+  updateStatus,
 } from "./university.controller.js";
 
 router.route("/").get(getAllUniversitys).post(upload.single("university_logo"), createUniversity);
@@ -16,5 +17,6 @@ router
   .get(getUniversity)
   .patch(upload.single("university_logo"), updateUniversity)
   .delete(deleteUniversity);
+router.route("/:id/status/:status").patch(updateStatus);
 
 export default router;

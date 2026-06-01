@@ -2,70 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  body {
-    @apply bg-gray-50 text-gray-900 font-sans antialiased;
-  }
+body {
+  background-color: #f9fafb;
+  color: #111827;
+  font-family: sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-@layer components {
-  .btn-primary {
-    @apply bg-primary-600 hover:bg-primary-700 text-white font-medium py-2.5 px-5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md;
-  }
-  .btn-secondary {
-    @apply bg-white hover:bg-gray-50 text-gray-700 font-medium py-2.5 px-5 rounded-lg border border-gray-300 transition-all duration-200;
-  }
-  .btn-danger {
-    @apply bg-red-600 hover:bg-red-700 text-white font-medium py-2.5 px-5 rounded-lg transition-all duration-200;
-  }
-  .btn-success {
-    @apply bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2.5 px-5 rounded-lg transition-all duration-200;
-  }
-  .card {
-    @apply bg-white rounded-xl shadow-sm border border-gray-200 p-6;
-  }
-  .input-field {
-    @apply w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all duration-200;
-  }
-  .badge {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
-  }
-  .badge-success {
-    @apply badge bg-emerald-100 text-emerald-800;
-  }
-  .badge-warning {
-    @apply badge bg-amber-100 text-amber-800;
-  }
-  .badge-danger {
-    @apply badge bg-red-100 text-red-800;
-  }
-  .badge-info {
-    @apply badge bg-blue-100 text-blue-800;
-  }
-  .sidebar-link {
-    @apply flex items-center gap-3 px-4 py-2.5 rounded-lg text-gray-600 hover:bg-primary-50 hover:text-primary-700 transition-all duration-200;
-  }
-  .sidebar-link-active {
-    @apply flex items-center gap-3 px-4 py-2.5 rounded-lg bg-primary-50 text-primary-700 font-medium;
-  }
-}
-
-/* Exam proctoring fullscreen */
-.exam-fullscreen {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 9999;
-  background: white;
-  overflow-y: auto;
-}
-
-/* Disable text selection during exam */
-.no-select {
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
+button {
+  cursor: pointer;
 }

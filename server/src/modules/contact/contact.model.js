@@ -2,13 +2,23 @@ import mongoose from "mongoose";
 
 const ContactSchema = new mongoose.Schema(
   {
-    name: String,
-    email: String,
-    contact: String,
-    subject: String,
-    message: String,
+    name: {
+      type: String,
+    },
+    email: {
+      type: String,
+    },
+    contact: {
+      type: String,
+    },
+    subject: {
+      type: String,
+    },
+    message: {
+      type: String,
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export default mongoose.model("tbl_contact", ContactSchema);

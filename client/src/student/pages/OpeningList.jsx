@@ -35,24 +35,24 @@ const OpeningList = () => {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Job Openings</h1>
-        <input type="text" placeholder="Search jobs..." className="input-field max-w-xs" value={search} onChange={(e) => setSearch(e.target.value)} />
+        <input type="text" placeholder="Search jobs..." className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all duration-200 max-w-xs" value={search} onChange={(e) => setSearch(e.target.value)} />
       </div>
       <div className="grid md:grid-cols-2 gap-4">
         {jobs.map((job) => (
-          <div key={job._id} className="card hover:shadow-md transition-shadow">
+          <div key={job._id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
             <div className="flex items-start justify-between mb-3">
               <div>
                 <h3 className="font-semibold text-gray-900">{job.job_title}</h3>
                 <p className="text-sm text-gray-600">{job.job_company_id?.company_name}</p>
               </div>
-              <span className="badge-info">{job.job_type}</span>
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">{job.job_type}</span>
             </div>
             <p className="text-sm text-gray-500 mb-3">{job.job_position}</p>
             <div className="flex items-center gap-4 text-xs text-gray-400 mb-4">
               <span className="flex items-center gap-1"><FiMapPin />{job.job_work_mode}</span>
               <span className="flex items-center gap-1"><FiClock />{job.job_exp || "Fresher"}</span>
             </div>
-            <button onClick={() => handleApply(job._id)} className="btn-primary w-full text-sm">Apply Now</button>
+            <button onClick={() => handleApply(job._id)} className="bg-primary-600 hover:bg-primary-700 text-white font-medium py-2.5 px-5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md w-full text-sm">Apply Now</button>
           </div>
         ))}
         {jobs.length === 0 && <div className="col-span-2 text-center py-20 text-gray-400"><FiBriefcase className="w-12 h-12 mx-auto mb-4" /><p>No openings available</p></div>}

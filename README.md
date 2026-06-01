@@ -145,26 +145,26 @@ CLIENT_URL=http://localhost:5173
 ## API Endpoints
 
 ### Authentication
-- `POST /api/v1/auth/register` - Admin registration
-- `POST /api/v1/auth/login` - Admin login
-- `POST /api/v1/login` - Multi-role user login
-- `GET /api/v1/login/logout` - Logout
+- `POST /api/auth/register` - Admin registration
+- `POST /api/auth/login` - Admin login
+- `POST /api/login` - Multi-role user login
+- `GET /api/login/logout` - Logout
 
 ### Exam (with JD Generation & Proctoring)
-- `POST /api/v1/exam` - Create exam with AI-generated MCQs
-- `POST /api/v1/exam/from-jd` - Generate exam from Job Description
-- `PATCH /api/v1/exam/:id/proctoring` - Update proctoring settings
+- `POST /api/exam` - Create exam with AI-generated MCQs
+- `POST /api/exam/from-jd` - Generate exam from Job Description
+- `PATCH /api/exam/:id/proctoring` - Update proctoring settings
 
 ### Paper & Proctoring
-- `POST /api/v1/paper/session/:examId` - Start proctored exam session
-- `POST /api/v1/paper/:paperId/violation` - Record proctoring violation
-- `POST /api/v1/paper/:paperId/snapshot` - Save camera snapshot
-- `POST /api/v1/paper/:paperId/auto-submit` - Auto-submit on max violations
-- `GET /api/v1/paper/:paperId/proctoring` - Get proctoring details
+- `POST /api/paper/session/:examId` - Start proctored exam session
+- `POST /api/paper/:paperId/violation` - Record proctoring violation
+- `POST /api/paper/:paperId/snapshot` - Save camera snapshot
+- `POST /api/paper/:paperId/auto-submit` - Auto-submit on max violations
+- `GET /api/paper/:paperId/proctoring` - Get proctoring details
 
 ### Jobs & Applications
-- `GET /api/v1/jobs/student` - Browse available jobs
-- `POST /api/v1/application/:jobId` - Apply for a job
+- `GET /api/jobs/student` - Browse available jobs
+- `POST /api/application/:jobId` - Apply for a job
 
 ## Developed by
 **Tech Creature Solution** - AI-powered educational technology solutions

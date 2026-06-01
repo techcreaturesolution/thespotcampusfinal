@@ -6,11 +6,17 @@ const DegreeSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "tbl_college",
     },
-    degree_name: String,
-    degree_code: String,
-    degree_sem: String,
+    degree_name: {
+      type: String,
+    },
+    degree_code: {
+      type: String,
+    },
+    degree_sem: {
+      type: String,
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export default mongoose.model("tbl_degree", DegreeSchema);

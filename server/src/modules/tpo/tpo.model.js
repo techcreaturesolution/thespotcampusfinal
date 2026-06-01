@@ -7,22 +7,34 @@ const TPOSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "tbl_college",
     },
-    tpo_name: String,
-    tpo_email: String,
-    tpo_contact: String,
-    tpo_image: String,
-    tpo_imagePublicID: String,
+    tpo_name: {
+      type: String,
+    },
+    tpo_email: {
+      type: String,
+    },
+    tpo_contact: {
+      type: String,
+    },
+    tpo_image: {
+      type: String,
+    },
+    tpo_imagePublicID: {
+      type: String,
+    },
     tpo_status: {
       type: String,
       default: STATUS.ACTIVE,
     },
-    tpo_password: String,
+    tpo_password: {
+      type: String,
+    },
     role: {
       type: String,
       default: "TPO",
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 TPOSchema.methods.toJSON = function () {

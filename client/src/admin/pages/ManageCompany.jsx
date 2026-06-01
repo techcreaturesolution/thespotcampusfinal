@@ -1,7 +1,24 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
-import { FiTrash2, FiCheck, FiX } from "react-icons/fi";
+import { FiTrash2, FiCheck, FiX, FiBriefcase } from "react-icons/fi";
 import customFetch from "../../utils/customFetch";
+import Loading from "../../common/components/Loading";
+import PageHeader from "../../common/components/PageHeader";
+import DataTable from "../../common/components/DataTable";
+import IconButton from "../../common/components/IconButton";
+
+const getStatusText = (status) => {
+  if (status === "0" || !status) return "Pending";
+  return status;
+};
+
+const statusBadge = (status) => {
+  const text = getStatusText(status);
+  if (text === "Approved") return "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800";
+  if (text === "Rejected") return "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800";
+  return "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800";
+};
 
 const ManageCompany = () => {
   const [companies, setCompanies] = useState([]);
@@ -11,68 +28,105 @@ const ManageCompany = () => {
     try {
       const { data } = await customFetch.get("/company");
       setCompanies(data.companys || []);
-    } catch { setCompanies([]); }
-    finally { setLoading(false); }
+    } catch {
+      setCompanies([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const handleStatus = async (id, status) => {
     try {
       await customFetch.patch(`/company/${id}/status/${status}`);
-      toast.success("Status updated");
+      toast.success(`Company ${status.toLowerCase()}`);
       fetchData();
-    } catch { toast.error("Failed to update"); }
+    } catch {
+      toast.error("Failed to update status");
+    }
   };
 
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this company?")) return;
     try {
       await customFetch.delete(`/company/${id}`);
-      toast.success("Deleted");
+      toast.success("Company deleted");
       fetchData();
-    } catch { toast.error("Failed"); }
+    } catch {
+      toast.error("Failed to delete");
+    }
   };
 
-  if (loading) return <div className="flex justify-center py-20"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600" /></div>;
+  const pendingCount = companies.filter((c) => getStatusText(c.company_verified) === "Pending").length;
+
+  if (loading) return <Loading />;
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Manage Companies</h1>
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr className="bg-gray-50 text-left text-sm text-gray-600">
-              <th className="px-4 py-3">Company</th>
-              <th className="px-4 py-3">Email</th>
-              <th className="px-4 py-3">Contact</th>
-              <th className="px-4 py-3">Status</th>
-              <th className="px-4 py-3">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y">
-            {companies.map((c) => (
-              <tr key={c._id} className="hover:bg-gray-50">
-                <td className="px-4 py-3 font-medium">{c.company_name}</td>
-                <td className="px-4 py-3 text-sm text-gray-600">{c.company_email}</td>
-                <td className="px-4 py-3 text-sm text-gray-600">{c.company_contact}</td>
-                <td className="px-4 py-3">
-                  <span className={c.company_verified === "Approved" ? "badge-success" : c.company_verified === "Rejected" ? "badge-danger" : "badge-warning"}>
-                    {c.company_verified || "Pending"}
-                  </span>
-                </td>
-                <td className="px-4 py-3">
-                  <div className="flex gap-1">
-                    <button onClick={() => handleStatus(c._id, "Approved")} className="p-1.5 text-green-600 hover:bg-green-50 rounded"><FiCheck /></button>
-                    <button onClick={() => handleStatus(c._id, "Rejected")} className="p-1.5 text-red-600 hover:bg-red-50 rounded"><FiX /></button>
-                    <button onClick={() => handleDelete(c._id)} className="p-1.5 text-gray-600 hover:bg-gray-100 rounded"><FiTrash2 /></button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <PageHeader
+        icon={FiBriefcase}
+        title="Companies"
+        subtitle="Approve or reject recruiter accounts before they can post jobs."
+        badge={pendingCount > 0 ? `${pendingCount} pending` : `${companies.length} total`}
+        action={
+          <Link
+            to="/sign-up-company"
+            state={{ fromAdmin: true }}
+            className="bg-primary-600 hover:bg-primary-700 text-white font-medium py-2.5 px-5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md inline-flex items-center gap-2 text-sm"
+          >
+            Add Company
+          </Link>
+        }
+      />
+      <DataTable
+        data={companies}
+        searchKeys={["company_name", "company_email", "company_contact"]}
+        searchPlaceholder="Search companies…"
+        emptyMessage="No companies registered"
+        columns={[
+          {
+            key: "name",
+            label: "Company",
+            render: (c) => <span className="font-semibold text-slate-900">{c.company_name}</span>,
+          },
+          { key: "email", label: "Email", render: (c) => c.company_email },
+          { key: "contact", label: "Contact", render: (c) => c.company_contact || "—" },
+          {
+            key: "status",
+            label: "Status",
+            render: (c) => (
+              <span className={statusBadge(c.company_verified)}>
+                {getStatusText(c.company_verified)}
+              </span>
+            ),
+          },
+          {
+            key: "actions",
+            label: "Actions",
+            className: "w-36",
+            render: (c) => (
+              <div className="flex gap-1">
+                {getStatusText(c.company_verified) !== "Approved" && (
+                  <>
+                    <IconButton variant="success" title="Approve" onClick={() => handleStatus(c._id, "Approved")}>
+                      <FiCheck className="w-4 h-4" />
+                    </IconButton>
+                    <IconButton variant="danger" title="Reject" onClick={() => handleStatus(c._id, "Rejected")}>
+                      <FiX className="w-4 h-4" />
+                    </IconButton>
+                  </>
+                )}
+                <IconButton variant="neutral" title="Delete" onClick={() => handleDelete(c._id)}>
+                  <FiTrash2 className="w-4 h-4" />
+                </IconButton>
+              </div>
+            ),
+          },
+        ]}
+      />
     </div>
   );
 };

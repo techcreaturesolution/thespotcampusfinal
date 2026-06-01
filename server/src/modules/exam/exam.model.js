@@ -54,7 +54,7 @@ const ExamSchema = new mongoose.Schema(
     passingScore: { type: Number, default: 0 },
     instructions: { type: String, default: "" },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export default mongoose.model("tbl_exam", ExamSchema);

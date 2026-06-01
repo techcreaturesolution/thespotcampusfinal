@@ -59,7 +59,7 @@ const PaperSchema = new mongoose.Schema(
       default: "in_progress",
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export default mongoose.model("tbl_paper", PaperSchema);

@@ -17,7 +17,7 @@ const AIPaymentSchema = new mongoose.Schema(
     currency: { type: String, default: "INR" },
     status: { type: String, default: "Created" },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export default mongoose.model("exam_payment", AIPaymentSchema);

@@ -3,13 +3,27 @@ import { STATUS } from "../../utils/constants.js";
 
 const CompanySchema = new mongoose.Schema(
   {
-    company_name: String,
-    company_email: String,
-    company_address: String,
-    company_contact: String,
-    company_website: String,
-    company_logo: String,
-    company_logoPublicID: String,
+    company_name: {
+      type: String,
+    },
+    company_email: {
+      type: String,
+    },
+    company_address: {
+      type: String,
+    },
+    company_contact: {
+      type: String,
+    },
+    company_website: {
+      type: String,
+    },
+    company_logo: {
+      type: String,
+    },
+    company_logoPublicID: {
+      type: String,
+    },
     company_verified: {
       type: String,
       default: STATUS.DEACTIVE,
@@ -18,13 +32,15 @@ const CompanySchema = new mongoose.Schema(
       type: String,
       default: STATUS.ACTIVE,
     },
-    company_password: String,
+    company_password: {
+      type: String,
+    },
     role: {
       type: String,
       default: "Company",
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 CompanySchema.methods.toJSON = function () {

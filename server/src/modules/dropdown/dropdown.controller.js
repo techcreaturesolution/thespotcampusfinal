@@ -28,9 +28,21 @@ export const getColleges = async (req, res) => {
 export const getDegrees = async (req, res) => {
   try {
     const { college_id } = req.query;
-    const query = college_id ? { college_id } : {};
-    const degrees = await tbl_degree.find(query, "degree_name degree_code degree_sem _id");
-    res.status(StatusCodes.OK).json({ degrees });
+    let degrees = await tbl_degree.find({}).populate("college_id");
+    if (college_id) {
+      degrees = degrees.filter(d => {
+        if (!d.college_id) return true;
+        return d.college_id._id.toString() === college_id.toString();
+      });
+    }
+    // Map to return only required fields for dropdown
+    const formattedDegrees = degrees.map(d => ({
+      _id: d._id,
+      degree_name: d.degree_name,
+      degree_code: d.degree_code,
+      degree_sem: d.degree_sem
+    }));
+    res.status(StatusCodes.OK).json({ degrees: formattedDegrees });
   } catch (error) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
   }
@@ -41,9 +53,20 @@ export const getBranches = async (req, res) => {
     const { degree_id, college_id } = req.query;
     const query = {};
     if (degree_id) query.degree_id = degree_id;
-    if (college_id) query.college_id = college_id;
-    const branches = await tbl_branch.find(query, "branch_name branch_code _id");
-    res.status(StatusCodes.OK).json({ branches });
+    
+    let branches = await tbl_branch.find(query).populate("college_id");
+    if (college_id) {
+      branches = branches.filter(b => {
+        if (!b.college_id) return true;
+        return b.college_id._id.toString() === college_id.toString();
+      });
+    }
+    const formattedBranches = branches.map(b => ({
+      _id: b._id,
+      branch_name: b.branch_name,
+      branch_code: b.branch_code
+    }));
+    res.status(StatusCodes.OK).json({ branches: formattedBranches });
   } catch (error) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
   }

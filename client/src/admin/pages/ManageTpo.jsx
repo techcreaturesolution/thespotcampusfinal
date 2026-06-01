@@ -1,21 +1,81 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { FiTrash2 } from "react-icons/fi";
+import { FiTrash2, FiUser } from "react-icons/fi";
 import customFetch from "../../utils/customFetch";
+import Loading from "../../common/components/Loading";
+import PageHeader from "../../common/components/PageHeader";
+import DataTable from "../../common/components/DataTable";
+import IconButton from "../../common/components/IconButton";
 
 const ManageTpo = () => {
   const [tpos, setTpos] = useState([]);
   const [loading, setLoading] = useState(true);
-  const fetchData = async () => { try { const { data } = await customFetch.get("/tpo"); setTpos(data.tpos || []); } catch {} finally { setLoading(false); } };
-  useEffect(() => { fetchData(); }, []);
-  const handleDelete = async (id) => { if (!window.confirm("Delete?")) return; try { await customFetch.delete(`/tpo/${id}`); toast.success("Deleted"); fetchData(); } catch { toast.error("Failed"); } };
-  if (loading) return <div className="flex justify-center py-20"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600" /></div>;
+
+  const fetchData = async () => {
+    try {
+      const { data } = await customFetch.get("/tpo");
+      setTpos(data.tpos || []);
+    } catch {
+      setTpos([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Delete this TPO?")) return;
+    try {
+      await customFetch.delete(`/tpo/${id}`);
+      toast.success("TPO deleted");
+      fetchData();
+    } catch {
+      toast.error("Failed to delete");
+    }
+  };
+
+  if (loading) return <Loading />;
+
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Manage TPOs</h1>
-      <div className="overflow-x-auto"><table className="w-full"><thead><tr className="bg-gray-50 text-left text-sm text-gray-600"><th className="px-4 py-3">Name</th><th className="px-4 py-3">College</th><th className="px-4 py-3">Email</th><th className="px-4 py-3">Actions</th></tr></thead>
-      <tbody className="divide-y">{tpos.map((t) => (<tr key={t._id} className="hover:bg-gray-50"><td className="px-4 py-3 font-medium">{t.tpo_name}</td><td className="px-4 py-3 text-sm text-gray-600">{t.tpo_college_id?.college_name || "-"}</td><td className="px-4 py-3 text-sm text-gray-600">{t.tpo_email}</td><td className="px-4 py-3"><button onClick={() => handleDelete(t._id)} className="p-1.5 text-red-600 hover:bg-red-50 rounded"><FiTrash2 /></button></td></tr>))}</tbody></table>
-      {tpos.length === 0 && <div className="text-center py-10 text-gray-400"><p>No TPOs found</p></div>}</div>
+      <PageHeader
+        icon={FiUser}
+        title="Training & Placement Officers"
+        subtitle="Manage TPO accounts assigned to colleges."
+        badge={`${tpos.length} total`}
+      />
+      <DataTable
+        data={tpos}
+        searchKeys={["tpo_name", "tpo_email", "tpo_college_id.college_name"]}
+        searchPlaceholder="Search TPOs…"
+        emptyMessage="No TPOs found"
+        columns={[
+          {
+            key: "name",
+            label: "Name",
+            render: (t) => <span className="font-semibold text-slate-900">{t.tpo_name}</span>,
+          },
+          {
+            key: "college",
+            label: "College",
+            render: (t) => t.tpo_college_id?.college_name || "—",
+          },
+          { key: "email", label: "Email", render: (t) => t.tpo_email },
+          {
+            key: "actions",
+            label: "Actions",
+            className: "w-24",
+            render: (t) => (
+              <IconButton variant="danger" title="Delete" onClick={() => handleDelete(t._id)}>
+                <FiTrash2 className="w-4 h-4" />
+              </IconButton>
+            ),
+          },
+        ]}
+      />
     </div>
   );
 };

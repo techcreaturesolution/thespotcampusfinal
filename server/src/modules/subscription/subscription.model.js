@@ -16,10 +16,13 @@ const RecruitmentPlanSchema = new mongoose.Schema(
     is_active: { type: Boolean, default: true },
     validity_days: { type: Number, default: 30 },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-export const RecruitmentPlan = mongoose.model("tbl_recruitment_plan", RecruitmentPlanSchema);
+export const RecruitmentPlan = mongoose.model(
+  "tbl_recruitment_plan",
+  RecruitmentPlanSchema,
+);
 
 const RecruitmentSubscriptionSchema = new mongoose.Schema(
   {
@@ -49,10 +52,10 @@ const RecruitmentSubscriptionSchema = new mongoose.Schema(
     is_active: { type: Boolean, default: false },
     interviews_used: { type: Number, default: 0 },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export const RecruitmentSubscription = mongoose.model(
   "tbl_recruitment_subscription",
-  RecruitmentSubscriptionSchema
+  RecruitmentSubscriptionSchema,
 );

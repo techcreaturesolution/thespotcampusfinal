@@ -1,13 +1,14 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { FiMail, FiLock, FiUser } from "react-icons/fi";
+import { FiMail, FiLock, FiEye, FiEyeOff } from "react-icons/fi";
 import customFetch from "../../utils/customFetch";
 
 const SignIn = () => {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({ email: "", password: "", role: "Student" });
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -39,26 +40,12 @@ const SignIn = () => {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
-            <select
-              className="input-field"
-              value={formData.role}
-              onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-            >
-              <option value="Student">Student</option>
-              <option value="Company">Company</option>
-              <option value="College">College</option>
-              <option value="University">University</option>
-              <option value="TPO">TPO</option>
-            </select>
-          </div>
-          <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
             <div className="relative">
               <FiMail className="absolute left-3 top-3 text-gray-400" />
               <input
                 type="email"
-                className="input-field pl-10"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all duration-200 pl-10"
                 placeholder="Enter your email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -71,28 +58,43 @@ const SignIn = () => {
             <div className="relative">
               <FiLock className="absolute left-3 top-3 text-gray-400" />
               <input
-                type="password"
-                className="input-field pl-10"
+                type={showPassword ? "text" : "password"}
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all duration-200 pl-10 pr-10"
                 placeholder="Enter your password"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 required
               />
+              <button
+                type="button"
+                className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 focus:outline-none"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+              </button>
             </div>
           </div>
-          <button type="submit" className="btn-primary w-full" disabled={isSubmitting}>
+          <button type="submit" className="bg-primary-600 hover:bg-primary-700 text-white font-medium py-2.5 px-5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md w-full" disabled={isSubmitting}>
             {isSubmitting ? "Signing in..." : "Sign In"}
           </button>
         </form>
 
-        <div className="mt-6 text-center text-sm text-gray-500">
-          <p>
-            New student?{" "}
-            <Link to="/sign-up-student" className="text-primary-600 font-medium hover:underline">Register here</Link>
-          </p>
-          <p className="mt-2">
-            <Link to="/sign-in-admin" className="text-gray-400 hover:text-gray-600">Admin Login</Link>
-          </p>
+        <div className="mt-8 pt-6 border-t border-gray-100 text-center text-xs text-gray-500">
+          <p className="font-semibold text-gray-400 uppercase tracking-wider mb-4">Register new account</p>
+          <div className="grid grid-cols-2 gap-3 text-sm font-medium">
+            <Link to="/sign-up-student" className="p-2.5 bg-gray-50 hover:bg-primary-50 text-gray-700 hover:text-primary-600 rounded-xl transition duration-150 border border-gray-100/50">
+              As Student
+            </Link>
+            <Link to="/sign-up-company" className="p-2.5 bg-gray-50 hover:bg-primary-50 text-gray-700 hover:text-primary-600 rounded-xl transition duration-150 border border-gray-100/50">
+              As Company
+            </Link>
+            <Link to="/sign-up-university" className="p-2.5 bg-gray-50 hover:bg-primary-50 text-gray-700 hover:text-primary-600 rounded-xl transition duration-150 border border-gray-100/50">
+              As University
+            </Link>
+            <Link to="/sign-up-college" className="p-2.5 bg-gray-50 hover:bg-primary-50 text-gray-700 hover:text-primary-600 rounded-xl transition duration-150 border border-gray-100/50">
+              As College
+            </Link>
+          </div>
         </div>
       </div>
     </div>

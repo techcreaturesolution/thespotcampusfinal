@@ -1,11 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { Link, useOutletContext } from "react-router-dom";
+import { Link, useOutletContext, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import {
   FiPlus, FiTrash2, FiCpu, FiFileText, FiEye, FiBriefcase,
-  FiLayers, FiVideo, FiUsers, FiChevronRight, FiPlay,
+  FiLayers, FiVideo, FiUsers, FiChevronRight, FiPlay, FiEdit
 } from "react-icons/fi";
 import customFetch from "../../utils/customFetch";
+import Loading from "../../common/components/Loading";
+import PageHeader from "../../common/components/PageHeader";
+import CreateJobModal from "../components/CreateJobModal";
+import CreateExamModal from "../components/CreateExamModal";
+import CreateExamFromJDModal from "../components/CreateExamFromJDModal";
 
 const ROUND_TYPE_LABELS = {
   mcq: "MCQ Exam", technical_interview: "Technical Interview",
@@ -16,9 +21,23 @@ const ROUND_TYPE_LABELS = {
 
 const ManageJob = () => {
   const { role } = useOutletContext();
+  const location = useLocation();
   const [jobs, setJobs] = useState([]);
   const [exams, setExams] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingJobId, setEditingJobId] = useState(null);
+  const [isExamModalOpen, setIsExamModalOpen] = useState(false);
+  const [isExamFromJDModalOpen, setIsExamFromJDModalOpen] = useState(false);
+  const [examJobId, setExamJobId] = useState(null);
+
+  useEffect(() => {
+    if (location.state?.openCreateModal) {
+      setEditingJobId(null);
+      setIsModalOpen(true);
+      window.history.replaceState({}, document.title);
+    }
+  }, [location]);
 
   const fetchJobs = async () => {
     try {
@@ -53,39 +72,57 @@ const ManageJob = () => {
     }
   };
 
-  if (loading) {
-    return <div className="flex justify-center py-20"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600" /></div>;
-  }
+  const panelTitles = {
+    Company: { title: "Jobs & Recruitment", subtitle: "Post openings, manage rounds, and run AI proctored exams." },
+    College: { title: "Placement Openings", subtitle: "Review corporate vacancies and package details for your campus." },
+    University: { title: "Campus Placements", subtitle: "View recruitment drives across affiliated colleges." },
+    TPO: { title: "Active Openings", subtitle: "Track vacancies and guide students through applications." },
+    Admin: { title: "All Jobs", subtitle: "System-wide job listings." },
+  };
+  const header = panelTitles[role] || { title: "Jobs", subtitle: `${jobs.length} jobs found` };
+
+  if (loading) return <Loading />;
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Jobs & Recruitment</h1>
-          <p className="text-gray-500 mt-1">{jobs.length} jobs found</p>
-        </div>
-        {role === "Company" && (
-          <div className="flex items-center gap-2">
-            <Link to="/dashboard/recruitment-subscription" className="btn-secondary flex items-center gap-2 text-sm">
-              <FiLayers /> Subscription
-            </Link>
-            <Link to="/dashboard/create-job" className="btn-primary flex items-center gap-2">
-              <FiPlus /> Create Job
-            </Link>
-          </div>
-        )}
-      </div>
+      <PageHeader
+        icon={FiBriefcase}
+        title={header.title}
+        subtitle={header.subtitle}
+        badge={`${jobs.length} jobs`}
+        action={
+          role === "Company" ? (
+            <div className="flex items-center gap-2">
+              <Link
+                to="/dashboard/company/recruitment-subscription"
+                className="bg-white hover:bg-gray-50 text-gray-700 font-medium py-2.5 px-5 rounded-lg border border-gray-300 transition-all duration-200 flex items-center gap-2 text-sm"
+              >
+                <FiLayers /> Subscription
+              </Link>
+              <button
+                onClick={() => {
+                  setEditingJobId(null);
+                  setIsModalOpen(true);
+                }}
+                className="bg-primary-600 hover:bg-primary-700 text-white font-medium py-2.5 px-5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md flex items-center gap-2"
+              >
+                <FiPlus /> Create Job
+              </button>
+            </div>
+          ) : null
+        }
+      />
 
       <div className="space-y-4">
         {jobs.map((job) => (
-          <div key={job._id} className="card hover:shadow-md transition-shadow">
+          <div key={job._id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
             <div className="flex flex-col gap-4">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
                     <h3 className="text-lg font-semibold text-gray-900">{job.job_title}</h3>
-                    <span className="badge-info">{job.job_type}</span>
-                    <span className="badge-success">{job.job_work_mode}</span>
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">{job.job_type}</span>
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">{job.job_work_mode}</span>
                     {job.has_multiple_rounds && (
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-700">
                         <FiLayers className="w-3 h-3" /> {job.rounds?.length || 0} Rounds
@@ -104,29 +141,42 @@ const ManageJob = () => {
                     <>
                       {!hasExam(job._id) ? (
                         <>
-                          <Link to={`/dashboard/create-exam/${job._id}`}
-                            className="btn-secondary text-sm flex items-center gap-1">
-                            <FiFileText className="w-3.5 h-3.5" /> Create Exam
-                          </Link>
-                          <Link to={`/dashboard/create-exam-jd/${job._id}`}
-                            className="btn-primary text-sm flex items-center gap-1">
-                            <FiCpu className="w-3.5 h-3.5" /> Generate from JD
-                          </Link>
+                           <button onClick={() => {
+                             setExamJobId(job._id);
+                             setIsExamModalOpen(true);
+                           }}
+                             className="bg-white hover:bg-gray-50 text-gray-700 font-medium py-2.5 px-5 rounded-lg border border-gray-300 transition-all duration-200 text-sm flex items-center gap-1">
+                             <FiFileText className="w-3.5 h-3.5" /> Create Exam
+                           </button>
+                           <button onClick={() => {
+                             setExamJobId(job._id);
+                             setIsExamFromJDModalOpen(true);
+                           }}
+                             className="bg-primary-600 hover:bg-primary-700 text-white font-medium py-2.5 px-5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md text-sm flex items-center gap-1">
+                             <FiCpu className="w-3.5 h-3.5" /> Generate from JD
+                           </button>
                         </>
                       ) : (
-                        <Link to={`/dashboard/exam-result/${job._id}`}
-                          className="btn-success text-sm flex items-center gap-1">
+                        <Link to={`/dashboard/company/exam-result/${job._id}`}
+                          className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2.5 px-5 rounded-lg transition-all duration-200 text-sm flex items-center gap-1">
                           <FiEye className="w-3.5 h-3.5" /> View Results
                         </Link>
                       )}
                       {job.has_multiple_rounds && (
-                        <Link to={`/dashboard/round-management/${job._id}`}
+                        <Link to={`/dashboard/company/round-management/${job._id}`}
                           className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium bg-purple-600 text-white hover:bg-purple-700 transition-colors">
                           <FiLayers className="w-3.5 h-3.5" /> Manage Rounds
                         </Link>
                       )}
+                      <button onClick={() => {
+                        setEditingJobId(job._id);
+                        setIsModalOpen(true);
+                      }}
+                        className="bg-amber-500 hover:bg-amber-600 text-white font-medium py-2.5 px-5 rounded-lg transition-all duration-200 text-sm flex items-center gap-1">
+                        <FiEdit className="w-3.5 h-3.5" /> Edit
+                      </button>
                       <button onClick={() => handleDelete(job._id)}
-                        className="btn-danger text-sm flex items-center gap-1">
+                        className="bg-red-600 hover:bg-red-700 text-white font-medium py-2.5 px-5 rounded-lg transition-all duration-200 text-sm flex items-center gap-1">
                         <FiTrash2 className="w-3.5 h-3.5" />
                       </button>
                     </>
@@ -168,6 +218,24 @@ const ManageJob = () => {
           </div>
         )}
       </div>
+      <CreateJobModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        jobId={editingJobId}
+        onSuccess={fetchJobs}
+      />
+      <CreateExamModal
+        isOpen={isExamModalOpen}
+        onClose={() => setIsExamModalOpen(false)}
+        jobId={examJobId}
+        onSuccess={fetchJobs}
+      />
+      <CreateExamFromJDModal
+        isOpen={isExamFromJDModalOpen}
+        onClose={() => setIsExamFromJDModalOpen(false)}
+        jobId={examJobId}
+        onSuccess={fetchJobs}
+      />
     </div>
   );
 };
