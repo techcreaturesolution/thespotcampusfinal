@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart';
@@ -151,6 +152,7 @@ class _ExamScreenState extends State<ExamScreen> with WidgetsBindingObserver {
         options: FaceDetectorOptions(
           enableContours: false,
           enableClassification: false,
+          performanceMode: FaceDetectorMode.accurate,
         ),
       );
 
@@ -235,10 +237,10 @@ class _ExamScreenState extends State<ExamScreen> with WidgetsBindingObserver {
         _lastFaceY = cy;
       }
 
-      // Update camera violation state (active if threshold of 3 consecutive checks is met)
+      // Update camera violation state (active if threshold is met)
       if (mounted) {
         setState(() {
-          _isCameraViolationActive = _noFaceFrameCount >= 3 || _multiFaceFrameCount >= 3;
+          _isCameraViolationActive = _noFaceFrameCount >= 3 || _multiFaceFrameCount >= 2;
         });
       }
     } catch (e) {
@@ -431,11 +433,63 @@ class _ExamScreenState extends State<ExamScreen> with WidgetsBindingObserver {
 
   void _syncProctoringViolation() {
     if (!_examStarted || _paperId == null) return;
+    _captureAndUploadSnapshot();
+  }
 
-    if (_noFaceFrameCount >= 3) {
-      _recordViolation('face_not_detected', 'No face detected in camera');
-    } else if (_multiFaceFrameCount >= 3) {
-      _recordViolation('multiple_faces', 'Multiple faces detected in camera');
+  Future<void> _captureAndUploadSnapshot() async {
+    if (_cameraController == null || !_isCameraInitialized || _paperId == null) return;
+    final api = Provider.of<ApiService>(context, listen: false);
+
+    try {
+      final XFile file = await _cameraController!.takePicture();
+      final bytes = await file.readAsBytes();
+      final String base64Image = base64Encode(bytes);
+      final String dataUrl = 'data:image/jpeg;base64,$base64Image';
+
+      // Delete the temporary file
+      try {
+        await File(file.path).delete();
+      } catch (_) {}
+
+      final bool faceDetected = _noFaceFrameCount < 3;
+      final bool multipleFaces = _multiFaceFrameCount >= 2;
+
+      // Local warning on screen (visual border and SnackBar warning)
+      if (!faceDetected || multipleFaces) {
+        final String msg = !faceDetected
+            ? "No face detected! Please look at the camera."
+            : "Multiple faces detected! Please ensure you are alone.";
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Proctoring Warning: $msg'),
+              backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
+      }
+
+      final response = await api.post('/paper/$_paperId/snapshot', {
+        'imageUrl': dataUrl,
+        'faceDetected': faceDetected,
+        'multipleFaces': multipleFaces,
+      });
+
+      if (mounted) {
+        setState(() {
+          _violations = response['totalViolations'] ?? _violations;
+          _trustScore = response['trustScore'] ?? _trustScore;
+        });
+
+        final maxViolations = _exam?['proctoring']?['maxViolations'] ?? 5;
+        if (_violations >= maxViolations) {
+          _autoSubmit('Maximum violations exceeded');
+        }
+      }
+    } catch (e) {
+      debugPrint('Error capturing/uploading snapshot: $e');
     }
   }
 
@@ -843,6 +897,39 @@ class _ExamScreenState extends State<ExamScreen> with WidgetsBindingObserver {
                       fontWeight: FontWeight.bold,
                       fontSize: 13,
                       color: _timeLeft < 60 ? const Color(0xFFEF4444) : const Color(0xFF2563EB),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+
+            // Violations Badge
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              margin: const EdgeInsets.symmetric(vertical: 10),
+              decoration: BoxDecoration(
+                color: _violations > 0 ? const Color(0xFFFEE2E2) : const Color(0xFFF1F5F9),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: _violations > 0 ? const Color(0xFFFCA5A5) : const Color(0xFFE2E8F0),
+                  width: 1,
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.warning_amber_rounded,
+                    size: 14,
+                    color: _violations > 0 ? const Color(0xFFEF4444) : const Color(0xFF64748B),
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    'Violations: $_violations/${_exam?['proctoring']?['maxViolations'] ?? 5}',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: _violations > 0 ? const Color(0xFFEF4444) : const Color(0xFF64748B),
                     ),
                   ),
                 ],

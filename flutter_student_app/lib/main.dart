@@ -40,7 +40,7 @@ class SpotCampusApp extends StatelessWidget {
         useMaterial3: true,
         colorSchemeSeed: const Color(0xFF2563EB),
         brightness: Brightness.light,
-        textTheme: GoogleFonts.interTextTheme(),
+        textTheme: GoogleFonts.outfitTextTheme(),
         appBarTheme: const AppBarTheme(
           centerTitle: true,
           elevation: 0,

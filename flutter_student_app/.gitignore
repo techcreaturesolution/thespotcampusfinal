@@ -1,3 +1,4 @@
+
 # Miscellaneous
 *.class
 *.log
@@ -18,20 +19,21 @@ migrate_working_dir/
 *.iws
 .idea/
 
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
+# VS Code related
+.vscode/
 
 # Flutter/Dart/Pub related
 **/doc/api/
 **/ios/Flutter/.last_build_id
 .dart_tool/
+.flutter-plugins
 .flutter-plugins-dependencies
 .pub-cache/
 .pub/
+build/
 /build/
 /coverage/
+pubspec.lock
 
 # Symbolication related
 app.*.symbols
@@ -43,3 +45,63 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Android specific
+android/local.properties
+android/key.properties
+android/app/local.properties
+android/.gradle/
+android/.kotlin/
+android/build/
+android/app/build/
+android/gradlew
+android/gradlew.bat
+**/gradle-wrapper.jar
+**/GeneratedPluginRegistrant.java
+android/.cxx/
+android/captures/
+*.keystore
+*.jks
+
+# iOS specific
+ios/Flutter/Generated.xcconfig
+ios/Flutter/flutter_export_environment.sh
+ios/Flutter/ephemeral/
+ios/Runner/GeneratedPluginRegistrant.h
+ios/Runner/GeneratedPluginRegistrant.m
+ios/Runner/GeneratedPluginRegistrant.swift
+ios/Pods/
+ios/.symlinks/
+*.mode1v3
+*.mode2v3
+*.moved-aside
+*.pbxuser
+*.perspectivev3
+xcuserdata/
+DerivedData/
+Podfile.lock
+
+# macOS specific
+macos/Flutter/ephemeral/
+macos/Flutter/Generated.xcconfig
+macos/Flutter/flutter_export_environment.sh
+macos/Runner/GeneratedPluginRegistrant.swift
+macos/Pods/
+macos/.symlinks/
+
+# Windows specific
+windows/flutter/ephemeral/
+windows/flutter/generated_plugins.cmake
+windows/CMakeLists.txt.user
+
+# Linux specific
+linux/flutter/ephemeral/
+linux/flutter/generated_plugins.cmake
+
+# Web specific
+web/flutter_service_worker.js
+
+# Environment variables / Secrets
+.env
+.env.*
+*.env

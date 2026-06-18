@@ -44,7 +44,11 @@ flutter_student_app/.flutter-plugins
 flutter_student_app/.flutter-plugins-dependencies
 flutter_student_app/android/.gradle/
 flutter_student_app/android/local.properties
+flutter_student_app/android/key.properties
+flutter_student_app/android/build/
+flutter_student_app/android/app/build/
 flutter_student_app/ios/Pods/
 flutter_student_app/ios/.symlinks/
 flutter_student_app/pubspec.lock
 *.iml
+
