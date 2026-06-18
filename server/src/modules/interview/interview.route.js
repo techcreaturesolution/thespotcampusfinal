@@ -12,6 +12,7 @@ import {
   endInterview,
   cancelInterview,
   getAllCompanyInterviews,
+  updateInterview,
 } from "./interview.controller.js";
 
 // Company
@@ -24,7 +25,7 @@ router.route("/student").get(getStudentInterviews);
 
 // Shared
 router.route("/room/:roomId").get(getInterviewByRoom);
-router.route("/:id").get(getInterview);
+router.route("/:id").get(getInterview).patch(updateInterview);
 router.route("/:id/start").patch(startInterview);
 router.route("/:id/end").patch(endInterview);
 router.route("/:id/cancel").patch(cancelInterview);

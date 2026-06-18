@@ -80,3 +80,43 @@ export const getDegreeMasters = async (req, res) => {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
   }
 };
+
+export const getUniqueDegrees = async (req, res) => {
+  try {
+    const degrees = await tbl_degree.distinct("degree_name");
+    res.status(StatusCodes.OK).json({ degrees: degrees.filter(Boolean) });
+  } catch (error) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
+  }
+};
+
+export const getCollegesByDegree = async (req, res) => {
+  try {
+    const { degree_name } = req.query;
+    if (!degree_name) {
+      return res.status(StatusCodes.BAD_REQUEST).json({ error: "degree_name query parameter is required" });
+    }
+    
+    // Support both single degree_name and comma-separated degrees
+    const degreeNames = degree_name.split(",").map((d) => d.trim()).filter(Boolean);
+
+    const degreeEntries = await tbl_degree.find({
+      degree_name: { $in: degreeNames }
+    }).populate("college_id");
+
+    const collegesMap = new Map();
+    degreeEntries.forEach((entry) => {
+      if (entry.college_id && entry.college_id.college_status !== "0") {
+        collegesMap.set(entry.college_id._id.toString(), {
+          _id: entry.college_id._id,
+          college_name: entry.college_id.college_name,
+          college_code: entry.college_id.college_code,
+        });
+      }
+    });
+    const colleges = Array.from(collegesMap.values());
+    res.status(StatusCodes.OK).json({ colleges });
+  } catch (error) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
+  }
+};

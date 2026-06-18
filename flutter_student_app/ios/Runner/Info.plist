@@ -66,5 +66,9 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>This app requires camera access for AI-proctored exam monitoring to detect face presence, movement, and violations.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This app requires microphone access for audio monitoring during proctored exams.</string>
 </dict>
 </plist>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useOutletContext, Link } from "react-router-dom";
 import { toast } from "react-toastify";
-import { FiTrash2, FiUsers } from "react-icons/fi";
+import { FiTrash2, FiUsers, FiPlus } from "react-icons/fi";
 import customFetch from "../../utils/customFetch";
 import Loading from "../../common/components/Loading";
 import PageHeader from "../../common/components/PageHeader";
@@ -56,21 +56,10 @@ const ManageStudent = () => {
         title={header.title}
         subtitle={header.subtitle}
         badge={`${students.length} total`}
-        action={
-          role === "Admin" ? (
-            <Link
-              to="/sign-up-student"
-              state={{ fromAdmin: true }}
-              className="bg-primary-600 hover:bg-primary-700 text-white font-medium py-2.5 px-5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md inline-flex items-center gap-2 text-sm"
-            >
-              Add Student
-            </Link>
-          ) : null
-        }
       />
       <DataTable
         data={students}
-        searchKeys={["student_name", "student_email", "college_id.college_name", "branch_id.branch_name"]}
+        searchKeys={["student_name", "student_email", "college_id.college_name", "university_id.university_name", "degree_id.degree_name", "branch_id.branch_name"]}
         searchPlaceholder="Search students…"
         emptyMessage="No students found"
         columns={[
@@ -84,6 +73,16 @@ const ManageStudent = () => {
             key: "college",
             label: "College",
             render: (s) => s.college_id?.college_name || "—",
+          },
+          {
+            key: "university",
+            label: "University",
+            render: (s) => s.university_id?.university_name || "—",
+          },
+          {
+            key: "degree",
+            label: "Degree",
+            render: (s) => s.degree_id?.degree_name || "—",
           },
           {
             key: "branch",

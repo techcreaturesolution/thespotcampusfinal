@@ -2,6 +2,12 @@ import mongoose from "mongoose";
 
 const RecruitmentPlanSchema = new mongoose.Schema(
   {
+    plan_for: {
+      type: String,
+      enum: ["company", "student"],
+      default: "company",
+      required: true,
+    },
     plan_name: { type: String, required: true },
     description: { type: String, default: "" },
     price: { type: Number, required: true },

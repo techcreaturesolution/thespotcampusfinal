@@ -19,6 +19,8 @@ const paymentSchema = new mongoose.Schema(
     status: { type: String, default: "Created" },
     paymentId: { type: String },
     signature: { type: String },
+    expires_at: { type: Date },
+    is_active: { type: Boolean, default: false },
   },
   { timestamps: true },
 );

@@ -56,6 +56,10 @@ const StudentSchema = new mongoose.Schema(
       type: String,
       default: STATUS.DEACTIVE,
     },
+    isVerifiedByTPO: {
+      type: Boolean,
+      default: false,
+    },
     student_password: {
       type: String,
     },
@@ -73,4 +77,4 @@ StudentSchema.methods.toJSON = function () {
   return obj;
 };
 
-export default mongoose.model("tbl_student", StudentSchema);
+export default mongoose.models.tbl_student || mongoose.model("tbl_student", StudentSchema);

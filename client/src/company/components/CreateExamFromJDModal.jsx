@@ -82,15 +82,17 @@ const CreateExamFromJDModal = ({ isOpen, onClose, jobId, onSuccess }) => {
       <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col border border-slate-200">
         
         {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-gray-150 bg-gray-50">
-          <div className="flex items-center gap-2">
-            <FiCpu className="w-6 h-6 text-primary-600" />
+        <div className="flex items-center justify-between p-5 border-b border-slate-100 bg-white">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 bg-indigo-50 text-[#3730a3] rounded-xl shrink-0">
+              <FiCpu className="w-5 h-5" />
+            </div>
             <div>
-              <h3 className="text-md font-bold text-gray-950">Generate Exam from Job Description</h3>
-              <p className="text-xxs text-gray-500 mt-0.5">AI will analyze the JD and create relevant assessment questions</p>
+              <h3 className="text-base font-extrabold text-slate-800 tracking-tight">Generate Exam from Job Description</h3>
+              <p className="text-xxs font-semibold text-slate-400 mt-0.5">AI will analyze the JD and create relevant assessment questions</p>
             </div>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition p-1.5 rounded-lg hover:bg-gray-100">
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition p-1.5 rounded-lg hover:bg-slate-50">
             <FiX className="w-5 h-5" />
           </button>
         </div>
@@ -105,62 +107,62 @@ const CreateExamFromJDModal = ({ isOpen, onClose, jobId, onSuccess }) => {
             <form id="from-jd-exam-form" onSubmit={handleSubmit} className="space-y-6">
               {/* Job Info Preview */}
               {job && (
-                <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 text-xs">
+                <div className="bg-indigo-50/40 border border-indigo-100/50 rounded-xl p-4 text-xs font-semibold">
                   <div className="flex items-start gap-2.5">
-                    <FiFileText className="w-4 h-4 text-blue-600 mt-0.5" />
+                    <FiFileText className="w-4 h-4 text-[#3730a3] mt-0.5" />
                     <div>
-                      <h4 className="font-bold text-blue-900">{job.job_title}</h4>
-                      <p className="text-blue-700 mt-0.5">{job.job_position} &bull; {job.job_type} &bull; {job.job_work_mode}</p>
-                      <p className="text-blue-600 mt-2"><strong>Required Skills:</strong> {job.job_skills}</p>
+                      <h4 className="font-extrabold text-slate-850">{job.job_title}</h4>
+                      <p className="text-slate-500 mt-0.5">{job.job_position} &bull; {job.job_type} &bull; {job.job_work_mode}</p>
+                      <p className="text-slate-500 mt-2 font-bold"><strong>Required Skills:</strong> <span className="text-[#3730a3] font-extrabold">{job.job_skills}</span></p>
                     </div>
                   </div>
                 </div>
               )}
 
               {/* Exam Config */}
-              <div className="bg-gray-50 rounded-xl border border-gray-200 p-5 space-y-4">
-                <h4 className="text-xs font-semibold text-gray-800 uppercase tracking-wider">Exam Settings</h4>
+              <div className="bg-[#f8f9ff]/60 rounded-2xl border border-indigo-100/50 p-5 space-y-4">
+                <h4 className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Exam Settings</h4>
                 <div className="grid md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-xxs font-semibold text-gray-600 mb-1">Exam Title</label>
-                    <input type="text" className="w-full px-4 py-2 border border-gray-300 rounded-lg text-xs" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} required />
+                    <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">Exam Title</label>
+                    <input type="text" className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:ring-2 focus:ring-[#3730a3]/50 focus:border-[#3730a3] outline-none" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} required />
                   </div>
                   <div>
-                    <label className="block text-xxs font-semibold text-gray-600 mb-1">Number of Questions</label>
-                    <input type="number" className="w-full px-4 py-2 border border-gray-300 rounded-lg text-xs" value={formData.noOfQuestion} onChange={(e) => setFormData({ ...formData, noOfQuestion: Number(e.target.value) })} min="5" max="100" required />
+                    <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">Number of Questions</label>
+                    <input type="number" className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:ring-2 focus:ring-[#3730a3]/50 focus:border-[#3730a3] outline-none" value={formData.noOfQuestion} onChange={(e) => setFormData({ ...formData, noOfQuestion: Number(e.target.value) })} min="5" max="100" required />
                   </div>
                   <div>
-                    <label className="block text-xxs font-semibold text-gray-600 mb-1">Time Limit (minutes)</label>
-                    <input type="number" className="w-full px-4 py-2 border border-gray-300 rounded-lg text-xs" value={formData.timeLimit} onChange={(e) => setFormData({ ...formData, timeLimit: Number(e.target.value) })} min="5" required />
+                    <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">Time Limit (minutes)</label>
+                    <input type="number" className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:ring-2 focus:ring-[#3730a3]/50 focus:border-[#3730a3] outline-none" value={formData.timeLimit} onChange={(e) => setFormData({ ...formData, timeLimit: Number(e.target.value) })} min="5" required />
                   </div>
                 </div>
 
                 {/* Difficulty */}
                 <div className="pt-2">
-                  <label className="block text-xxs font-semibold text-gray-600 mb-2">Difficulty Distribution (must total 100%)</label>
+                  <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-2">Difficulty Distribution (must total 100%)</label>
                   <div className="grid grid-cols-3 gap-4 text-xs">
                     <div>
-                      <label className="block text-xxs text-gray-500 mb-0.5">Easy (%)</label>
-                      <input type="number" className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs" value={formData.easy} onChange={(e) => setFormData({ ...formData, easy: Number(e.target.value) })} min="0" max="100" />
+                      <label className="block text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-wider">Easy (%)</label>
+                      <input type="number" className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:ring-2 focus:ring-[#3730a3]/50 focus:border-[#3730a3] outline-none" value={formData.easy} onChange={(e) => setFormData({ ...formData, easy: Number(e.target.value) })} min="0" max="100" />
                     </div>
                     <div>
-                      <label className="block text-xxs text-gray-500 mb-0.5">Medium (%)</label>
-                      <input type="number" className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs" value={formData.medium} onChange={(e) => setFormData({ ...formData, medium: Number(e.target.value) })} min="0" max="100" />
+                      <label className="block text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-wider">Medium (%)</label>
+                      <input type="number" className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:ring-2 focus:ring-[#3730a3]/50 focus:border-[#3730a3] outline-none" value={formData.medium} onChange={(e) => setFormData({ ...formData, medium: Number(e.target.value) })} min="0" max="100" />
                     </div>
                     <div>
-                      <label className="block text-xxs text-gray-500 mb-0.5">Hard (%)</label>
-                      <input type="number" className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs" value={formData.hard} onChange={(e) => setFormData({ ...formData, hard: Number(e.target.value) })} min="0" max="100" />
+                      <label className="block text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-wider">Hard (%)</label>
+                      <input type="number" className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:ring-2 focus:ring-[#3730a3]/50 focus:border-[#3730a3] outline-none" value={formData.hard} onChange={(e) => setFormData({ ...formData, hard: Number(e.target.value) })} min="0" max="100" />
                     </div>
                   </div>
-                  <p className={`text-xxs mt-2 font-bold ${formData.hard + formData.medium + formData.easy === 100 ? "text-green-600" : "text-red-600"}`}>
+                  <p className={`text-xs mt-2.5 font-bold ${formData.hard + formData.medium + formData.easy === 100 ? "text-emerald-600" : "text-rose-600"}`}>
                     Total: {formData.hard + formData.medium + formData.easy}% {formData.hard + formData.medium + formData.easy !== 100 && "(must be 100%)"}
                   </p>
                 </div>
               </div>
 
               {/* Proctoring Settings */}
-              <div className="bg-gray-50 rounded-xl border border-gray-200 p-5 space-y-4">
-                <h4 className="text-xs font-semibold text-gray-800 uppercase tracking-wider flex items-center gap-1.5"><FiSettings /> Proctoring Settings</h4>
+              <div className="bg-[#f8f9ff]/60 rounded-2xl border border-indigo-100/50 p-5 space-y-4">
+                <h4 className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider flex items-center gap-1.5"><FiSettings className="text-[#3730a3]" /> Proctoring Settings</h4>
                 <div className="grid md:grid-cols-2 gap-3 text-xs">
                   {[
                     { key: "tabLockEnabled", label: "Tab Lock", desc: "Detect and record tab switches" },
@@ -171,24 +173,24 @@ const CreateExamFromJDModal = ({ isOpen, onClose, jobId, onSuccess }) => {
                     { key: "screenshotBlocked", label: "Block Screenshots", desc: "Prevent PrintScreen" },
                     { key: "autoSubmitOnMaxViolations", label: "Auto Submit", desc: "Auto-submit on max violations" },
                   ].map((setting) => (
-                    <label key={setting.key} className="flex items-center justify-between p-2.5 bg-white border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
+                    <label key={setting.key} className="flex items-center justify-between p-3 bg-white border border-slate-200/80 rounded-xl cursor-pointer hover:bg-slate-50/50 hover:border-slate-350 transition-all duration-150">
                       <div>
-                        <p className="font-semibold text-gray-850">{setting.label}</p>
-                        <p className="text-xxs text-gray-400 mt-0.5">{setting.desc}</p>
+                        <p className="font-extrabold text-slate-800">{setting.label}</p>
+                        <p className="text-[10px] font-semibold text-slate-400 mt-0.5">{setting.desc}</p>
                       </div>
-                      <input type="checkbox" className="w-4 h-4 text-primary-600 rounded" checked={formData.proctoring[setting.key]} onChange={(e) => setFormData({ ...formData, proctoring: { ...formData.proctoring, [setting.key]: e.target.checked } })} />
+                      <input type="checkbox" className="w-4 h-4 text-[#3730a3] border-slate-300 rounded focus:ring-[#3730a3] cursor-pointer" checked={formData.proctoring[setting.key]} onChange={(e) => setFormData({ ...formData, proctoring: { ...formData.proctoring, [setting.key]: e.target.checked } })} />
                     </label>
                   ))}
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-4 pt-2">
                   <div>
-                    <label className="block text-xxs font-semibold text-gray-600 mb-1">Camera Interval (seconds)</label>
-                    <input type="number" className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs" value={formData.proctoring.cameraIntervalSeconds} onChange={(e) => setFormData({ ...formData, proctoring: { ...formData.proctoring, cameraIntervalSeconds: Number(e.target.value) } })} min="10" max="120" />
+                    <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">Camera Interval (seconds)</label>
+                    <input type="number" className="w-full px-4 py-2 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:ring-2 focus:ring-[#3730a3]/50 focus:border-[#3730a3] outline-none" value={formData.proctoring.cameraIntervalSeconds} onChange={(e) => setFormData({ ...formData, proctoring: { ...formData.proctoring, cameraIntervalSeconds: Number(e.target.value) } })} min="10" max="120" />
                   </div>
                   <div>
-                    <label className="block text-xxs font-semibold text-gray-600 mb-1">Max Violations before Auto-Submit</label>
-                    <input type="number" className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs" value={formData.proctoring.maxViolations} onChange={(e) => setFormData({ ...formData, proctoring: { ...formData.proctoring, maxViolations: Number(e.target.value) } })} min="1" max="20" />
+                    <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">Max Violations before Auto-Submit</label>
+                    <input type="number" className="w-full px-4 py-2 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:ring-2 focus:ring-[#3730a3]/50 focus:border-[#3730a3] outline-none" value={formData.proctoring.maxViolations} onChange={(e) => setFormData({ ...formData, proctoring: { ...formData.proctoring, maxViolations: Number(e.target.value) } })} min="1" max="20" />
                   </div>
                 </div>
               </div>
@@ -197,11 +199,11 @@ const CreateExamFromJDModal = ({ isOpen, onClose, jobId, onSuccess }) => {
         </div>
 
         {/* Footer */}
-        <div className="p-5 border-t border-gray-150 bg-gray-50 flex items-center justify-end gap-3 flex-shrink-0">
-          <button type="button" className="bg-white hover:bg-gray-100 text-gray-700 font-semibold py-2 px-5 rounded-lg border border-gray-300 text-sm transition" onClick={onClose} disabled={generating}>
+        <div className="p-5 border-t border-slate-100 bg-white flex items-center justify-end gap-3 flex-shrink-0">
+          <button type="button" className="bg-white hover:bg-slate-50 text-slate-700 font-bold py-2.5 px-5 rounded-xl border border-slate-200 text-sm transition" onClick={onClose} disabled={generating}>
             Cancel
           </button>
-          <button type="submit" form="from-jd-exam-form" className="bg-primary-600 hover:bg-primary-700 text-white font-semibold py-2 px-5 rounded-lg transition shadow-md flex items-center gap-1.5 text-sm" disabled={generating || loading}>
+          <button type="submit" form="from-jd-exam-form" className="vibrant-btn text-white font-bold py-2.5 px-5 rounded-xl transition shadow-md flex items-center gap-1.5 text-sm" disabled={generating || loading}>
             {generating ? (
               <>
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />

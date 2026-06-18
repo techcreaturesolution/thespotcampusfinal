@@ -29,6 +29,7 @@ const PaperSchema = new mongoose.Schema(
               "right_click",
               "screenshot_attempt",
               "devtools_open",
+              "excessive_movement",
             ],
           },
           timestamp: { type: Date, default: Date.now },

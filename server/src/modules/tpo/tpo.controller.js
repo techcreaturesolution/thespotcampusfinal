@@ -2,12 +2,22 @@ import tbl_tpo from "./tpo.model.js";
 import { StatusCodes } from "http-status-codes";
 import { NotFoundError } from "../../errors/customErrors.js";
 import { hashPassword } from "../../utils/passwordUtils.js";
+import { isEmailExists } from "../../utils/emailCheck.js";
 import cloudinary from "cloudinary";
 import { promises as fs } from "fs";
 
 export const getAllTPOs = async (req, res) => {
   try {
-    const tpos = await tbl_tpo.find({}).populate("tpo_college_id").sort("-createdAt");
+    const tpos = await tbl_tpo
+      .find({})
+      .populate({
+        path: "tpo_college_id",
+        populate: {
+          path: "college_university_id",
+        },
+      })
+      .populate("tpo_degree_id")
+      .sort("-createdAt");
     res.status(StatusCodes.OK).json({ tpos });
   } catch (error) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
@@ -16,6 +26,13 @@ export const getAllTPOs = async (req, res) => {
 
 export const createTPO = async (req, res) => {
   try {
+    const emailConflict = await isEmailExists(req.body.tpo_email);
+    if (emailConflict) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ msg: "Email is already registered on this platform" });
+    }
+
     const hashedPassword = await hashPassword(req.body.tpo_password);
     req.body.tpo_password = hashedPassword;
 
@@ -36,7 +53,15 @@ export const createTPO = async (req, res) => {
 export const getTPO = async (req, res) => {
   try {
     const { id } = req.params;
-    const tpo = await tbl_tpo.findById(id).populate("tpo_college_id");
+    const tpo = await tbl_tpo
+      .findById(id)
+      .populate({
+        path: "tpo_college_id",
+        populate: {
+          path: "college_university_id",
+        },
+      })
+      .populate("tpo_degree_id");
     if (!tpo) throw new NotFoundError(`No TPO with id: ${id}`);
     res.status(StatusCodes.OK).json({ tpo });
   } catch (error) {
@@ -57,6 +82,12 @@ export const updateTPO = async (req, res) => {
       await fs.unlink(req.file.path);
       req.body.tpo_image = response.secure_url;
       req.body.tpo_imagePublicID = response.public_id;
+    }
+
+    if (req.body.tpo_password) {
+      req.body.tpo_password = await hashPassword(req.body.tpo_password);
+    } else {
+      delete req.body.tpo_password;
     }
 
     const updatedTPO = await tbl_tpo.findByIdAndUpdate(id, req.body, { new: true });

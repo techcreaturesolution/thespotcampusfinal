@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
-import { FiVideo, FiClock, FiCalendar, FiBriefcase, FiExternalLink } from "react-icons/fi";
+import { FiVideo, FiClock, FiCalendar, FiBriefcase, FiExternalLink, FiInfo } from "react-icons/fi";
 import customFetch from "../../utils/customFetch";
+import PageHeader from "../../common/components/PageHeader";
 
 const STATUS_STYLES = {
-  scheduled: "bg-blue-100 text-blue-700",
-  in_progress: "bg-green-100 text-green-700",
-  completed: "bg-gray-100 text-gray-500",
-  cancelled: "bg-red-100 text-red-600",
-  no_show: "bg-yellow-100 text-yellow-700",
+  scheduled: "bg-blue-50 border-blue-150 text-blue-750",
+  in_progress: "bg-emerald-50 border-emerald-150 text-emerald-700",
+  completed: "bg-slate-50 border-slate-200 text-slate-550",
+  cancelled: "bg-rose-50 border-rose-150 text-rose-700",
+  no_show: "bg-amber-50 border-amber-150 text-amber-700",
 };
 
 const StudentInterviews = () => {
@@ -33,10 +34,13 @@ const StudentInterviews = () => {
 
   const isJoinable = (interview) => {
     if (interview.status !== "scheduled" && interview.status !== "in_progress") return false;
-    const scheduledTime = new Date(interview.scheduled_at);
-    const now = new Date();
+    const scheduledTime = new Date(interview.scheduled_at).getTime();
+    const durationMs = (interview.duration_minutes || 60) * 60 * 1000;
+    const expiredTime = scheduledTime + durationMs;
+    const now = Date.now();
+
     const diffMinutes = (scheduledTime - now) / 1000 / 60;
-    return diffMinutes <= 10;
+    return diffMinutes <= 10 && now < expiredTime;
   };
 
   if (loading) {
@@ -44,68 +48,85 @@ const StudentInterviews = () => {
   }
 
   return (
-    <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">My Interviews</h1>
-        <p className="text-gray-500 mt-1">{interviews.length} interviews scheduled</p>
-      </div>
+    <div className="max-w-7xl mx-auto px-1 sm:px-4 py-3">
+      <PageHeader
+        icon={FiVideo}
+        title="My Interviews"
+        subtitle="Join scheduled video conferences and evaluations"
+        badge={`${interviews.length} interviews`}
+      />
 
       <div className="space-y-4">
         {interviews.map((interview) => (
-          <div key={interview._id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div className="flex-1">
-                <div className="flex items-center gap-3 mb-2">
-                  <FiVideo className="w-5 h-5 text-primary-600" />
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    {interview.job_id?.job_title || "Interview"}
-                  </h3>
-                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_STYLES[interview.status]}`}>
-                    {interview.status.replace("_", " ")}
-                  </span>
-                </div>
-                <div className="flex items-center gap-4 text-sm text-gray-600">
-                  <span className="flex items-center gap-1">
-                    <FiBriefcase className="w-3.5 h-3.5" />
-                    {interview.company_id?.company_name || "Company"}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <FiCalendar className="w-3.5 h-3.5" />
-                    {new Date(interview.scheduled_at).toLocaleDateString()}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <FiClock className="w-3.5 h-3.5" />
-                    {new Date(interview.scheduled_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                  </span>
-                </div>
-                <p className="text-sm text-gray-500 mt-2">
-                  Mode: {interview.interview_mode === "video_conference" ? "Video Conference" : interview.interview_mode}
-                  {interview.duration_minutes && ` | Duration: ${interview.duration_minutes} min`}
-                </p>
+          <div key={interview._id} className="bg-white rounded-2xl border border-slate-200/80 p-5 hover:shadow-md transition-shadow border-l-4 border-l-[#3730a3] flex flex-col lg:flex-row lg:items-center justify-between gap-4 shadow-xs">
+            <div className="flex-1 text-left">
+              <div className="flex flex-wrap items-center gap-3 mb-2.5">
+                <FiVideo className="w-4 h-4 text-[#3730a3]" />
+                <h3 className="text-sm font-extrabold text-slate-800 leading-snug">
+                  {interview.job_id?.job_title || "Selection Interview"}
+                </h3>
+                <span className={`px-2 py-0.5 rounded-md text-[9px] font-extrabold border uppercase tracking-wider ${
+                  (() => {
+                    const isExpired = Date.now() > new Date(interview.scheduled_at).getTime() + (interview.duration_minutes || 60) * 60 * 1000;
+                    const displayStatus = (isExpired && (interview.status === "scheduled" || interview.status === "in_progress")) ? "no_show" : interview.status;
+                    return STATUS_STYLES[displayStatus];
+                  })()
+                }`}>
+                  {(() => {
+                    const isExpired = Date.now() > new Date(interview.scheduled_at).getTime() + (interview.duration_minutes || 60) * 60 * 1000;
+                    const displayStatus = (isExpired && (interview.status === "scheduled" || interview.status === "in_progress")) ? "no_show" : interview.status;
+                    return displayStatus === "no_show" ? "TIMELINE OUT" : displayStatus.replace("_", " ");
+                  })()}
+                </span>
               </div>
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[10px] text-slate-450 font-bold">
+                <span className="flex items-center gap-1.5">
+                  <FiBriefcase className="w-3.5 h-3.5 text-slate-400" />
+                  {interview.company_id?.company_name || "Unknown Company"}
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <FiCalendar className="w-3.5 h-3.5 text-slate-400" />
+                  {new Date(interview.scheduled_at).toLocaleDateString()}
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <FiClock className="w-3.5 h-3.5 text-slate-400" />
+                  {new Date(interview.scheduled_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                </span>
+              </div>
+              <p className="text-[11px] font-bold text-slate-450 mt-2 bg-slate-50 p-2 rounded-lg border border-slate-100/60 inline-block">
+                Mode: {interview.interview_mode === "video_conference" ? "Video Conference (Online)" : interview.interview_mode}
+                {interview.duration_minutes && ` | Duration: ${interview.duration_minutes} mins`}
+              </p>
+            </div>
 
-              <div className="flex items-center gap-2">
-                {isJoinable(interview) && interview.interview_mode === "video_conference" && (
-                  <Link to={`/dashboard/video-interview/${interview.room_id}`}
-                    className="bg-primary-600 hover:bg-primary-700 text-white font-medium py-2.5 px-5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md flex items-center gap-2">
-                    <FiVideo className="w-4 h-4" /> Join Interview
-                  </Link>
-                )}
-                {!isJoinable(interview) && interview.status === "scheduled" && (
-                  <span className="text-sm text-gray-400">
-                    Available 10 min before scheduled time
-                  </span>
-                )}
-              </div>
+            <div className="flex flex-wrap items-center justify-start lg:justify-end gap-3 shrink-0 w-full lg:w-auto border-t border-slate-100 lg:border-t-0 pt-4 lg:pt-0">
+              {isJoinable(interview) && interview.interview_mode === "video_conference" && (
+                <Link to={`/dashboard/video-interview/${interview.room_id}`}
+                  className="bg-[#3730a3] hover:bg-[#2e288a] text-white font-bold py-2.5 px-5 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center gap-1.5 text-xs uppercase tracking-wider active:scale-95">
+                  <FiVideo className="w-4 h-4 shrink-0" /> Join Interview
+                </Link>
+              )}
+              {(() => {
+                const isExpired = Date.now() > new Date(interview.scheduled_at).getTime() + (interview.duration_minutes || 60) * 60 * 1000;
+                if (!isJoinable(interview) && interview.status === "scheduled" && !isExpired) {
+                  return (
+                    <span className="text-[10px] font-extrabold text-slate-400 bg-slate-50 border border-slate-200/50 px-3 py-1.5 rounded-xl shadow-xs uppercase tracking-wider flex items-center gap-1">
+                      <FiInfo className="w-3.5 h-3.5 text-slate-400" />
+                      Starts 10 min prior
+                    </span>
+                  );
+                }
+                return null;
+              })()}
             </div>
           </div>
         ))}
 
         {interviews.length === 0 && (
-          <div className="text-center py-20 text-gray-400">
-            <FiVideo className="w-12 h-12 mx-auto mb-4" />
-            <p className="text-lg">No interviews scheduled</p>
-            <p className="text-sm mt-1">Interviews will appear here when scheduled by companies.</p>
+          <div className="text-center py-24 bg-white rounded-2xl border border-slate-200 border-dashed">
+            <FiVideo className="w-12 h-12 text-slate-350 mx-auto mb-3" />
+            <p className="text-slate-500 text-sm font-semibold">No interviews scheduled yet</p>
+            <p className="text-slate-400 text-xs mt-1.5">Scheduled interview rounds will appear here.</p>
           </div>
         )}
       </div>

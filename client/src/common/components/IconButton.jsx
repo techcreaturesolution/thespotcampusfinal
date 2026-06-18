@@ -1,10 +1,10 @@
 import React from "react";
 
 const variants = {
-  danger: "text-red-600 hover:bg-red-50",
-  success: "text-emerald-600 hover:bg-emerald-50",
-  neutral: "text-gray-500 hover:bg-gray-100 hover:text-gray-700",
-  primary: "text-primary-600 hover:bg-primary-50",
+  danger: "w-8 h-8 rounded-lg bg-red-50 hover:bg-red-500 text-red-600 hover:text-white transition-all duration-150 border border-red-100 flex items-center justify-center shadow-sm",
+  success: "w-8 h-8 rounded-lg bg-emerald-50 hover:bg-emerald-500 text-emerald-600 hover:text-white transition-all duration-150 border border-emerald-100 flex items-center justify-center shadow-sm",
+  neutral: "w-8 h-8 rounded-lg bg-slate-50 hover:bg-[#3730a3] text-slate-500 hover:text-white transition-all duration-150 border border-slate-100 flex items-center justify-center shadow-sm",
+  primary: "w-8 h-8 rounded-lg bg-indigo-50 hover:bg-[#3730a3] text-[#3730a3] hover:text-white transition-all duration-150 border border-indigo-100 flex items-center justify-center shadow-sm",
 };
 
 const IconButton = ({ onClick, children, variant = "neutral", title, disabled }) => (
@@ -13,7 +13,7 @@ const IconButton = ({ onClick, children, variant = "neutral", title, disabled })
     onClick={onClick}
     title={title}
     disabled={disabled}
-    className={`p-2 rounded-lg transition-colors disabled:opacity-40 ${variants[variant] || variants.neutral}`}
+    className={`p-0 transition-colors disabled:opacity-40 ${variants[variant] || variants.neutral}`}
   >
     {children}
   </button>

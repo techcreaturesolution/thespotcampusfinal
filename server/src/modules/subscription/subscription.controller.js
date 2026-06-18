@@ -6,6 +6,7 @@ import {
 import { StatusCodes } from "http-status-codes";
 import { NotFoundError } from "../../errors/customErrors.js";
 import crypto from "crypto";
+import tbl_interview from "../interview/interview.model.js";
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID || "rzp_test_placeholder",
@@ -34,7 +35,21 @@ export const getAllPlans = async (req, res) => {
 
 export const getActivePlans = async (req, res) => {
   try {
-    const plans = await RecruitmentPlan.find({ is_active: true }).sort("price");
+    const { plan_for } = req.query;
+
+    let filter = { is_active: true };
+    if (plan_for === "student") {
+      filter = { ...filter, plan_for: "student" };
+    } else if (plan_for === "all") {
+      filter = { is_active: true };
+    } else {
+      filter = {
+        ...filter,
+        $or: [{ plan_for: "company" }, { plan_for: { $exists: false } }],
+      };
+    }
+
+    const plans = await RecruitmentPlan.find(filter).sort("price");
     res.status(StatusCodes.OK).json({ plans });
   } catch (error) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
@@ -70,6 +85,11 @@ export const createSubscriptionOrder = async (req, res) => {
     const { plan_id } = req.body;
     const plan = await RecruitmentPlan.findById(plan_id);
     if (!plan) throw new NotFoundError("Plan not found");
+    if (plan.plan_for === "student") {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ error: "Invalid plan type for company subscription" });
+    }
 
     const options = {
       amount: plan.price * 100,
@@ -88,7 +108,7 @@ export const createSubscriptionOrder = async (req, res) => {
       currency: plan.currency || "INR",
     });
 
-    res.status(StatusCodes.CREATED).json({ order, subscription, plan });
+    res.status(StatusCodes.CREATED).json({ order, subscription, plan, key: process.env.RAZORPAY_KEY_ID });
   } catch (error) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
   }
@@ -141,6 +161,18 @@ export const checkSubscription = async (req, res) => {
       is_active: true,
       expires_at: { $gt: now },
     }).populate("plan_id");
+
+    if (subscription) {
+      const actualCount = await tbl_interview.countDocuments({
+        company_id: companyId,
+        createdAt: { $gte: subscription.starts_at }
+      });
+
+      if (subscription.interviews_used !== actualCount) {
+        subscription.interviews_used = actualCount;
+        await subscription.save();
+      }
+    }
 
     res.status(StatusCodes.OK).json({
       hasSubscription: !!subscription,

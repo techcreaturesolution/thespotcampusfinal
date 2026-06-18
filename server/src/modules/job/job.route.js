@@ -9,12 +9,14 @@ import {
   getJob,
   updateJob,
   deleteJob,
+  approveJobForCollege,
 } from "./job.controller.js";
 import { validateIdParam } from "../../middleware/validationMiddleware.js";
 
 router.route("/").get(getAllJobs).post(createJob);
 router.route("/college").get(getAllJobsClg);
 router.route("/student").get(getJobs);
+router.route("/:id/approve").patch(validateIdParam, approveJobForCollege);
 router
   .route("/:id")
   .get(validateIdParam, getJob)

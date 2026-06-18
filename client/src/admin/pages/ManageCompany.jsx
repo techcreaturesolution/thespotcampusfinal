@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
-import { FiTrash2, FiCheck, FiX, FiBriefcase } from "react-icons/fi";
+import { FiTrash2, FiCheck, FiX, FiBriefcase, FiPlus } from "react-icons/fi";
 import customFetch from "../../utils/customFetch";
 import Loading from "../../common/components/Loading";
 import PageHeader from "../../common/components/PageHeader";
@@ -75,9 +75,9 @@ const ManageCompany = () => {
           <Link
             to="/sign-up-company"
             state={{ fromAdmin: true }}
-            className="bg-primary-600 hover:bg-primary-700 text-white font-medium py-2.5 px-5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md inline-flex items-center gap-2 text-sm"
+            className="vibrant-btn text-white font-bold py-2.5 px-5 rounded-xl transition-all duration-200 hover:opacity-95 active:scale-95 inline-flex items-center gap-2 text-sm shadow-md shadow-indigo-500/10 hover:shadow-lg hover:shadow-indigo-500/20"
           >
-            Add Company
+            <FiPlus className="w-4 h-4" /> Add Company
           </Link>
         }
       />

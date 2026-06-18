@@ -1,9 +1,9 @@
 import React, { useMemo, useState } from "react";
 import { FiSearch, FiInbox } from "react-icons/fi";
 
-const thClass = "px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 bg-gray-50/80";
-const tdClass = "px-5 py-4 text-gray-600";
-const trClass = "border-t border-gray-100 hover:bg-primary-50/40 transition-colors";
+const thClass = "px-5 py-4 text-left text-[11px] font-extrabold uppercase tracking-widest text-[#3730a3] bg-[#f0f2fa] border-b border-indigo-100";
+const tdClass = "px-5 py-4 text-slate-600 text-sm font-medium";
+const trClass = "border-b border-slate-200/60 last:border-0 hover:bg-indigo-50/30 transition-colors duration-150";
 
 const DataTable = ({
   columns,
@@ -28,18 +28,18 @@ const DataTable = ({
   }, [data, query, searchKeys]);
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+    <div className="bg-white rounded-2xl border border-slate-200 border-t-4 border-t-[#3730a3] shadow-sm overflow-hidden">
       {(searchKeys.length > 0 || toolbar) && (
-        <div className="flex flex-col sm:flex-row gap-3 p-4 border-b border-gray-100 bg-gray-50/50">
+        <div className="flex flex-col sm:flex-row gap-3 p-4 border-b border-slate-200/60 bg-[#f8f9ff]/70">
           {searchKeys.length > 0 && (
             <div className="relative flex-1 max-w-md">
-              <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+              <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#3730a3] pointer-events-none" />
               <input
                 type="search"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder={searchPlaceholder}
-                className="w-full pl-10 pr-4 py-2.5 text-sm bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 outline-none transition"
+                className="w-full pl-10 pr-4 py-2.5 text-sm bg-white border border-slate-200 focus:border-[#3730a3] focus:bg-white outline-none rounded-xl transition focus:ring-4 focus:ring-indigo-100/50 shadow-sm"
               />
             </div>
           )}
@@ -59,8 +59,8 @@ const DataTable = ({
             </tr>
           </thead>
           <tbody>
-            {filtered.map((row) => (
-              <tr key={row[rowKey]} className={trClass}>
+            {filtered.map((row, idx) => (
+              <tr key={row[rowKey]} className={`${trClass} ${idx % 2 === 1 ? "bg-indigo-50/10" : "bg-white"}`}>
                 {columns.map((col) => (
                   <td key={col.key} className={`${tdClass} ${col.className || ""}`}>
                     {col.render ? col.render(row) : row[col.key]}
@@ -73,18 +73,18 @@ const DataTable = ({
       </div>
 
       {filtered.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-16 gap-2 text-gray-500 text-sm">
-          <FiInbox className="w-10 h-10 text-gray-300" />
-          <p>{emptyMessage}</p>
-          {query && <p className="text-xs text-gray-400">Try a different search term</p>}
+        <div className="flex flex-col items-center justify-center py-16 gap-3 text-slate-400 text-sm bg-white/40">
+          <FiInbox className="w-12 h-12 text-[#3730a3]/20" />
+          <p className="font-semibold text-slate-500">{emptyMessage}</p>
+          {query && <p className="text-xs text-slate-400">Try a different search term</p>}
         </div>
       )}
 
       {filtered.length > 0 && (
-        <div className="px-5 py-3 text-xs text-gray-500 border-t border-gray-100 bg-gray-50/30">
-          Showing <span className="font-semibold text-gray-700">{filtered.length}</span>
+        <div className="px-5 py-4 text-xs font-bold text-slate-400 border-t border-slate-200/60 bg-indigo-50/5">
+          Showing <span className="text-slate-600">{filtered.length}</span>
           {filtered.length !== data.length && (
-            <> of <span className="font-semibold text-gray-700">{data.length}</span></>
+            <> of <span className="text-slate-600">{data.length}</span></>
           )}{" "}
           records
         </div>

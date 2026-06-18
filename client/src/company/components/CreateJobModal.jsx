@@ -27,8 +27,6 @@ const isInterviewType = (type) =>
   ["technical_interview", "hr_interview", "video_interview"].includes(type);
 
 const CreateJobModal = ({ isOpen, onClose, jobId, onSuccess }) => {
-  if (!isOpen) return null;
-
   const isEditMode = !!jobId;
   const [loading, setLoading] = useState(isEditMode);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -38,27 +36,46 @@ const CreateJobModal = ({ isOpen, onClose, jobId, onSuccess }) => {
     job_title: "", job_position: "", job_type: "Full-Time",
     job_work_mode: "Physical", job_skills: "", job_salary: "",
     job_exp: "", job_noofposition: "", job_desc: "",
+    target_degree: [],
     job_location: { country: "India", state: "", city: "" },
   });
   const [rounds, setRounds] = useState([]);
+  const [uniqueDegrees, setUniqueDegrees] = useState([]);
+  const [collegesForDegree, setCollegesForDegree] = useState([]);
+  const [selectedColleges, setSelectedColleges] = useState([]);
 
-  // Targeting States
-  const [universities, setUniversities] = useState([]);
-  const [colleges, setColleges] = useState([]);
-  const [degrees, setDegrees] = useState([]);
-  const [branches, setBranches] = useState([]);
-  const [targetEntries, setTargetEntries] = useState([]);
-  const [currentTarget, setCurrentTarget] = useState({
-    university_id: "", university_name: "",
-    college_id: "", college_name: "",
-    degree_id: "", degree_name: "",
-    branch_id: "", branch_name: ""
-  });
-
-  // Load universities on mount
+  // Fetch unique degrees on mount
   useEffect(() => {
-    customFetch.get("/dropdown/universities").then(({ data }) => setUniversities(data.universities || []));
+    const fetchUniqueDegrees = async () => {
+      try {
+        const { data } = await customFetch.get("/dropdown/unique-degrees");
+        setUniqueDegrees(data.degrees || []);
+      } catch (error) {
+        console.error("Failed to fetch unique degrees", error);
+      }
+    };
+    fetchUniqueDegrees();
   }, []);
+
+  // Fetch colleges when target_degree changes
+  useEffect(() => {
+    if (!formData.target_degree || formData.target_degree.length === 0) {
+      setCollegesForDegree([]);
+      return;
+    }
+    const fetchColleges = async () => {
+      try {
+        const degreesParam = Array.isArray(formData.target_degree)
+          ? formData.target_degree.join(",")
+          : formData.target_degree;
+        const { data } = await customFetch.get(`/dropdown/colleges-by-degree?degree_name=${encodeURIComponent(degreesParam)}`);
+        setCollegesForDegree(data.colleges || []);
+      } catch (error) {
+        console.error("Failed to fetch colleges for degree", error);
+      }
+    };
+    fetchColleges();
+  }, [formData.target_degree]);
 
   // Fetch job details in Edit Mode
   useEffect(() => {
@@ -67,6 +84,16 @@ const CreateJobModal = ({ isOpen, onClose, jobId, onSuccess }) => {
       try {
         const { data } = await customFetch.get(`/jobs/${jobId}`);
         const job = data.job;
+        
+        let targetDegreeVal = [];
+        if (job.target_degree) {
+          if (Array.isArray(job.target_degree)) {
+            targetDegreeVal = job.target_degree;
+          } else if (typeof job.target_degree === "string") {
+            targetDegreeVal = job.target_degree.split(",").map(d => d.trim()).filter(Boolean);
+          }
+        }
+
         setFormData({
           job_title: job.job_title || "",
           job_position: job.job_position || "",
@@ -77,25 +104,17 @@ const CreateJobModal = ({ isOpen, onClose, jobId, onSuccess }) => {
           job_exp: job.job_exp || "",
           job_noofposition: job.job_noofposition || "",
           job_desc: job.job_desc || "",
+          target_degree: targetDegreeVal,
           job_location: {
             country: job.job_location?.country || "India",
             state: job.job_location?.state || "",
             city: job.job_location?.city || "",
           },
         });
+        setSelectedColleges(job.approved_colleges || []);
 
-        // Map placement targets
-        const targets = (job.job_college || []).map((t) => ({
-          university_id: t.job_university_id?._id || t.job_university_id || "",
-          university_name: t.job_university_id?.university_name || "Unknown University",
-          college_id: t.job_college_id?._id || t.job_college_id || "",
-          college_name: t.job_college_id?.college_name || "Unknown College",
-          degree_id: t.job_degree_id?._id || t.job_degree_id || "",
-          degree_name: t.job_degree_id?.degree_name || "Unknown Degree",
-          branch_id: t.job_branch_id?._id || t.job_branch_id || "",
-          branch_name: t.job_branch_id?.branch_name || "Unknown Branch",
-        }));
-        setTargetEntries(targets);
+        setRounds(job.rounds || []);
+        setShowRounds((job.rounds || []).length > 0);
       } catch (error) {
         toast.error("Failed to load job details");
         onClose();
@@ -106,57 +125,41 @@ const CreateJobModal = ({ isOpen, onClose, jobId, onSuccess }) => {
     fetchJobDetails();
   }, [jobId, isEditMode, onClose]);
 
-  // Load colleges when university changes
-  useEffect(() => {
-    if (currentTarget.university_id) {
-      customFetch.get(`/dropdown/colleges?university_id=${currentTarget.university_id}`).then(({ data }) => setColleges(data.colleges || []));
-    } else {
-      setColleges([]);
-      setDegrees([]);
-      setBranches([]);
-    }
-  }, [currentTarget.university_id]);
 
-  // Load degrees when college changes
-  useEffect(() => {
-    if (currentTarget.college_id) {
-      customFetch.get(`/dropdown/degrees?college_id=${currentTarget.college_id}`).then(({ data }) => setDegrees(data.degrees || []));
-    } else {
-      setDegrees([]);
-      setBranches([]);
-    }
-  }, [currentTarget.college_id]);
 
-  // Load branches when degree changes
-  useEffect(() => {
-    if (currentTarget.degree_id) {
-      customFetch.get(`/dropdown/branches?degree_id=${currentTarget.degree_id}&college_id=${currentTarget.college_id}`).then(({ data }) => setBranches(data.branches || []));
+  const handleCollegeToggle = (collegeId) => {
+    if (selectedColleges.includes(collegeId)) {
+      setSelectedColleges(selectedColleges.filter((id) => id !== collegeId));
     } else {
-      setBranches([]);
+      setSelectedColleges([...selectedColleges, collegeId]);
     }
-  }, [currentTarget.degree_id, currentTarget.college_id]);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (targetEntries.length === 0) {
-      toast.warning("Please add at least one placement target college");
+    if (!formData.target_degree || formData.target_degree.length === 0) {
+      toast.error("Please select at least one target degree.");
+      return;
+    }
+    if (selectedColleges.length === 0) {
+      toast.error("Please target at least one college.");
       return;
     }
     setIsSubmitting(true);
     try {
       const payload = {
         ...formData,
-        jobEntries: targetEntries.map(t => ({
-          job_university_id: t.university_id,
-          job_college_id: t.college_id,
-          job_degree_id: t.degree_id,
-          job_branch_id: t.branch_id
-        })),
-        ...(!isEditMode && { has_multiple_rounds: rounds.length > 0 })
+        approved_colleges: selectedColleges,
+        jobEntries: [],
+        has_multiple_rounds: rounds.length > 0,
+        ...(isEditMode && rounds.length === 0 && { rounds: [] })
       };
 
       if (isEditMode) {
         await customFetch.patch(`/jobs/${jobId}`, payload);
+        if (rounds.length > 0) {
+          await customFetch.post(`/rounds/job/${jobId}/rounds`, { rounds });
+        }
         toast.success("Job updated successfully!");
       } else {
         const { data } = await customFetch.post("/jobs", payload);
@@ -226,43 +229,30 @@ const CreateJobModal = ({ isOpen, onClose, jobId, onSuccess }) => {
     setRounds(updated);
   };
 
-  const addTarget = () => {
-    if (!currentTarget.university_id || !currentTarget.college_id || !currentTarget.degree_id || !currentTarget.branch_id) {
-      toast.warning("Please select all targeting fields");
-      return;
-    }
-    setTargetEntries([...targetEntries, currentTarget]);
-    // Reset selections
-    setCurrentTarget({
-      university_id: "", university_name: "",
-      college_id: "", college_name: "",
-      degree_id: "", degree_name: "",
-      branch_id: "", branch_name: ""
-    });
-  };
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadeIn">
       <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col border border-slate-200">
         
         {/* Sticky Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-150 bg-gray-50 flex-shrink-0">
+        <div className="flex items-center justify-between p-6 border-b border-slate-100 bg-white flex-shrink-0">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-primary-50 rounded-lg text-primary-600">
+            <div className="p-2.5 bg-indigo-50 rounded-xl text-[#3730a3] shrink-0">
               <FiBriefcase className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-gray-900">
+              <h3 className="text-lg font-extrabold text-slate-800 tracking-tight">
                 {isEditMode ? "Edit Job Opening" : "Create New Job"}
               </h3>
-              <p className="text-xs text-gray-500 mt-0.5">
+              <p className="text-xs font-semibold text-slate-450 mt-0.5">
                 {isEditMode ? "Modify details and target specific university placement cells." : "Post a vacancy and target specific university placement cells."}
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-2 rounded-lg transition"
+            className="text-slate-450 hover:text-slate-650 hover:bg-slate-50 p-2 rounded-xl transition"
           >
             <FiX className="w-5 h-5" />
           </button>
@@ -277,194 +267,147 @@ const CreateJobModal = ({ isOpen, onClose, jobId, onSuccess }) => {
           ) : (
             <form id="job-modal-form" onSubmit={handleSubmit} className="space-y-6">
               {/* Job Details */}
-              <div className="bg-gray-50 rounded-xl border border-gray-200 p-5 space-y-4">
-                <h4 className="text-sm font-semibold text-gray-800 uppercase tracking-wider">Job Details</h4>
+              <div className="bg-[#f8f9ff]/60 rounded-2xl border border-indigo-100/50 p-5 space-y-4">
+                <h4 className="text-[10px] font-extrabold text-slate-555 uppercase tracking-wider">Job Details</h4>
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold text-gray-600 mb-1">Job Title</label>
-                    <input type="text" name="job_title" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none transition text-sm bg-white" value={formData.job_title} onChange={handleChange} required />
+                    <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">Job Title</label>
+                    <input type="text" name="job_title" className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#3730a3]/50 focus:border-[#3730a3] outline-none transition text-sm bg-white font-semibold text-slate-700" value={formData.job_title} onChange={handleChange} required />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-gray-600 mb-1">Position</label>
-                    <input type="text" name="job_position" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none transition text-sm bg-white" value={formData.job_position} onChange={handleChange} required />
+                    <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">Position</label>
+                    <input type="text" name="job_position" className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#3730a3]/50 focus:border-[#3730a3] outline-none transition text-sm bg-white font-semibold text-slate-700" value={formData.job_position} onChange={handleChange} required />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-gray-600 mb-1">Type</label>
-                    <select name="job_type" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none transition text-sm bg-white" value={formData.job_type} onChange={handleChange}>
+                    <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">Type</label>
+                    <select name="job_type" className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#3730a3]/50 focus:border-[#3730a3] outline-none transition text-sm bg-white font-semibold text-slate-700 cursor-pointer" value={formData.job_type} onChange={handleChange}>
                       <option>Full-Time</option><option>Part-Time</option><option>Internship</option><option>Contract</option>
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-gray-600 mb-1">Work Mode</label>
-                    <select name="job_work_mode" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none transition text-sm bg-white" value={formData.job_work_mode} onChange={handleChange}>
+                    <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">Work Mode</label>
+                    <select name="job_work_mode" className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#3730a3]/50 focus:border-[#3730a3] outline-none transition text-sm bg-white font-semibold text-slate-700 cursor-pointer" value={formData.job_work_mode} onChange={handleChange}>
                       <option>Physical</option><option>Remote</option><option>Hybrid</option>
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-gray-600 mb-1">Skills Required</label>
-                    <input type="text" name="job_skills" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none transition text-sm bg-white" value={formData.job_skills} onChange={handleChange} placeholder="e.g. React, Node.js" required />
+                    <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">Skills Required</label>
+                    <input type="text" name="job_skills" className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#3730a3]/50 focus:border-[#3730a3] outline-none transition text-sm bg-white font-semibold text-slate-700" value={formData.job_skills} onChange={handleChange} placeholder="e.g. React, Node.js" required />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-gray-600 mb-1">Salary</label>
-                    <input type="text" name="job_salary" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none transition text-sm bg-white" value={formData.job_salary} onChange={handleChange} />
+                    <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">Salary</label>
+                    <input type="text" name="job_salary" className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#3730a3]/50 focus:border-[#3730a3] outline-none transition text-sm bg-white font-semibold text-slate-700" value={formData.job_salary} onChange={handleChange} />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-gray-600 mb-1">Experience</label>
-                    <input type="text" name="job_exp" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none transition text-sm bg-white" value={formData.job_exp} onChange={handleChange} />
+                    <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">Experience</label>
+                    <input type="text" name="job_exp" className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#3730a3]/50 focus:border-[#3730a3] outline-none transition text-sm bg-white font-semibold text-slate-700" value={formData.job_exp} onChange={handleChange} />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-gray-600 mb-1">No. of Positions</label>
-                    <input type="text" name="job_noofposition" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none transition text-sm bg-white" value={formData.job_noofposition} onChange={handleChange} />
+                    <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">No. of Positions</label>
+                    <input type="text" name="job_noofposition" className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#3730a3]/50 focus:border-[#3730a3] outline-none transition text-sm bg-white font-semibold text-slate-700" value={formData.job_noofposition} onChange={handleChange} />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-gray-600 mb-1">Job Description</label>
-                  <textarea name="job_desc" rows="4" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none transition text-sm bg-white" value={formData.job_desc} onChange={handleChange} placeholder="Detailed job description..." required />
+                  <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">Job Description</label>
+                  <textarea name="job_desc" rows="4" className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#3730a3]/50 focus:border-[#3730a3] outline-none transition text-sm bg-white font-semibold text-slate-700 leading-relaxed" value={formData.job_desc} onChange={handleChange} placeholder="Detailed job description..." required />
                 </div>
               </div>
 
-              {/* Placement Targets */}
-              <div className="bg-gray-50 rounded-xl border border-gray-200 p-5 space-y-4">
-                <h4 className="text-sm font-semibold text-gray-800 uppercase tracking-wider">Placement Targets</h4>
+              {/* Campus Targeting & Degree Selection */}
+              <div className="bg-[#f8f9ff]/60 rounded-2xl border border-indigo-100/50 p-5 space-y-4">
+                <h4 className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Campus Targeting</h4>
                 
-                <div className="grid md:grid-cols-4 gap-3">
-                  <div>
-                    <label className="block text-xxs font-semibold text-gray-500 mb-0.5">University</label>
-                    <select
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs bg-white outline-none"
-                      value={currentTarget.university_id}
-                      onChange={(e) => {
-                        const id = e.target.value;
-                        const name = universities.find(u => u._id === id)?.university_name || "";
-                        setCurrentTarget({ ...currentTarget, university_id: id, university_name: name, college_id: "", college_name: "", degree_id: "", degree_name: "", branch_id: "", branch_name: "" });
-                      }}
-                    >
-                      <option value="">Select University</option>
-                      {universities.map(u => <option key={u._id} value={u._id}>{u.university_name}</option>)}
-                    </select>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-xxs font-semibold text-gray-500 mb-0.5">College</label>
-                    <select
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs bg-white outline-none"
-                      value={currentTarget.college_id}
-                      disabled={!currentTarget.university_id}
-                      onChange={(e) => {
-                        const id = e.target.value;
-                        const name = colleges.find(c => c._id === id)?.college_name || "";
-                        setCurrentTarget({ ...currentTarget, college_id: id, college_name: name, degree_id: "", degree_name: "", branch_id: "", branch_name: "" });
-                      }}
-                    >
-                      <option value="">Select College</option>
-                      {colleges.map(c => <option key={c._id} value={c._id}>{c.college_name}</option>)}
-                    </select>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-xxs font-semibold text-gray-500 mb-0.5">Degree</label>
-                    <select
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs bg-white outline-none"
-                      value={currentTarget.degree_id}
-                      disabled={!currentTarget.college_id}
-                      onChange={(e) => {
-                        const id = e.target.value;
-                        const name = degrees.find(d => d._id === id)?.degree_name || "";
-                        setCurrentTarget({ ...currentTarget, degree_id: id, degree_name: name, branch_id: "", branch_name: "" });
-                      }}
-                    >
-                      <option value="">Select Degree</option>
-                      {degrees.map(d => <option key={d._id} value={d._id}>{d.degree_name}</option>)}
-                    </select>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-xxs font-semibold text-gray-500 mb-0.5">Branch</label>
-                    <select
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs bg-white outline-none"
-                      value={currentTarget.branch_id}
-                      disabled={!currentTarget.degree_id}
-                      onChange={(e) => {
-                        const id = e.target.value;
-                        const name = branches.find(b => b._id === id)?.branch_name || "";
-                        setCurrentTarget({ ...currentTarget, branch_id: id, branch_name: name });
-                      }}
-                    >
-                      <option value="">Select Branch</option>
-                      {branches.map(b => <option key={b._id} value={b._id}>{b.branch_name}</option>)}
-                    </select>
+                <div>
+                  <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-2">Target Degrees</label>
+                  <div className="flex flex-wrap gap-2.5 p-3 bg-white rounded-xl border border-slate-200">
+                    {uniqueDegrees.map((deg) => {
+                      const isSelected = formData.target_degree.includes(deg);
+                      return (
+                        <button
+                          key={deg}
+                          type="button"
+                          onClick={() => {
+                            let updatedDegrees;
+                            if (isSelected) {
+                              updatedDegrees = formData.target_degree.filter((d) => d !== deg);
+                            } else {
+                              updatedDegrees = [...formData.target_degree, deg];
+                            }
+                            setFormData({ ...formData, target_degree: updatedDegrees });
+                          }}
+                          className={`px-3.5 py-2 rounded-xl border text-xs font-bold transition-all duration-200 active:scale-95 ${
+                            isSelected
+                              ? "bg-[#3730a3] text-white border-[#3730a3] shadow-sm"
+                              : "bg-slate-50/60 text-slate-600 border-slate-200 hover:bg-slate-100"
+                          }`}
+                        >
+                          {deg}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
-                
-                <button
-                  type="button"
-                  onClick={addTarget}
-                  className="bg-primary-600 hover:bg-primary-700 text-white font-semibold py-1.5 px-3 rounded-lg text-xxs transition"
-                >
-                  + Add Target College
-                </button>
-                
-                {/* Target List */}
-                {targetEntries.length > 0 ? (
-                  <div className="border border-gray-200 rounded-lg divide-y divide-gray-150 bg-white overflow-hidden max-h-48 overflow-y-auto">
-                    {targetEntries.map((entry, index) => (
-                      <div key={index} className="p-3 flex items-center justify-between text-xs text-gray-600">
-                        <div className="flex-1 min-w-0 pr-4">
-                          <span className="font-bold text-gray-800 block text-xs truncate">{entry.college_name}</span>
-                          <span className="text-xxs text-gray-400 block truncate">{entry.university_name} &bull; {entry.degree_name} ({entry.branch_name})</span>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => setTargetEntries(targetEntries.filter((_, i) => i !== index))}
-                          className="text-red-500 hover:text-red-700 transition"
-                        >
-                          <FiTrash2 className="w-4 h-4" />
-                        </button>
+
+                {formData.target_degree && formData.target_degree.length > 0 && (
+                  <div>
+                    <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-2">
+                      Target Colleges offering {formData.target_degree.join(", ")}
+                    </label>
+                    {collegesForDegree.length === 0 ? (
+                      <p className="text-xs font-semibold text-slate-450 italic">No colleges offering this degree found.</p>
+                    ) : (
+                      <div className="grid md:grid-cols-2 gap-3 max-h-48 overflow-y-auto p-2 bg-white rounded-xl border border-slate-200">
+                        {collegesForDegree.map((clg) => (
+                          <label key={clg._id} className="flex items-center gap-2.5 p-2 hover:bg-slate-50 rounded-lg cursor-pointer transition text-xs font-semibold text-slate-700">
+                            <input
+                              type="checkbox"
+                              checked={selectedColleges.includes(clg._id)}
+                              onChange={() => handleCollegeToggle(clg._id)}
+                              className="rounded border-slate-350 text-[#3730a3] focus:ring-[#3730a3] w-4 h-4 cursor-pointer"
+                            />
+                            <span>{clg.college_name} ({clg.college_code || "N/A"})</span>
+                          </label>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-4 border border-dashed border-gray-200 rounded-lg text-xs text-gray-400 bg-white">
-                    No colleges targeted yet. Add at least one college target to save the job opening.
+                    )}
                   </div>
                 )}
               </div>
 
               {/* Multi-Round Configuration */}
-              {!isEditMode && (
-                <div className="bg-gray-50 rounded-xl border border-gray-200 p-5 space-y-4">
+              <div className="bg-[#f8f9ff]/60 rounded-2xl border border-indigo-100/50 p-5 space-y-4">
                   <div className="flex items-center justify-between">
-                    <h4 className="text-sm font-semibold text-gray-800 uppercase tracking-wider">Recruitment Rounds (Optional)</h4>
-                    <button type="button" onClick={addRound} className="bg-primary-600 hover:bg-primary-700 text-white font-medium py-1.5 px-3 rounded-lg transition text-xs flex items-center gap-1">
+                    <h4 className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Recruitment Rounds (Optional)</h4>
+                    <button type="button" onClick={addRound} className="bg-white hover:bg-slate-50 text-[#3730a3] border border-slate-200 font-bold py-1.5 px-3.5 rounded-xl transition text-xs flex items-center gap-1.5 shadow-sm active:scale-95">
                       <FiPlus className="w-3.5 h-3.5" /> Add Round
                     </button>
                   </div>
 
                   {rounds.length === 0 ? (
-                    <div className="text-center py-6 border border-dashed border-gray-200 rounded-lg bg-white">
-                      <p className="text-gray-400 text-xs">No rounds configured. Job will use single-round selection.</p>
+                    <div className="text-center py-8 border border-dashed border-slate-200 rounded-xl bg-white">
+                      <p className="text-slate-400 text-xs font-semibold">No rounds configured. Job will use single-round selection.</p>
                     </div>
                   ) : (
                     <div className="space-y-4">
                       {rounds.map((round, index) => (
-                        <div key={index} className="border border-gray-200 rounded-lg p-4 bg-white space-y-3">
+                        <div key={index} className="border border-slate-200 rounded-xl p-4 bg-white space-y-3.5 shadow-sm">
                           <div className="flex items-center justify-between">
-                            <span className="inline-flex items-center justify-center w-6 h-6 bg-primary-600 text-white text-xs font-bold rounded-full">
+                            <span className="inline-flex items-center justify-center w-6 h-6 bg-[#3730a3] text-white text-xs font-extrabold rounded-full">
                               {index + 1}
                             </span>
-                            <div className="flex items-center gap-1">
+                            <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg border border-slate-200/50">
                               <button type="button" onClick={() => moveRound(index, -1)} disabled={index === 0}
-                                className="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-30"><FiChevronUp /></button>
+                                className="p-1 text-slate-400 hover:text-slate-650 disabled:opacity-30 transition"><FiChevronUp className="w-4 h-4" /></button>
                               <button type="button" onClick={() => moveRound(index, 1)} disabled={index === rounds.length - 1}
-                                className="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-30"><FiChevronDown /></button>
+                                className="p-1 text-slate-400 hover:text-slate-650 disabled:opacity-30 transition"><FiChevronDown className="w-4 h-4" /></button>
                               <button type="button" onClick={() => removeRound(index)}
-                                className="p-1 text-red-400 hover:text-red-600 ml-1"><FiTrash2 /></button>
+                                className="p-1 text-rose-500 hover:text-rose-600 hover:bg-rose-50 rounded-md transition ml-1"><FiTrash2 className="w-4 h-4" /></button>
                             </div>
                           </div>
-                          <div className="grid md:grid-cols-3 gap-3">
+                          <div className="grid md:grid-cols-3 gap-3.5">
                             <div>
-                              <label className="block text-xxs font-medium text-gray-500 mb-0.5">Round Type</label>
-                              <select className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs" value={round.round_type}
+                              <label className="block text-[10px] font-extrabold text-slate-400 mb-1 uppercase tracking-wider">Round Type</label>
+                              <select className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 bg-white cursor-pointer focus:ring-2 focus:ring-[#3730a3]/50 focus:border-[#3730a3]" value={round.round_type}
                                 onChange={(e) => updateRound(index, "round_type", e.target.value)}>
                                 {ROUND_TYPES.map((rt) => (
                                   <option key={rt.value} value={rt.value}>{rt.label}</option>
@@ -472,39 +415,39 @@ const CreateJobModal = ({ isOpen, onClose, jobId, onSuccess }) => {
                               </select>
                             </div>
                             <div>
-                              <label className="block text-xxs font-medium text-gray-500 mb-0.5">Round Name</label>
-                              <input type="text" className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs" value={round.round_name}
+                              <label className="block text-[10px] font-extrabold text-slate-400 mb-1 uppercase tracking-wider">Round Name</label>
+                              <input type="text" className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:ring-2 focus:ring-[#3730a3]/50 focus:border-[#3730a3] outline-none" value={round.round_name}
                                 onChange={(e) => updateRound(index, "round_name", e.target.value)}
                                 placeholder="e.g. Technical Round 1" required />
                             </div>
                             <div>
-                              <label className="block text-xxs font-medium text-gray-500 mb-0.5">Duration (mins)</label>
-                              <input type="number" className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs" value={round.duration_minutes}
+                              <label className="block text-[10px] font-extrabold text-slate-400 mb-1 uppercase tracking-wider">Duration (mins)</label>
+                              <input type="number" className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:ring-2 focus:ring-[#3730a3]/50 focus:border-[#3730a3] outline-none" value={round.duration_minutes}
                                 onChange={(e) => updateRound(index, "duration_minutes", parseInt(e.target.value) || 60)}
                                 min="5" max="480" />
                             </div>
                           </div>
 
                           {isInterviewType(round.round_type) && (
-                            <div className="p-3 bg-blue-50 border border-blue-100 rounded-lg">
-                              <label className="block text-xxs font-semibold text-blue-700 mb-1">Interview Mode</label>
-                              <select className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs bg-white" value={round.interview_mode}
+                            <div className="p-3.5 bg-blue-50/50 border border-blue-100 rounded-xl space-y-1.5">
+                              <label className="block text-[10px] font-extrabold text-blue-700 uppercase tracking-wider">Interview Mode</label>
+                              <select className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs bg-white font-semibold text-slate-700 cursor-pointer focus:ring-2 focus:ring-[#3730a3]/50 focus:border-[#3730a3]" value={round.interview_mode}
                                 onChange={(e) => updateRound(index, "interview_mode", e.target.value)}>
                                 {INTERVIEW_MODES.filter((m) => m.value !== "none").map((m) => (
                                   <option key={m.value} value={m.value}>{m.label}</option>
                                 ))}
                               </select>
                               {round.interview_mode === "video_conference" && (
-                                <p className="text-xxs text-blue-600 mt-1">
-                                  Built-in video conference will be used for this round.
+                                <p className="text-[10px] font-semibold text-blue-600">
+                                  Built-in secure video conferencing room will be generated.
                                 </p>
                               )}
                             </div>
                           )}
 
                           <div>
-                            <label className="block text-xxs font-medium text-gray-500 mb-0.5">Description (optional)</label>
-                            <input type="text" className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs" value={round.round_description}
+                            <label className="block text-[10px] font-extrabold text-slate-400 mb-1 uppercase tracking-wider">Description (optional)</label>
+                            <input type="text" className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:ring-2 focus:ring-[#3730a3]/50 focus:border-[#3730a3] outline-none" value={round.round_description}
                                onChange={(e) => updateRound(index, "round_description", e.target.value)}
                                placeholder="Brief description of this round" />
                           </div>
@@ -512,8 +455,8 @@ const CreateJobModal = ({ isOpen, onClose, jobId, onSuccess }) => {
                           <div className="flex items-center gap-2">
                             <input type="checkbox" id={`elim-${index}`} checked={round.is_eliminatory}
                               onChange={(e) => updateRound(index, "is_eliminatory", e.target.checked)}
-                              className="rounded border-gray-300 text-primary-600 focus:ring-primary-500" />
-                            <label htmlFor={`elim-${index}`} className="text-xxs text-gray-500">
+                              className="rounded border-slate-350 text-[#3730a3] focus:ring-[#3730a3] w-4 h-4 cursor-pointer" />
+                            <label htmlFor={`elim-${index}`} className="text-xxs font-bold text-slate-500 cursor-pointer">
                               Eliminatory (candidates must pass to proceed)
                             </label>
                           </div>
@@ -522,16 +465,15 @@ const CreateJobModal = ({ isOpen, onClose, jobId, onSuccess }) => {
                     </div>
                   )}
                 </div>
-              )}
             </form>
           )}
         </div>
 
         {/* Sticky Footer */}
-        <div className="p-6 border-t border-gray-150 bg-gray-50 flex items-center justify-end gap-3 flex-shrink-0">
+        <div className="p-6 border-t border-slate-100 bg-white flex items-center justify-end gap-3 flex-shrink-0">
           <button
             type="button"
-            className="bg-white hover:bg-gray-100 text-gray-700 font-semibold py-2 px-5 rounded-lg border border-gray-300 text-sm transition"
+            className="bg-white hover:bg-slate-50 text-slate-700 font-bold py-2.5 px-5 rounded-xl border border-slate-200 text-sm transition"
             onClick={onClose}
             disabled={isSubmitting}
           >
@@ -540,7 +482,7 @@ const CreateJobModal = ({ isOpen, onClose, jobId, onSuccess }) => {
           <button
             type="submit"
             form="job-modal-form"
-            className="bg-primary-600 hover:bg-primary-700 text-white font-semibold py-2 px-5 rounded-lg transition shadow-md"
+            className="vibrant-btn text-white font-bold py-2.5 px-5 rounded-xl transition shadow-md hover:shadow-lg hover:shadow-indigo-500/20 text-sm"
             disabled={isSubmitting || loading}
           >
             {isSubmitting ? (isEditMode ? "Saving..." : "Creating...") : (isEditMode ? "Save Changes" : `Create Job`)}

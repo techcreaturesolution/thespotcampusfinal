@@ -12,6 +12,8 @@ import 'screens/job_detail_screen.dart';
 import 'screens/exam_screen.dart';
 import 'screens/my_applications_screen.dart';
 import 'screens/profile_screen.dart';
+import 'screens/interview_list_screen.dart';
+import 'screens/plans_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -88,6 +90,8 @@ class SpotCampusApp extends StatelessWidget {
         '/jobs': (context) => const JobListScreen(),
         '/my-applications': (context) => const MyApplicationsScreen(),
         '/profile': (context) => const ProfileScreen(),
+        '/interviews': (context) => const InterviewListScreen(),
+        '/plans': (context) => const PlansScreen(),
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/job-detail') {

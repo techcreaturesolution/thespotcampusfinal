@@ -1,73 +1,72 @@
-
-import React from "react";
+import React, { lazy, Suspense } from "react";
 import {
   createBrowserRouter,
   RouterProvider,
 } from "react-router-dom";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
 import { ToastContainer } from "react-toastify";
+import Loading from "./common/components/Loading";
 
 // Common / base components
-import Landing from "./common/pages/Landing";
-import SignIn from "./common/pages/SignIn";
-import DashboardLayout from "./common/pages/DashboardLayout";
-import VideoInterview from "./common/pages/VideoInterview";
-import ErrorPage from "./common/pages/ErrorPage";
-import SignUpStudent from "./common/pages/SignUpStudent";
-import SignUpCompany from "./common/pages/SignUpCompany";
-import SignUpUniversity from "./common/pages/SignUpUniversity";
-import SignUpCollege from "./common/pages/SignUpCollege";
-import Profile from "./common/pages/Profile";
+const Landing = lazy(() => import("./common/pages/Landing"));
+const SignIn = lazy(() => import("./common/pages/SignIn"));
+const DashboardLayout = lazy(() => import("./common/pages/DashboardLayout"));
+const VideoInterview = lazy(() => import("./common/pages/VideoInterview"));
+const ErrorPage = lazy(() => import("./common/pages/ErrorPage"));
+const SignUpStudent = lazy(() => import("./common/pages/SignUpStudent"));
+const SignUpCompany = lazy(() => import("./common/pages/SignUpCompany"));
+const SignUpUniversity = lazy(() => import("./common/pages/SignUpUniversity"));
+const SignUpCollege = lazy(() => import("./common/pages/SignUpCollege"));
+const Profile = lazy(() => import("./common/pages/Profile"));
 
 // Admin Pages
-import AdminManageUniversity from "./admin/pages/ManageUniversity";
-import AdminManageCollege from "./admin/pages/ManageCollege";
-import AdminManageCompany from "./admin/pages/ManageCompany";
-import AdminManageStudent from "./admin/pages/ManageStudent";
-import AdminManageTpo from "./admin/pages/ManageTpo";
-import AdminManageRecruitmentPlans from "./admin/pages/ManageRecruitmentPlans";
-import AdminContactList from "./admin/pages/ContactList";
+const AdminManageUniversity = lazy(() => import("./admin/pages/ManageUniversity"));
+const AdminManageCollege = lazy(() => import("./admin/pages/ManageCollege"));
+const AdminManageCompany = lazy(() => import("./admin/pages/ManageCompany"));
+const AdminManageStudent = lazy(() => import("./admin/pages/ManageStudent"));
+const AdminManageTpo = lazy(() => import("./admin/pages/ManageTpo"));
+const AdminManageRecruitmentPlans = lazy(() => import("./admin/pages/ManageRecruitmentPlans"));
+const AdminContactList = lazy(() => import("./admin/pages/ContactList"));
+const AdminManageCvTemplates = lazy(() => import("./admin/pages/ManageCvTemplates"));
+const AdminReport = lazy(() => import("./admin/pages/AdminReport"));
+const AdminAllTransactions = lazy(() => import("./admin/pages/AllTransactions"));
 
 // Student Pages
-import StudentOpeningList from "./student/pages/OpeningList";
-import StudentApplyList from "./student/pages/ApplyList";
-import StudentExamPaper from "./student/pages/ExamPaper";
-import StudentExamResult from "./student/pages/ExamResult";
-import StudentInterviews from "./student/pages/StudentInterviews";
-import Plans from "./student/pages/Plans";
+const StudentOpeningList = lazy(() => import("./student/pages/OpeningList"));
+const StudentApplyList = lazy(() => import("./student/pages/ApplyList"));
+const StudentExamPaper = lazy(() => import("./student/pages/ExamPaper"));
+const StudentExamResult = lazy(() => import("./student/pages/ExamResult"));
+const StudentInterviews = lazy(() => import("./student/pages/StudentInterviews"));
+const Plans = lazy(() => import("./student/pages/Plans"));
+const StudentResumeBuilder = lazy(() => import("./student/pages/ResumeBuilder"));
 
 // Company Pages
-import CompanyManageJob from "./company/pages/ManageJob";
-import CompanyInterviews from "./company/pages/CompanyInterviews";
-import CompanyRecruitmentSubscription from "./company/pages/RecruitmentSubscription";
-import CompanyRoundManagement from "./company/pages/RoundManagement";
+const CompanyManageJob = lazy(() => import("./company/pages/ManageJob"));
+const CompanyInterviews = lazy(() => import("./company/pages/CompanyInterviews"));
+const CompanyRecruitmentSubscription = lazy(() => import("./company/pages/RecruitmentSubscription"));
+const CompanyRoundManagement = lazy(() => import("./company/pages/RoundManagement"));
+const CompanyApplicants = lazy(() => import("./company/pages/CompanyApplications"));
 
 // College Pages
-import CollegeManageJob from "./college/pages/ManageJob";
-import CollegeManageStudent from "./college/pages/ManageStudent";
-import CollegeManageDegree from "./college/pages/ManageDegree";
-import CollegeManageBranch from "./college/pages/ManageBranch";
-import CollegeManageTpo from "./college/pages/ManageTpo";
+const CollegeManageJob = lazy(() => import("./college/pages/ManageJob"));
+const CollegeManageStudent = lazy(() => import("./college/pages/ManageStudent"));
+const CollegeManageDegree = lazy(() => import("./college/pages/ManageDegree"));
+const CollegeManageBranch = lazy(() => import("./college/pages/ManageBranch"));
+const CollegeManageTpo = lazy(() => import("./college/pages/ManageTpo"));
+const CollegeApplications = lazy(() => import("./college/pages/CollegeApplications"));
 
 // University Pages
-import UniversityManageJob from "./university/pages/ManageJob";
-import UniversityManageStudent from "./university/pages/ManageStudent";
-import UniversityManageDegree from "./university/pages/ManageDegree";
-import UniversityManageBranch from "./university/pages/ManageBranch";
+const UniversityManageJob = lazy(() => import("./university/pages/ManageJob"));
+const UniversityManageStudent = lazy(() => import("./university/pages/ManageStudent"));
+const UniversityManageDegree = lazy(() => import("./university/pages/ManageDegree"));
+const UniversityManageCollege = lazy(() => import("./university/pages/ManageCollege"));
 
 // TPO Pages
-import TpoManageJob from "./tpo/pages/ManageJob";
-import TpoManageStudent from "./tpo/pages/ManageStudent";
-import TpoManageDegree from "./tpo/pages/ManageDegree";
-import TpoManageBranch from "./tpo/pages/ManageBranch";
+const TpoManageJob = lazy(() => import("./tpo/pages/ManageJob"));
+const TpoManageStudent = lazy(() => import("./tpo/pages/ManageStudent"));
+const TpoApplications = lazy(() => import("./tpo/pages/TpoApplications"));
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 1000 * 60 * 5,
-    },
-  },
-});
+
 
 const router = createBrowserRouter([
   {
@@ -104,6 +103,10 @@ const router = createBrowserRouter([
       // Shared Video Interview
       { path: "video-interview/:roomId", element: <VideoInterview /> },
 
+      // Shared Exam Results
+      { path: "exam-result/:id", element: <StudentExamResult /> },
+      { path: "company/exam-result/:id", element: <StudentExamResult /> },
+
       // Admin Pages
       { path: "admin/manage-university", element: <AdminManageUniversity /> },
       { path: "admin/manage-college", element: <AdminManageCollege /> },
@@ -112,6 +115,9 @@ const router = createBrowserRouter([
       { path: "admin/manage-tpo", element: <AdminManageTpo /> },
       { path: "admin/manage-recruitment-plans", element: <AdminManageRecruitmentPlans /> },
       { path: "admin/contact-list", element: <AdminContactList /> },
+      { path: "admin/manage-cv-templates", element: <AdminManageCvTemplates /> },
+      { path: "admin/reports", element: <AdminReport /> },
+      { path: "admin/transactions", element: <AdminAllTransactions /> },
       { path: "admin/profile", element: <Profile /> },
 
       // Student Pages
@@ -122,10 +128,12 @@ const router = createBrowserRouter([
       { path: "student/my-interviews", element: <StudentInterviews /> },
       { path: "student/profile", element: <Profile /> },
       { path: "student/plans", element: <Plans /> },
+      { path: "student/ai-cv-builder", element: <StudentResumeBuilder /> },
 
       // Company Pages
       { path: "company/manage-job", element: <CompanyManageJob /> },
       { path: "company/round-management/:jobId", element: <CompanyRoundManagement /> },
+      { path: "company/applicants", element: <CompanyApplicants /> },
       { path: "company/company-interviews", element: <CompanyInterviews /> },
       { path: "company/recruitment-subscription", element: <CompanyRecruitmentSubscription /> },
       { path: "company/profile", element: <Profile /> },
@@ -136,20 +144,20 @@ const router = createBrowserRouter([
       { path: "college/manage-degree", element: <CollegeManageDegree /> },
       { path: "college/manage-branch", element: <CollegeManageBranch /> },
       { path: "college/manage-tpo", element: <CollegeManageTpo /> },
+      { path: "college/applications", element: <CollegeApplications /> },
       { path: "college/profile", element: <Profile /> },
 
       // University Pages
+      { path: "university/manage-college", element: <UniversityManageCollege /> },
       { path: "university/manage-job", element: <UniversityManageJob /> },
       { path: "university/manage-student", element: <UniversityManageStudent /> },
       { path: "university/manage-degree", element: <UniversityManageDegree /> },
-      { path: "university/manage-branch", element: <UniversityManageBranch /> },
       { path: "university/profile", element: <Profile /> },
 
       // TPO Pages
       { path: "tpo/manage-job", element: <TpoManageJob /> },
       { path: "tpo/manage-student", element: <TpoManageStudent /> },
-      { path: "tpo/manage-degree", element: <TpoManageDegree /> },
-      { path: "tpo/manage-branch", element: <TpoManageBranch /> },
+      { path: "tpo/applications", element: <TpoApplications /> },
       { path: "tpo/profile", element: <Profile /> },
     ],
   },
@@ -157,10 +165,12 @@ const router = createBrowserRouter([
 
 const App = () => {
   return (
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
+    <>
+      <Suspense fallback={<Loading />}>
+        <RouterProvider router={router} />
+      </Suspense>
       <ToastContainer position="top-right" autoClose={3000} />
-    </QueryClientProvider>
+    </>
   );
 };
 

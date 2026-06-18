@@ -22,6 +22,7 @@ const statConfig = [
   { key: "totalApplications", label: "Applications", icon: FiFileText, iconBg: "bg-amber-100 text-amber-600", path: null },
   { key: "totalStudents", label: "Students Pool", icon: FiUsers, iconBg: "bg-blue-100 text-blue-600", path: null },
   { key: "totalExams", label: "Exams", icon: FiCpu, iconBg: "bg-teal-100 text-teal-600", path: null },
+  { key: "totalInterviews", label: "Scheduled Interviews", icon: FiVideo, iconBg: "bg-emerald-100 text-emerald-600", path: "/dashboard/company/company-interviews" },
 ];
 
 const quickLinks = [
@@ -64,9 +65,9 @@ const CompanyDashboard = ({ user }) => {
           <Link
             to="/dashboard/company/manage-job"
             state={{ openCreateModal: true }}
-            className="bg-primary-600 hover:bg-primary-700 text-white font-medium py-2.5 px-5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md inline-flex items-center gap-2"
+            className="vibrant-btn text-white font-bold py-2.5 px-5 rounded-xl transition-all duration-200 hover:opacity-95 active:scale-95 inline-flex items-center gap-2 shadow-md shadow-indigo-500/10 hover:shadow-lg hover:shadow-indigo-500/20 text-sm"
           >
-            <FiPlus /> Post a New Job
+            <FiPlus className="w-4 h-4" /> Post a New Job
           </Link>
         }
       />
@@ -87,45 +88,50 @@ const CompanyDashboard = ({ user }) => {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <FiSettings className="text-primary-600" /> Quick Actions
+        {/* Quick Actions Card */}
+        <div className="bg-gradient-to-br from-white to-[#fcfdfe] rounded-2xl border border-slate-200/80 p-6 shadow-sm hover:shadow-md transition-all duration-300">
+          <h2 className="text-lg font-bold text-slate-800 mb-5 flex items-center gap-2">
+            <FiSettings className="text-[#3730a3]" /> Quick Shortcuts
           </h2>
-          <div className="grid grid-cols-2 gap-3 text-sm font-semibold">
+          <div className="grid grid-cols-2 gap-3.5 text-sm font-semibold">
             {quickLinks.map((item) => (
               <Link
-                key={item.to}
+                key={item.label}
                 to={item.to}
                 state={item.state}
-                className="p-3 bg-gray-50 hover:bg-primary-50 text-gray-700 hover:text-primary-600 rounded-xl transition border border-gray-100 flex items-center gap-2"
+                className="p-3.5 bg-slate-50/60 hover:bg-[#3730a3] border border-slate-200/70 hover:border-[#3730a3] text-slate-700 hover:text-white rounded-xl shadow-xs hover:shadow-md flex items-center gap-3.5 font-bold transition-all duration-200 group active:scale-97"
               >
-                <item.icon className={`text-lg ${item.color}`} /> {item.label}
+                <div className={`w-8 h-8 rounded-lg bg-white shadow-xs group-hover:bg-white/10 flex items-center justify-center transition-colors duration-200`}>
+                  <item.icon className={`text-base ${item.color} group-hover:text-white`} />
+                </div>
+                <span>{item.label}</span>
               </Link>
             ))}
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <FiCpu className="text-primary-600" /> Recruitment Tools
+        {/* Recruitment Tools Card */}
+        <div className="bg-gradient-to-br from-white to-[#fcfdfe] rounded-2xl border border-slate-200/80 p-6 shadow-sm hover:shadow-md transition-all duration-300">
+          <h2 className="text-lg font-bold text-slate-800 mb-5 flex items-center gap-2">
+            <FiCpu className="text-[#3730a3]" /> Recruitment Tools
           </h2>
-          <div className="space-y-3">
-            <div className="p-4 bg-gray-50 rounded-xl border border-gray-100 flex items-start gap-3">
-              <div className="w-9 h-9 bg-primary-100 text-primary-600 rounded-lg flex items-center justify-center shrink-0">
-                <FiFileText className="w-5 h-5" />
+          <div className="space-y-4">
+            <div className="p-4 bg-slate-50/50 hover:bg-white rounded-xl border border-slate-200/50 hover:border-indigo-250/70 flex items-start gap-3.5 transition-all duration-200 shadow-xs hover:shadow-sm">
+              <div className="w-9 h-9 bg-white text-[#3730a3] border border-slate-100 shadow-xs rounded-lg flex items-center justify-center shrink-0">
+                <FiFileText className="w-4.5 h-4.5 text-[#3730a3]" />
               </div>
-              <div>
-                <h4 className="font-bold text-gray-900 text-sm">AI MCQ from Job Description</h4>
-                <p className="text-gray-500 text-xs mt-1">Generate proctored exams tailored to your JD.</p>
+              <div className="text-left">
+                <h4 className="font-bold text-slate-800 text-sm">AI MCQ from Job Description</h4>
+                <p className="text-slate-500 text-xs mt-1 leading-normal">Generate proctored exams tailored to your JD instantly.</p>
               </div>
             </div>
-            <div className="p-4 bg-gray-50 rounded-xl border border-gray-100 flex items-start gap-3">
-              <div className="w-9 h-9 bg-indigo-100 text-indigo-600 rounded-lg flex items-center justify-center shrink-0">
-                <FiTrendingUp className="w-5 h-5" />
+            <div className="p-4 bg-slate-50/50 hover:bg-white rounded-xl border border-slate-200/50 hover:border-indigo-250/70 flex items-start gap-3.5 transition-all duration-200 shadow-xs hover:shadow-sm">
+              <div className="w-9 h-9 bg-white text-indigo-600 border border-slate-100 shadow-xs rounded-lg flex items-center justify-center shrink-0">
+                <FiTrendingUp className="w-4.5 h-4.5 text-[#2563eb]" />
               </div>
-              <div>
-                <h4 className="font-bold text-gray-900 text-sm">Live Proctoring</h4>
-                <p className="text-gray-500 text-xs mt-1">Monitor tab switches, camera, and violations in real time.</p>
+              <div className="text-left">
+                <h4 className="font-bold text-slate-800 text-sm">Live Proctoring Panel</h4>
+                <p className="text-slate-500 text-xs mt-1 leading-normal">Monitor browser tab locks, camera snapshots, and violations in real time.</p>
               </div>
             </div>
           </div>

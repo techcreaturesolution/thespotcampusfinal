@@ -5,6 +5,7 @@ const CreatePlanModal = ({ isOpen, onClose, plan, onSubmit }) => {
   if (!isOpen) return null;
 
   const [form, setForm] = useState({
+    plan_for: "company",
     plan_name: "",
     description: "",
     price: "",
@@ -21,6 +22,7 @@ const CreatePlanModal = ({ isOpen, onClose, plan, onSubmit }) => {
   useEffect(() => {
     if (plan) {
       setForm({
+        plan_for: plan.plan_for || "company",
         plan_name: plan.plan_name || "",
         description: plan.description || "",
         price: plan.price || "",
@@ -35,6 +37,7 @@ const CreatePlanModal = ({ isOpen, onClose, plan, onSubmit }) => {
       });
     } else {
       setForm({
+        plan_for: "company",
         plan_name: "",
         description: "",
         price: "",
@@ -86,6 +89,18 @@ const CreatePlanModal = ({ isOpen, onClose, plan, onSubmit }) => {
               onChange={(e) => setForm({ ...form, description: e.target.value })}
             />
           </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Plan For</label>
+            <select
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all duration-200 bg-white"
+              value={form.plan_for}
+              onChange={(e) => setForm({ ...form, plan_for: e.target.value })}
+              required
+            >
+              <option value="company">Company</option>
+              <option value="student">Student</option>
+            </select>
+          </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Price (₹)</label>
@@ -113,18 +128,22 @@ const CreatePlanModal = ({ isOpen, onClose, plan, onSubmit }) => {
             <label className="block text-sm font-medium text-gray-700 mb-2">Features</label>
             <div className="space-y-3 p-3 bg-gray-50 rounded-lg">
               <div className="flex items-center justify-between">
-                <label className="text-sm text-gray-600">Max Rounds Per Job</label>
+                <label className="text-sm text-gray-600">
+                  {form.plan_for === "student" ? "Max Job Applications" : "Max Rounds Per Job"}
+                </label>
                 <input
                   type="number"
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all duration-200 w-20 text-sm"
                   value={form.features.max_rounds_per_job}
                   onChange={(e) => setForm({ ...form, features: { ...form.features, max_rounds_per_job: parseInt(e.target.value) || 5 } })}
                   min="1"
-                  max="20"
+                  max="1000"
                 />
               </div>
               <div className="flex items-center justify-between">
-                <label className="text-sm text-gray-600">Max Interviews Per Month</label>
+                <label className="text-sm text-gray-600">
+                  {form.plan_for === "student" ? "Max Interviews Per Month" : "Max Interviews Per Month"}
+                </label>
                 <input
                   type="number"
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all duration-200 w-20 text-sm"
@@ -134,7 +153,9 @@ const CreatePlanModal = ({ isOpen, onClose, plan, onSubmit }) => {
                 />
               </div>
               <div className="flex items-center justify-between">
-                <label className="text-sm text-gray-600">Video Interviews</label>
+                <label className="text-sm text-gray-600">
+                  {form.plan_for === "student" ? "Video Interview Access & Prep" : "Video Interviews"}
+                </label>
                 <input
                   type="checkbox"
                   checked={form.features.video_interview_enabled}
@@ -143,7 +164,9 @@ const CreatePlanModal = ({ isOpen, onClose, plan, onSubmit }) => {
                 />
               </div>
               <div className="flex items-center justify-between">
-                <label className="text-sm text-gray-600">Advanced Analytics</label>
+                <label className="text-sm text-gray-600">
+                  {form.plan_for === "student" ? "Profile Performance Insights" : "Advanced Analytics"}
+                </label>
                 <input
                   type="checkbox"
                   checked={form.features.advanced_analytics}
@@ -152,7 +175,9 @@ const CreatePlanModal = ({ isOpen, onClose, plan, onSubmit }) => {
                 />
               </div>
               <div className="flex items-center justify-between">
-                <label className="text-sm text-gray-600">Priority Support</label>
+                <label className="text-sm text-gray-600">
+                  {form.plan_for === "student" ? "Priority Placement Support" : "Priority Support"}
+                </label>
                 <input
                   type="checkbox"
                   checked={form.features.priority_support}

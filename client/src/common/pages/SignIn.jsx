@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { FiMail, FiLock, FiEye, FiEyeOff } from "react-icons/fi";
+import { FiMail, FiLock, FiEye, FiEyeOff, FiArrowLeft, FiUser, FiBriefcase, FiUsers, FiShield } from "react-icons/fi";
 import customFetch from "../../utils/customFetch";
 
 const SignIn = () => {
@@ -25,27 +25,45 @@ const SignIn = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-indigo-50 flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
+    <div className="min-h-screen bg-[#f8f9ff] text-[#0b1c30] flex items-center justify-center p-4 relative overflow-hidden selection:bg-[#3730a3] selection:text-white">
+      {/* Soft Ambient Background Glows */}
+      <div className="absolute top-10 left-10 w-96 h-96 bg-blue-400/10 blur-[100px] rounded-full pointer-events-none -z-10" />
+      <div className="absolute bottom-10 right-10 w-[450px] h-[450px] bg-indigo-400/10 blur-[120px] rounded-full pointer-events-none -z-10" />
+
+      {/* Main Form Container Card */}
+      <div className="max-w-md w-full glass-panel rounded-[2rem] p-8 md:p-10 shadow-2xl shadow-indigo-950/5 relative border border-white/60 glow-soft mt-12 mb-8 bg-white/80 backdrop-blur-xl">
+        {/* Back to Home Icon Button */}
+        <Link
+          to="/"
+          className="absolute top-6 left-6 w-9 h-9 flex items-center justify-center rounded-xl bg-white hover:bg-indigo-50 border border-slate-200/60 hover:border-indigo-300 text-slate-500 hover:text-[#3730a3] transition-all duration-200 shadow-sm"
+          title="Back to Home"
+        >
+          <FiArrowLeft className="w-4 h-4" />
+        </Link>
+
         <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-2 mb-6">
-            <div className="w-10 h-10 bg-gradient-to-br from-primary-600 to-indigo-600 rounded-xl flex items-center justify-center">
-              <span className="text-white font-bold text-lg">S</span>
-            </div>
-            <span className="text-xl font-bold text-gray-900">The Spot Campus</span>
+          <Link to="/" className="inline-flex items-center justify-center mb-5 p-2 bg-white rounded-2xl shadow-sm border border-slate-100/50">
+            <img src="/logo_TSC.webp" alt="The Spot Campus" width="130" height="40" className="h-10 object-contain" />
           </Link>
-          <h1 className="text-2xl font-bold text-gray-900">Welcome Back</h1>
-          <p className="text-gray-500 mt-1">Sign in to your account</p>
+          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">
+            Welcome <span className="text-gradient font-black">Back</span>
+          </h1>
+          <p className="text-slate-400 text-xs sm:text-sm mt-1.5 font-semibold">
+            Sign in to access your Spot Campus portal
+          </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Email Address */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
+              Email Address
+            </label>
             <div className="relative">
-              <FiMail className="absolute left-3 top-3 text-gray-400" />
+              <FiMail className="absolute left-3.5 top-3.5 text-[#3730a3] w-4.5 h-4.5" />
               <input
                 type="email"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all duration-200 pl-10"
+                className="w-full px-4 py-3 bg-[#f8f9ff]/70 border border-slate-200 focus:border-[#3730a3] focus:bg-white outline-none rounded-xl text-sm transition-all duration-200 pl-10 pr-4 focus:ring-4 focus:ring-indigo-500/5"
                 placeholder="Enter your email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -53,46 +71,92 @@ const SignIn = () => {
               />
             </div>
           </div>
+
+          {/* Password */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+            <div className="flex justify-between items-center mb-2">
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500">
+                Password
+              </label>
+            </div>
             <div className="relative">
-              <FiLock className="absolute left-3 top-3 text-gray-400" />
+              <FiLock className="absolute left-3.5 top-3.5 text-[#3730a3] w-4.5 h-4.5" />
               <input
                 type={showPassword ? "text" : "password"}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all duration-200 pl-10 pr-10"
-                placeholder="Enter your password"
+                className="w-full px-4 py-3 bg-[#f8f9ff]/70 border border-slate-200 focus:border-[#3730a3] focus:bg-white outline-none rounded-xl text-sm transition-all duration-200 pl-10 pr-10 focus:ring-4 focus:ring-indigo-500/5"
+                placeholder="Enter password"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 required
               />
               <button
                 type="button"
-                className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 focus:outline-none"
+                className="absolute right-3 top-3.5 text-slate-400 hover:text-[#3730a3] focus:outline-none transition duration-150"
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
               </button>
             </div>
           </div>
-          <button type="submit" className="bg-primary-600 hover:bg-primary-700 text-white font-medium py-2.5 px-5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md w-full" disabled={isSubmitting}>
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            className="w-full py-4 vibrant-btn text-white font-bold text-sm rounded-xl active:scale-97 transition-all tracking-wider uppercase shadow-md hover:shadow-lg focus:outline-none disabled:opacity-75 disabled:cursor-not-allowed"
+            disabled={isSubmitting}
+          >
             {isSubmitting ? "Signing in..." : "Sign In"}
           </button>
         </form>
 
-        <div className="mt-8 pt-6 border-t border-gray-100 text-center text-xs text-gray-500">
-          <p className="font-semibold text-gray-400 uppercase tracking-wider mb-4">Register new account</p>
-          <div className="grid grid-cols-2 gap-3 text-sm font-medium">
-            <Link to="/sign-up-student" className="p-2.5 bg-gray-50 hover:bg-primary-50 text-gray-700 hover:text-primary-600 rounded-xl transition duration-150 border border-gray-100/50">
-              As Student
+        {/* Unified Registration Gateway */}
+        <div className="mt-8 pt-6 border-t border-slate-100 text-center">
+          <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">
+            Register New Account
+          </p>
+          <div className="grid grid-cols-2 gap-3">
+            {/* Student Role */}
+            <Link
+              to="/sign-up-student"
+              className="group flex flex-col items-center p-3 bg-white hover:bg-[#3730a3] border border-slate-100 rounded-xl transition duration-200 shadow-sm hover:shadow-md"
+            >
+              <FiUser className="w-5 h-5 text-[#3730a3] group-hover:text-white mb-1.5 transition-colors duration-200" />
+              <span className="text-xs font-bold text-slate-700 group-hover:text-white transition-colors duration-200">
+                As Student
+              </span>
             </Link>
-            <Link to="/sign-up-company" className="p-2.5 bg-gray-50 hover:bg-primary-50 text-gray-700 hover:text-primary-600 rounded-xl transition duration-150 border border-gray-100/50">
-              As Company
+
+            {/* Recruiter Role */}
+            <Link
+              to="/sign-up-company"
+              className="group flex flex-col items-center p-3 bg-white hover:bg-[#3730a3] border border-slate-100 rounded-xl transition duration-200 shadow-sm hover:shadow-md"
+            >
+              <FiBriefcase className="w-5 h-5 text-[#3730a3] group-hover:text-white mb-1.5 transition-colors duration-200" />
+              <span className="text-xs font-bold text-slate-700 group-hover:text-white transition-colors duration-200">
+                As Company
+              </span>
             </Link>
-            <Link to="/sign-up-university" className="p-2.5 bg-gray-50 hover:bg-primary-50 text-gray-700 hover:text-primary-600 rounded-xl transition duration-150 border border-gray-100/50">
-              As University
+
+            {/* University Role */}
+            <Link
+              to="/sign-up-university"
+              className="group flex flex-col items-center p-3 bg-white hover:bg-[#3730a3] border border-slate-100 rounded-xl transition duration-200 shadow-sm hover:shadow-md"
+            >
+              <FiUsers className="w-5 h-5 text-[#3730a3] group-hover:text-white mb-1.5 transition-colors duration-200" />
+              <span className="text-xs font-bold text-slate-700 group-hover:text-white transition-colors duration-200">
+                As University
+              </span>
             </Link>
-            <Link to="/sign-up-college" className="p-2.5 bg-gray-50 hover:bg-primary-50 text-gray-700 hover:text-primary-600 rounded-xl transition duration-150 border border-gray-100/50">
-              As College
+
+            {/* College Role */}
+            <Link
+              to="/sign-up-college"
+              className="group flex flex-col items-center p-3 bg-white hover:bg-[#3730a3] border border-slate-100 rounded-xl transition duration-200 shadow-sm hover:shadow-md"
+            >
+              <FiShield className="w-5 h-5 text-[#3730a3] group-hover:text-white mb-1.5 transition-colors duration-200" />
+              <span className="text-xs font-bold text-slate-700 group-hover:text-white transition-colors duration-200">
+                As College
+              </span>
             </Link>
           </div>
         </div>
@@ -102,3 +166,4 @@ const SignIn = () => {
 };
 
 export default SignIn;
+

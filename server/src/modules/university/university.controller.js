@@ -1,14 +1,26 @@
 import tbl_university from "./university.model.js";
+import tbl_college from "../college/college.model.js";
 import { StatusCodes } from "http-status-codes";
 import { NotFoundError } from "../../errors/customErrors.js";
 import { hashPassword } from "../../utils/passwordUtils.js";
+import { isEmailExists } from "../../utils/emailCheck.js";
 import cloudinary from "cloudinary";
 import { promises as fs } from "fs";
 
 export const getAllUniversitys = async (req, res) => {
   try {
-    const universitys = await tbl_university.find({}).sort("-createdAt");
-    res.status(StatusCodes.OK).json({ universitys });
+    const universities = await tbl_university.find({}).sort("-createdAt");
+    const universitiesWithCount = await Promise.all(
+      universities.map(async (u) => {
+        const collegeCount = await tbl_college.countDocuments({ college_university_id: u._id });
+        const universityObj = u.toJSON();
+        return {
+          ...universityObj,
+          collegeCount,
+        };
+      })
+    );
+    res.status(StatusCodes.OK).json({ universitys: universitiesWithCount });
   } catch (error) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
   }
@@ -16,6 +28,13 @@ export const getAllUniversitys = async (req, res) => {
 
 export const createUniversity = async (req, res) => {
   try {
+    const emailConflict = await isEmailExists(req.body.university_email);
+    if (emailConflict) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ msg: "Email is already registered on this platform" });
+    }
+
     const hashedPassword = await hashPassword(req.body.university_password);
     req.body.university_password = hashedPassword;
 

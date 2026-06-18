@@ -13,6 +13,9 @@ export const getAllDegrees = async (req, res) => {
 
 export const createDegree = async (req, res) => {
   try {
+    if (req.user && req.user.role === "College") {
+      req.body.college_id = req.user.userId;
+    }
     const degree = await tbl_degree.create(req.body);
     res.status(StatusCodes.CREATED).json({ msg: "Degree created", degree });
   } catch (error) {

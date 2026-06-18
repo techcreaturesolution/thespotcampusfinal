@@ -6,7 +6,7 @@ const Loading = () => (
       <div className="absolute inset-0 rounded-full border-4 border-gray-200" />
       <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-primary-600 animate-spin" />
     </div>
-    <p className="text-sm font-medium text-gray-500">Loading data…</p>
+    <p className="text-sm font-medium text-slate-700">Loading data…</p>
   </div>
 );
 

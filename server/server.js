@@ -31,6 +31,7 @@ import BranchRouter from "./src/modules/branch/branch.route.js";
 import DegreeRouter from "./src/modules/degree/degree.route.js";
 import DegreeMasterRoutes from "./src/modules/degree/degreemaster.route.js";
 import StudentRouter from "./src/modules/student/student.route.js";
+import CvTemplateRouter from "./src/modules/student/cvTemplate.route.js";
 import TPORouter from "./src/modules/tpo/tpo.route.js";
 import authRouter from "./src/modules/auth/auth.route.js";
 import LoginRouter from "./src/modules/auth/login.route.js";
@@ -44,10 +45,15 @@ import ExamPaymentRouter from "./src/modules/subscription/exampayment.route.js";
 import RoundRouter from "./src/modules/interview/round.route.js";
 import InterviewRouter from "./src/modules/interview/interview.route.js";
 import RecruitmentSubscriptionRouter from "./src/modules/subscription/subscription.route.js";
+import { getActivePlans } from "./src/modules/subscription/subscription.controller.js";
 
 // Middleware
 import errorHandlerMiddleware from "./src/middleware/errorHandlerMiddleware.js";
 import { authenticateUser } from "./src/middleware/authMiddleware.js";
+
+const allowedOrigins = process.env.CLIENT_URL
+  ? process.env.CLIENT_URL.split(",").map(url => url.trim())
+  : ["http://localhost:5173", "http://localhost:4173"];
 
 const app = express();
 const server = http.createServer(app);
@@ -55,7 +61,7 @@ const server = http.createServer(app);
 // Socket.IO for real-time proctoring
 const io = new Server(server, {
   cors: {
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    origin: allowedOrigins,
     credentials: true,
   },
 });
@@ -108,6 +114,8 @@ io.on("connection", (socket) => {
     socket.to(`interview-${data.roomId}`).emit("interview-offer", {
       offer: data.offer,
       userId: data.userId,
+      userName: data.userName,
+      role: data.role,
     });
   });
 
@@ -115,6 +123,8 @@ io.on("connection", (socket) => {
     socket.to(`interview-${data.roomId}`).emit("interview-answer", {
       answer: data.answer,
       userId: data.userId,
+      userName: data.userName,
+      role: data.role,
     });
   });
 
@@ -141,6 +151,13 @@ io.on("connection", (socket) => {
     });
     socket.leave(`interview-${data.roomId}`);
   });
+  
+  socket.on("end-interview", (data) => {
+    socket.to(`interview-${data.roomId}`).emit("interview-ended-by-peer", {
+      userId: data.userId,
+      userName: data.userName,
+    });
+  });
 
   socket.on("disconnect", () => {
     console.log("Client disconnected:", socket.id);
@@ -149,9 +166,9 @@ io.on("connection", (socket) => {
 
 // Cloudinary config
 cloudinary.config({
-  cloud_name: process.env.CLOUD_NAME,
-  api_key: process.env.CLOUD_API_KEY,
-  api_secret: process.env.CLOUD_API_SECRET,
+  cloud_name: process.env.CLOUD_NAME || process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUD_API_KEY || process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUD_API_SECRET || process.env.CLOUDINARY_API_SECRET,
 });
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -161,7 +178,7 @@ app.use(helmet({ contentSecurityPolicy: false }));
 app.use(mongoSanitize());
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    origin: allowedOrigins,
     credentials: true,
   })
 );
@@ -186,11 +203,13 @@ app.use("/api/contact", ContactRouter);
 app.use("/api/university", UniversityRouter);
 app.use("/api/dropdown", DropdownRouter);
 app.use("/api/order", authenticateUser, PaymentRouter);
+app.use("/api/payment", authenticateUser, PaymentRouter);
 app.use("/api/aiexam", authenticateUser, ExamPaymentRouter);
 app.use("/api/exam", authenticateUser, ExamRouter);
 app.use("/api/paper", authenticateUser, PaperRouter);
 app.use("/api/rounds", authenticateUser, RoundRouter);
 app.use("/api/interviews", authenticateUser, InterviewRouter);
+app.get("/api/recruitment-subscription/plans/active", getActivePlans);
 app.use("/api/recruitment-subscription", authenticateUser, RecruitmentSubscriptionRouter);
 app.use("/api/company", CompanyRouter);
 app.use("/api/application", authenticateUser, ApplicationRouter);
@@ -199,6 +218,7 @@ app.use("/api/branch", authenticateUser, BranchRouter);
 app.use("/api/degree", authenticateUser, DegreeRouter);
 app.use("/api/degreeMaster", DegreeMasterRoutes);
 app.use("/api/student", authenticateUser, StudentRouter);
+app.use("/api/cv-templates", authenticateUser, CvTemplateRouter);
 app.use("/api/register", StudentRouter);
 app.use("/api/tpo", authenticateUser, TPORouter);
 app.use("/api/auth", authRouter);
@@ -221,6 +241,15 @@ const port = process.env.PORT || 5000;
 
 try {
   await mongoose.connect(process.env.MONGO_URL);
+  
+  // Seed default templates if database is empty on server startup
+  try {
+    const { seedDefaultTemplates } = await import("./src/modules/student/cvTemplate.controller.js");
+    await seedDefaultTemplates();
+  } catch (seedErr) {
+    console.error("Failed to seed default CV templates on server startup:", seedErr);
+  }
+
   server.listen(port, () => {
     console.log(`The Spot Campus Final server running on PORT ${port}....`);
   });
@@ -230,3 +259,4 @@ try {
 }
 
 export { io };
+// Force reload env config

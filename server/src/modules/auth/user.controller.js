@@ -19,7 +19,7 @@ export const getCurrentUser = async (req, res) => {
         user = await tbl_admin.findById(userId);
         break;
       case "Student":
-        user = await tbl_student.findById(userId);
+        user = await tbl_student.findById(userId).populate("college_id university_id degree_id branch_id");
         break;
       case "Company":
         user = await tbl_company.findById(userId);
@@ -31,7 +31,12 @@ export const getCurrentUser = async (req, res) => {
         user = await tbl_university.findById(userId);
         break;
       case "TPO":
-        user = await tbl_tpo.findById(userId);
+        user = await tbl_tpo.findById(userId)
+          .populate({
+            path: "tpo_college_id",
+            populate: { path: "college_university_id" },
+          })
+          .populate("tpo_degree_id");
         break;
       default:
         return res
@@ -138,7 +143,12 @@ export const updateUserProfile = async (req, res) => {
         updatedUser = await tbl_university.findByIdAndUpdate(userId, updateData, { new: true });
         break;
       case "TPO":
-        updatedUser = await tbl_tpo.findByIdAndUpdate(userId, updateData, { new: true });
+        updatedUser = await tbl_tpo.findByIdAndUpdate(userId, updateData, { new: true })
+          .populate({
+            path: "tpo_college_id",
+            populate: { path: "college_university_id" },
+          })
+          .populate("tpo_degree_id");
         break;
     }
 

@@ -5,7 +5,6 @@ import {
   getAllExams,
   getExam,
   getExamById,
-  createExam,
   createExamFromJD,
   updateExam,
   deleteExam,
@@ -13,7 +12,7 @@ import {
 } from "./exam.controller.js";
 import { validateExamParam } from "../../middleware/validationMiddleware.js";
 
-router.route("/").get(getAllExams).post(createExam);
+router.route("/").get(getAllExams);
 router.route("/from-jd").post(createExamFromJD);
 router
   .route("/:id")

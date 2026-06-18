@@ -16,6 +16,14 @@ const ICE_SERVERS = {
   ],
 };
 
+const getSocketUrl = () => {
+  const envUrl = import.meta.env.VITE_API_BASE_URL;
+  if (envUrl && !import.meta.env.DEV) {
+    return envUrl.replace(/\/api$/, "");
+  }
+  return window.location.origin;
+};
+
 const VideoInterview = () => {
   const { roomId } = useParams();
   const navigate = useNavigate();
@@ -31,8 +39,6 @@ const VideoInterview = () => {
   const [messages, setMessages] = useState([]);
   const [messageInput, setMessageInput] = useState("");
   const [elapsed, setElapsed] = useState(0);
-  const [showEvaluation, setShowEvaluation] = useState(false);
-  const [evaluation, setEvaluation] = useState({ rating: 5, recommendation: "", notes: "" });
 
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
@@ -40,6 +46,7 @@ const VideoInterview = () => {
   const peerRef = useRef(null);
   const localStreamRef = useRef(null);
   const timerRef = useRef(null);
+  const iceCandidatesQueue = useRef([]);
 
   const userId = user?._id || user?.student_id || "unknown";
   const userName = user?.student_name || user?.company_name || "User";
@@ -64,7 +71,13 @@ const VideoInterview = () => {
   const fetchInterview = async () => {
     try {
       const { data } = await customFetch.get(`/interviews/room/${roomId}`);
-      setInterview(data.interview);
+      const interviewData = data.interview;
+      if (interviewData.status === "completed" || interviewData.status === "cancelled") {
+        toast.warning("This interview has already ended.");
+        navigate(-1);
+        return;
+      }
+      setInterview(interviewData);
       initializeMedia();
     } catch (error) {
       toast.error("Interview room not found");
@@ -82,18 +95,32 @@ const VideoInterview = () => {
       initSocket(stream);
     } catch (error) {
       toast.error("Camera/microphone access required");
+      if (role === "Student") {
+        navigate("/dashboard/student/my-interviews");
+      } else {
+        navigate("/dashboard/company/company-interviews");
+      }
     }
   };
 
   const initSocket = (stream) => {
-    const socket = io(window.location.origin, { withCredentials: true });
+    const socketUrl = getSocketUrl();
+    console.log("Connecting socket to:", socketUrl);
+    const socket = io(socketUrl, { withCredentials: true });
     socketRef.current = socket;
 
-    socket.on("connect", () => {
+    const joinRoom = () => {
       socket.emit("join-interview", { roomId, userId, userName, role });
-    });
+    };
+
+    if (socket.connected) {
+      joinRoom();
+    } else {
+      socket.on("connect", joinRoom);
+    }
 
     socket.on("user-joined", async (data) => {
+      if (data.userId === userId) return;
       setRemoteUser(data);
       setConnected(true);
       startTimer();
@@ -101,18 +128,39 @@ const VideoInterview = () => {
     });
 
     socket.on("interview-offer", async (data) => {
+      if (data.userId === userId) return;
+      if (data.userName) {
+        setRemoteUser({ userId: data.userId, userName: data.userName, role: data.role });
+      }
       await handleOffer(data.offer, stream);
     });
 
     socket.on("interview-answer", async (data) => {
+      if (data.userId === userId) return;
+      if (data.userName) {
+        setRemoteUser({ userId: data.userId, userName: data.userName, role: data.role });
+      }
       if (peerRef.current) {
-        await peerRef.current.setRemoteDescription(new RTCSessionDescription(data.answer));
+        try {
+          await peerRef.current.setRemoteDescription(new RTCSessionDescription(data.answer));
+          await processIceQueue();
+        } catch (err) {
+          console.error("Error setting remote description from answer:", err);
+        }
       }
     });
 
     socket.on("interview-ice-candidate", async (data) => {
-      if (peerRef.current) {
-        await peerRef.current.addIceCandidate(new RTCIceCandidate(data.candidate));
+      if (data.userId === userId) return;
+      const candidate = new RTCIceCandidate(data.candidate);
+      if (peerRef.current && peerRef.current.remoteDescription && peerRef.current.remoteDescription.type) {
+        try {
+          await peerRef.current.addIceCandidate(candidate);
+        } catch (err) {
+          console.error("Error adding ICE candidate directly:", err);
+        }
+      } else {
+        iceCandidatesQueue.current.push(candidate);
       }
     });
 
@@ -121,23 +169,53 @@ const VideoInterview = () => {
     });
 
     socket.on("user-left", (data) => {
+      if (data.userId === userId) return;
       setRemoteUser(null);
       setConnected(false);
       if (timerRef.current) clearInterval(timerRef.current);
       if (remoteVideoRef.current) remoteVideoRef.current.srcObject = null;
       toast.info(`${data.userName} left the interview`);
     });
+
+    socket.on("interview-ended-by-peer", (data) => {
+      if (data.userId === userId) return;
+      toast.info("The interview has been ended by the other participant");
+      cleanup();
+      navigate(-1);
+    });
   };
 
   const createPeer = (stream) => {
+    if (peerRef.current) {
+      try {
+        peerRef.current.close();
+      } catch (err) {
+        console.error("Error closing existing peer connection:", err);
+      }
+    }
     const peer = new RTCPeerConnection(ICE_SERVERS);
     peerRef.current = peer;
 
     stream.getTracks().forEach((track) => peer.addTrack(track, stream));
 
     peer.ontrack = (e) => {
-      if (remoteVideoRef.current && e.streams[0]) {
-        remoteVideoRef.current.srcObject = e.streams[0];
+      console.log("Remote track received:", e.track.kind);
+      if (remoteVideoRef.current) {
+        if (e.streams && e.streams[0]) {
+          remoteVideoRef.current.srcObject = e.streams[0];
+        } else {
+          // Fallback if no streams array is present
+          if (!remoteVideoRef.current.srcObject) {
+            const newStream = new MediaStream();
+            newStream.addTrack(e.track);
+            remoteVideoRef.current.srcObject = newStream;
+          } else {
+            remoteVideoRef.current.srcObject.addTrack(e.track);
+          }
+        }
+        remoteVideoRef.current.play().catch((err) => {
+          console.warn("Auto-play of remote video was prevented/failed:", err);
+        });
       }
     };
 
@@ -163,17 +241,35 @@ const VideoInterview = () => {
     const peer = createPeer(stream);
     const offer = await peer.createOffer();
     await peer.setLocalDescription(offer);
-    socketRef.current.emit("interview-offer", { roomId, offer, userId });
+    socketRef.current.emit("interview-offer", { roomId, offer, userId, userName, role });
   };
 
   const handleOffer = async (offer, stream) => {
-    const peer = createPeer(stream);
-    await peer.setRemoteDescription(new RTCSessionDescription(offer));
-    const answer = await peer.createAnswer();
-    await peer.setLocalDescription(answer);
-    socketRef.current.emit("interview-answer", { roomId, answer, userId });
-    setConnected(true);
-    startTimer();
+    try {
+      const peer = createPeer(stream);
+      await peer.setRemoteDescription(new RTCSessionDescription(offer));
+      await processIceQueue();
+      const answer = await peer.createAnswer();
+      await peer.setLocalDescription(answer);
+      socketRef.current.emit("interview-answer", { roomId, answer, userId, userName, role });
+      setConnected(true);
+      startTimer();
+    } catch (err) {
+      console.error("Error handling offer:", err);
+    }
+  };
+
+  const processIceQueue = async () => {
+    while (iceCandidatesQueue.current.length > 0) {
+      const candidate = iceCandidatesQueue.current.shift();
+      if (peerRef.current) {
+        try {
+          await peerRef.current.addIceCandidate(candidate);
+        } catch (e) {
+          console.error("Error adding queued ice candidate:", e);
+        }
+      }
+    }
   };
 
   const startTimer = () => {
@@ -204,28 +300,21 @@ const VideoInterview = () => {
   };
 
   const endCall = async () => {
-    if (role === "Company") {
-      setShowEvaluation(true);
-    } else {
-      cleanup();
-      toast.info("Interview ended");
-      navigate(-1);
-    }
-  };
-
-  const submitEvaluation = async () => {
     try {
       await customFetch.patch(`/interviews/${interview._id}/end`, {
-        interviewer_notes: evaluation.notes,
-        rating: evaluation.rating,
-        recommendation: evaluation.recommendation,
+        interviewer_notes: role === "Company" ? "Ended by interviewer" : "Ended by student",
+        rating: null,
+        recommendation: "",
       });
-      toast.success("Interview completed with evaluation");
-      cleanup();
-      navigate(-1);
+      if (socketRef.current) {
+        socketRef.current.emit("end-interview", { roomId, userId, userName });
+      }
     } catch (error) {
-      toast.error("Failed to save evaluation");
+      console.error("Failed to end interview:", error);
     }
+    cleanup();
+    toast.info("Interview ended");
+    navigate(-1);
   };
 
   const formatTime = (secs) => {
@@ -269,12 +358,16 @@ const VideoInterview = () => {
             <video ref={remoteVideoRef} autoPlay playsInline
               className="w-full h-full object-cover" />
             {!connected && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
-                <div className="w-20 h-20 bg-gray-700 rounded-full flex items-center justify-center mb-4">
-                  <FiUser className="w-10 h-10" />
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-6 text-center">
+                <div className="w-20 h-20 bg-gray-850/80 rounded-full flex items-center justify-center mb-5 animate-pulse border border-gray-700/50">
+                  <FiUser className="w-9 h-9 text-slate-400" />
                 </div>
-                <p className="text-lg">Waiting for participant to join...</p>
-                <p className="text-sm text-gray-400 mt-2">Share the interview link with the other participant</p>
+                <h3 className="text-base font-extrabold tracking-tight">
+                  {role === "Student" ? "Interviewer has not joined yet" : "Candidate has not joined yet"}
+                </h3>
+                <p className="text-xs font-semibold text-gray-400 mt-2 max-w-xs leading-relaxed">
+                  They will join the video conference shortly. Please keep your camera/microphone enabled and wait.
+                </p>
               </div>
             )}
 
@@ -338,60 +431,6 @@ const VideoInterview = () => {
         </button>
       </div>
 
-      {/* Evaluation Modal (Company only) */}
-      {showEvaluation && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Interview Evaluation</h3>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Rating (1-10)</label>
-                <div className="flex items-center gap-1">
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
-                    <button key={n} onClick={() => setEvaluation({ ...evaluation, rating: n })}
-                      className={`w-9 h-9 rounded-lg text-sm font-medium transition-colors ${
-                        n <= evaluation.rating ? "bg-yellow-400 text-yellow-900" : "bg-gray-100 text-gray-400 hover:bg-gray-200"
-                      }`}>
-                      {n}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Recommendation</label>
-                <div className="flex flex-wrap gap-2">
-                  {[
-                    { value: "strong_yes", label: "Strong Yes", color: "bg-green-100 text-green-700 border-green-300" },
-                    { value: "yes", label: "Yes", color: "bg-green-50 text-green-600 border-green-200" },
-                    { value: "maybe", label: "Maybe", color: "bg-yellow-50 text-yellow-700 border-yellow-300" },
-                    { value: "no", label: "No", color: "bg-red-50 text-red-600 border-red-200" },
-                    { value: "strong_no", label: "Strong No", color: "bg-red-100 text-red-700 border-red-300" },
-                  ].map((opt) => (
-                    <button key={opt.value} onClick={() => setEvaluation({ ...evaluation, recommendation: opt.value })}
-                      className={`px-3 py-1.5 rounded-lg text-sm font-medium border-2 transition-all ${
-                        evaluation.recommendation === opt.value ? opt.color + " ring-2 ring-offset-1 ring-primary-300" : "border-gray-200 text-gray-500 hover:border-gray-300"
-                      }`}>
-                      {opt.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
-                <textarea rows="3" className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all duration-200" value={evaluation.notes}
-                  onChange={(e) => setEvaluation({ ...evaluation, notes: e.target.value })}
-                  placeholder="Interview notes and observations..." />
-              </div>
-            </div>
-            <div className="flex justify-end gap-3 mt-6">
-              <button onClick={() => { cleanup(); navigate(-1); }} className="bg-white hover:bg-gray-50 text-gray-700 font-medium py-2.5 px-5 rounded-lg border border-gray-300 transition-all duration-200">Skip & End</button>
-              <button onClick={submitEvaluation} className="bg-primary-600 hover:bg-primary-700 text-white font-medium py-2.5 px-5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md flex items-center gap-1">
-                <FiCheck className="w-4 h-4" /> Submit Evaluation
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

@@ -7,6 +7,10 @@ const TPOSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "tbl_college",
     },
+    tpo_degree_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "tbl_degree",
+    },
     tpo_name: {
       type: String,
     },

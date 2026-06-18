@@ -81,7 +81,13 @@ export const getRoundCandidates = async (req, res) => {
 
     const candidateRounds = await tbl_candidate_round
       .find({ job_id: jobId, round_number: parseInt(roundNumber) })
-      .populate("student_id")
+      .populate({
+        path: "student_id",
+        populate: [
+          { path: "college_id", select: "college_name" },
+          { path: "university_id", select: "university_name" },
+        ]
+      })
       .sort("-createdAt");
 
     res.status(StatusCodes.OK).json({ candidates: candidateRounds });
@@ -99,17 +105,47 @@ export const advanceCandidates = async (req, res) => {
     const job = await tbl_jobpost.findById(jobId);
     if (!job) throw new NotFoundError(`No job with id: ${jobId}`);
 
+    // If the job does not have multiple rounds configured
+    if (!job.has_multiple_rounds || !job.rounds || job.rounds.length === 0) {
+      for (const studentId of student_ids) {
+        if (action === "pass") {
+          await tbl_application.findOneAndUpdate(
+            { job_id: jobId, student_id: studentId },
+            { round_status: "all_cleared", final_result: "selected" }
+          );
+        } else {
+          await tbl_application.findOneAndUpdate(
+            { job_id: jobId, student_id: studentId },
+            { round_status: "eliminated", final_result: "rejected" }
+          );
+        }
+      }
+      return res.status(StatusCodes.OK).json({ msg: `Candidates ${action === "pass" ? "selected" : "rejected"}` });
+    }
+
     const nextRound = current_round + 1;
     const totalRounds = job.rounds.length;
 
     for (const studentId of student_ids) {
-      // Update current round status
+      const app = await tbl_application.findOne({ job_id: jobId, student_id: studentId });
+      if (!app) continue;
+
+      const currentRoundData = job.rounds.find((r) => r.round_number === current_round) || job.rounds[0];
+
+      // Update current round status (upsert in case round wasn't initialized)
       await tbl_candidate_round.findOneAndUpdate(
         { job_id: jobId, student_id: studentId, round_number: current_round },
         {
+          job_id: jobId,
+          student_id: studentId,
+          application_id: app._id,
+          round_id: currentRoundData._id,
+          round_number: current_round,
+          round_type: currentRoundData.round_type,
           status: action === "pass" ? "passed" : "failed",
           completed_at: new Date(),
-        }
+        },
+        { upsert: true, new: true }
       );
 
       if (action === "pass" && nextRound <= totalRounds) {
@@ -120,9 +156,7 @@ export const advanceCandidates = async (req, res) => {
           {
             job_id: jobId,
             student_id: studentId,
-            application_id: (
-              await tbl_application.findOne({ job_id: jobId, student_id: studentId })
-            )?._id,
+            application_id: app._id,
             round_id: nextRoundData._id,
             round_number: nextRound,
             round_type: nextRoundData.round_type,
@@ -151,6 +185,21 @@ export const advanceCandidates = async (req, res) => {
       }
     }
 
+    // Auto-update round configuration statuses on candidate advancement
+    const currentRoundConfig = job.rounds.find((r) => r.round_number === current_round);
+    if (currentRoundConfig) {
+      currentRoundConfig.status = "completed";
+    }
+
+    if (action === "pass" && nextRound <= totalRounds) {
+      const nextRoundConfig = job.rounds.find((r) => r.round_number === nextRound);
+      if (nextRoundConfig) {
+        nextRoundConfig.status = "active";
+      }
+    }
+
+    await job.save();
+
     res.status(StatusCodes.OK).json({ msg: `Candidates ${action === "pass" ? "advanced" : "eliminated"}` });
   } catch (error) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
@@ -163,6 +212,20 @@ export const updateCandidateRound = async (req, res) => {
     const { id } = req.params;
     const updated = await tbl_candidate_round.findByIdAndUpdate(id, req.body, { new: true });
     if (!updated) throw new NotFoundError(`No candidate round with id: ${id}`);
+
+    // Sync score and remarks to any associated interview
+    if (req.body.score !== undefined || req.body.remarks !== undefined) {
+      await tbl_interview.findOneAndUpdate(
+        { candidate_round_id: id },
+        {
+          status: "completed",
+          ended_at: new Date(),
+          rating: req.body.score,
+          interviewer_notes: req.body.remarks,
+        }
+      );
+    }
+
     res.status(StatusCodes.OK).json({ msg: "Updated", candidateRound: updated });
   } catch (error) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
@@ -182,7 +245,6 @@ export const initializeFirstRound = async (req, res) => {
     const firstRound = job.rounds[0];
     const applications = await tbl_application.find({
       job_id: jobId,
-      application_status: "1",
     });
 
     const created = [];
@@ -208,6 +270,7 @@ export const initializeFirstRound = async (req, res) => {
           current_round: 1,
           total_rounds: job.rounds.length,
           round_status: "in_progress",
+          application_status: "1",
         });
       }
     }
@@ -232,7 +295,51 @@ export const getRoundProgress = async (req, res) => {
     const job = await tbl_jobpost.findById(jobId);
     if (!job) throw new NotFoundError(`No job with id: ${jobId}`);
 
+    let updatedRounds = false;
+
+    // Self-healing: Advancing passed candidates who are missing their next round entries
+    for (let roundNumber = 1; roundNumber < job.rounds.length; roundNumber++) {
+      const passedCandidates = await tbl_candidate_round.find({
+        job_id: job._id,
+        round_number: roundNumber,
+        status: "passed",
+      });
+
+      const nextRoundNumber = roundNumber + 1;
+      const nextRoundData = job.rounds.find((r) => r.round_number === nextRoundNumber);
+
+      if (nextRoundData) {
+        for (const candidate of passedCandidates) {
+          const existingNext = await tbl_candidate_round.findOne({
+            job_id: job._id,
+            student_id: candidate.student_id,
+            round_number: nextRoundNumber,
+          });
+
+          if (!existingNext) {
+            await tbl_candidate_round.create({
+              job_id: job._id,
+              student_id: candidate.student_id,
+              application_id: candidate.application_id,
+              round_id: nextRoundData._id,
+              round_number: nextRoundNumber,
+              round_type: nextRoundData.round_type,
+              status: "pending",
+            });
+
+            await tbl_application.findOneAndUpdate(
+              { job_id: job._id, student_id: candidate.student_id },
+              { current_round: nextRoundNumber, round_status: "in_progress" }
+            );
+
+            updatedRounds = true;
+          }
+        }
+      }
+    }
+
     const progress = [];
+
     for (const round of job.rounds) {
       const stats = await tbl_candidate_round.aggregate([
         { $match: { job_id: job._id, round_number: round.round_number } },
@@ -249,23 +356,64 @@ export const getRoundProgress = async (req, res) => {
         statusMap[s._id] = s.count;
       });
 
+      const total = Object.values(statusMap).reduce((a, b) => a + b, 0);
+      const pending = statusMap.pending || 0;
+      const in_progress = statusMap.in_progress || 0;
+      const passed = statusMap.passed || 0;
+      const failed = statusMap.failed || 0;
+      const absent = statusMap.absent || 0;
+
+      // Dynamically calculate round configuration status based on candidate progress
+      let dynamicStatus = round.status;
+      if (total > 0) {
+        if (pending === 0 && in_progress === 0) {
+          dynamicStatus = "completed";
+        } else {
+          dynamicStatus = "active";
+        }
+      } else {
+        if (round.round_number > 1) {
+          dynamicStatus = "pending";
+        }
+      }
+
+      // Check if we need to dynamically transition round configuration status
+      if (round.status !== dynamicStatus) {
+        round.status = dynamicStatus;
+        updatedRounds = true;
+      }
+
       progress.push({
         round_number: round.round_number,
         round_name: round.round_name,
         round_type: round.round_type,
-        status: round.status,
+        duration_minutes: round.duration_minutes,
+        status: dynamicStatus,
         candidates: {
-          total: Object.values(statusMap).reduce((a, b) => a + b, 0),
-          pending: statusMap.pending || 0,
-          in_progress: statusMap.in_progress || 0,
-          passed: statusMap.passed || 0,
-          failed: statusMap.failed || 0,
-          absent: statusMap.absent || 0,
+          total,
+          pending,
+          in_progress,
+          passed,
+          failed,
+          absent,
         },
       });
     }
 
-    res.status(StatusCodes.OK).json({ progress, job_title: job.job_title });
+    // Save changes to database if any round status was auto-corrected
+    if (updatedRounds) {
+      await job.save();
+    }
+
+    const totalApplications = await tbl_application.countDocuments({ job_id: jobId });
+    const initializedCount = await tbl_candidate_round.countDocuments({ job_id: jobId, round_number: 1 });
+    const uninitializedCount = Math.max(0, totalApplications - initializedCount);
+
+    res.status(StatusCodes.OK).json({ 
+      progress, 
+      job_title: job.job_title,
+      uninitialized_count: uninitializedCount
+    });
   } catch (error) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
   }

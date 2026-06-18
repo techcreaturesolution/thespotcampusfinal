@@ -49,7 +49,7 @@ const ManageTpo = () => {
       />
       <DataTable
         data={tpos}
-        searchKeys={["tpo_name", "tpo_email", "tpo_college_id.college_name"]}
+        searchKeys={["tpo_name", "tpo_email", "tpo_college_id.college_name", "tpo_college_id.college_university_id.university_name", "tpo_degree_id.degree_name"]}
         searchPlaceholder="Search TPOs…"
         emptyMessage="No TPOs found"
         columns={[
@@ -58,12 +58,23 @@ const ManageTpo = () => {
             label: "Name",
             render: (t) => <span className="font-semibold text-slate-900">{t.tpo_name}</span>,
           },
+          { key: "email", label: "Email", render: (t) => t.tpo_email },
+          {
+            key: "degree",
+            label: "Degree",
+            render: (t) => t.tpo_degree_id?.degree_name || "—",
+          },
           {
             key: "college",
             label: "College",
             render: (t) => t.tpo_college_id?.college_name || "—",
           },
-          { key: "email", label: "Email", render: (t) => t.tpo_email },
+          {
+            key: "university",
+            label: "University",
+            render: (t) => t.tpo_college_id?.college_university_id?.university_name || "—",
+          },
+
           {
             key: "actions",
             label: "Actions",

@@ -12,6 +12,9 @@ import {
   FiDollarSign,
   FiArrowRight,
   FiSettings,
+  FiActivity,
+  FiClock,
+  FiVideo,
 } from "react-icons/fi";
 import customFetch from "../../utils/customFetch";
 import Loading from "../../common/components/Loading";
@@ -22,11 +25,14 @@ const statConfig = [
   { key: "totalStudents", label: "Students", icon: FiUsers, iconBg: "bg-blue-100 text-blue-600", path: "/dashboard/admin/manage-student" },
   { key: "totalCompanies", label: "Companies", icon: FiBriefcase, iconBg: "bg-purple-100 text-purple-600", path: "/dashboard/admin/manage-company" },
   { key: "totalJobs", label: "Jobs", icon: FiFileText, iconBg: "bg-green-100 text-green-600", path: null },
-  { key: "totalApplications", label: "Applications", icon: FiTrendingUp, iconBg: "bg-amber-100 text-amber-600", path: null },
-  { key: "totalColleges", label: "Colleges", icon: FiBookOpen, iconBg: "bg-indigo-100 text-indigo-600", path: "/dashboard/admin/manage-college" },
+  { key: "totalApplications", label: "Applications", icon: FiTrendingUp, iconBg: "bg-amber-100 text-amber-650", path: null },
+  { key: "totalColleges", label: "Colleges", icon: FiBookOpen, iconBg: "bg-indigo-100 text-indigo-650", path: "/dashboard/admin/manage-college" },
   { key: "totalUniversities", label: "Universities", icon: FiGrid, iconBg: "bg-pink-100 text-pink-600", path: "/dashboard/admin/manage-university" },
   { key: "totalExams", label: "Exams Conducted", icon: FiFileText, iconBg: "bg-teal-100 text-teal-600", path: null },
   { key: "totalPapers", label: "Answer Sheets", icon: FiFileText, iconBg: "bg-orange-100 text-orange-600", path: null },
+  { key: "totalTPOs", label: "Registered TPOs", icon: FiUser, iconBg: "bg-teal-100 text-teal-600", path: "/dashboard/admin/manage-tpo" },
+  { key: "totalInterviews", label: "Interviews", icon: FiVideo, iconBg: "bg-emerald-100 text-emerald-600", path: null },
+  { key: "totalContacts", label: "Contact Inquiries", icon: FiMessageSquare, iconBg: "bg-amber-100 text-amber-600", path: "/dashboard/admin/contact-list" },
 ];
 
 const quickLinks = [
@@ -41,6 +47,9 @@ const quickLinks = [
 
 const AdminDashboard = ({ user }) => {
   const [stats, setStats] = useState(null);
+  const [recentJobs, setRecentJobs] = useState([]);
+  const [recentApps, setRecentApps] = useState([]);
+  const [activeTab, setActiveTab] = useState("jobs");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -48,6 +57,8 @@ const AdminDashboard = ({ user }) => {
       try {
         const { data } = await customFetch.get("/stats");
         setStats(data.stats);
+        setRecentJobs(data.recentJobs || []);
+        setRecentApps(data.recentApplications || []);
       } catch (error) {
         console.error("Failed to fetch stats", error);
       } finally {
@@ -62,11 +73,11 @@ const AdminDashboard = ({ user }) => {
   if (loading) return <Loading />;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 relative">
       <Hero
         label="Admin Console"
         title={`Welcome back, ${name.split(" ")[0]}`}
-        subtitle="System-wide overview — users, placements, exams, and platform health."
+        subtitle="System-wide overview — universities, colleges, companies, placements, and platform vitals."
         statusText="All systems operational"
       />
 
@@ -86,31 +97,134 @@ const AdminDashboard = ({ user }) => {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <FiSettings className="text-primary-600" /> Quick Actions
+        {/* Quick Actions Card */}
+        <div className="bg-gradient-to-br from-white to-[#fcfdfe] rounded-2xl border border-slate-200/80 p-6 shadow-sm hover:shadow-md transition-all duration-300">
+          <h2 className="text-lg font-bold text-slate-800 mb-5 flex items-center gap-2">
+            <FiSettings className="text-[#3730a3]" /> Quick Shortcuts
           </h2>
-          <div className="grid grid-cols-2 gap-3 text-sm font-semibold">
+          <div className="grid grid-cols-2 gap-3.5 text-sm font-semibold">
             {quickLinks.map((item) => (
               <Link
                 key={item.to}
                 to={item.to}
-                className="p-3 bg-gray-50 hover:bg-primary-50 text-gray-700 hover:text-primary-600 rounded-xl transition border border-gray-100 flex items-center gap-2"
+                className="p-3.5 bg-slate-50/60 hover:bg-[#3730a3] border border-slate-200/70 hover:border-[#3730a3] text-slate-700 hover:text-white rounded-xl shadow-xs hover:shadow-md flex items-center gap-3.5 font-bold transition-all duration-200 group active:scale-97"
               >
-                <item.icon className={`text-lg ${item.color}`} /> {item.label}
+                <div className={`w-8 h-8 rounded-lg bg-white shadow-xs group-hover:bg-white/10 flex items-center justify-center transition-colors duration-200`}>
+                  <item.icon className={`text-base ${item.color} group-hover:text-white`} />
+                </div>
+                <span>{item.label}</span>
               </Link>
             ))}
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col justify-center text-center p-8 bg-gradient-to-br from-primary-50 via-white to-indigo-50/30">
-          <div className="w-12 h-12 bg-primary-600 text-white rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary-500/20">
-            <FiSettings className="w-6 h-6" />
+        {/* Recent Activity Card */}
+        <div className="bg-gradient-to-br from-white to-[#fcfdfe] rounded-2xl border border-slate-200/80 p-6 shadow-sm flex flex-col hover:shadow-md transition-all duration-300">
+          <div className="flex items-center justify-between mb-5 border-b border-slate-100 pb-3.5">
+            <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+              <FiActivity className="text-[#3730a3]" /> Recent Activity
+            </h2>
+            <div className="flex bg-slate-100 rounded-lg p-0.5 border border-slate-200">
+              <button
+                type="button"
+                onClick={() => setActiveTab("jobs")}
+                className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${
+                  activeTab === "jobs"
+                    ? "bg-white text-[#3730a3] shadow-xs"
+                    : "text-slate-500 hover:text-slate-850"
+                }`}
+              >
+                Jobs
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("apps")}
+                className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${
+                  activeTab === "apps"
+                    ? "bg-white text-[#3730a3] shadow-xs"
+                    : "text-slate-500 hover:text-slate-850"
+                }`}
+              >
+                Applications
+              </button>
+            </div>
           </div>
-          <h3 className="text-lg font-bold text-gray-900">Platform Status</h3>
-          <p className="text-gray-500 text-sm mt-1.5 max-w-sm mx-auto leading-relaxed">
-            Verification, role matching, and proctoring integrations are running normally.
-          </p>
+
+          <div className="flex-1 space-y-3.5 overflow-y-auto max-h-[260px] pr-1">
+            {activeTab === "jobs" ? (
+              recentJobs.length === 0 ? (
+                <div className="text-center py-12 text-slate-400 text-xs font-semibold">
+                  No recent job postings found.
+                </div>
+              ) : (
+                recentJobs.map((job) => (
+                  <div key={job._id} className="flex items-center justify-between p-3.5 bg-slate-50/40 hover:bg-[#f8f9ff]/70 rounded-xl border border-slate-100 hover:border-indigo-100/50 transition-all duration-200">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-lg bg-indigo-50 text-[#3730a3] flex items-center justify-center font-bold text-xs border border-indigo-100/60 uppercase">
+                        {job.job_company_id?.company_name?.substring(0, 2) || "CO"}
+                      </div>
+                      <div className="text-left">
+                        <h4 className="text-xs font-extrabold text-slate-850 leading-tight">
+                          {job.job_title}
+                        </h4>
+                        <p className="text-[10px] font-bold text-slate-450 mt-0.5">
+                          {job.job_company_id?.company_name || "Unknown Company"}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <span className="inline-flex px-2 py-0.5 text-[9px] font-extrabold text-indigo-700 bg-indigo-50 border border-indigo-100/50 rounded-md uppercase">
+                        {job.job_type || "Full-Time"}
+                      </span>
+                      <p className="text-[9px] font-bold text-slate-400 mt-1 flex items-center gap-1 justify-end">
+                        <FiClock className="w-2.5 h-2.5" />
+                        {new Date(job.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+                ))
+              )
+            ) : (
+              recentApps.length === 0 ? (
+                <div className="text-center py-12 text-slate-400 text-xs font-semibold">
+                  No recent student applications found.
+                </div>
+              ) : (
+                recentApps.map((app) => (
+                  <div key={app._id} className="flex items-center justify-between p-3.5 bg-slate-50/40 hover:bg-[#f8f9ff]/70 rounded-xl border border-slate-100 hover:border-indigo-100/50 transition-all duration-200">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs border border-blue-100/60 uppercase">
+                        {app.student_id?.student_name?.substring(0, 2) || "ST"}
+                      </div>
+                      <div className="text-left">
+                        <h4 className="text-xs font-extrabold text-slate-850 leading-tight">
+                          {app.student_id?.student_name || "Unknown Student"}
+                        </h4>
+                        <p className="text-[10px] font-bold text-slate-450 mt-0.5">
+                          Applied for {app.job_id?.job_title || "Unknown Job"}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <span className={`inline-flex px-2 py-0.5 text-[9px] font-extrabold rounded-md uppercase border ${
+                        app.final_result === "selected"
+                          ? "bg-emerald-50 border-emerald-250 text-emerald-700"
+                          : app.final_result === "rejected"
+                          ? "bg-rose-50 border-rose-250 text-rose-700"
+                          : "bg-amber-50 border-amber-250 text-amber-700"
+                      }`}>
+                        {app.final_result || "Pending"}
+                      </span>
+                      <p className="text-[9px] font-bold text-slate-400 mt-1 flex items-center gap-1 justify-end">
+                        <FiClock className="w-2.5 h-2.5" />
+                        {new Date(app.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+                ))
+              )
+            )}
+          </div>
         </div>
       </div>
     </div>

@@ -1,7 +1,7 @@
-import React, { useState } from "react";
-import { FiX } from "react-icons/fi";
+import React, { useState, useEffect } from "react";
+import { FiX, FiBookOpen } from "react-icons/fi";
 
-const AddDegreeModal = ({ isOpen, onClose, onSubmit }) => {
+const AddDegreeModal = ({ isOpen, onClose, degree, onSubmit }) => {
   if (!isOpen) return null;
 
   const [form, setForm] = useState({
@@ -9,6 +9,22 @@ const AddDegreeModal = ({ isOpen, onClose, onSubmit }) => {
     degree_code: "",
     degree_sem: "6",
   });
+
+  useEffect(() => {
+    if (degree) {
+      setForm({
+        degree_name: degree.degree_name || "",
+        degree_code: degree.degree_code || "",
+        degree_sem: degree.degree_sem ? degree.degree_sem.toString() : "6",
+      });
+    } else {
+      setForm({
+        degree_name: "",
+        degree_code: "",
+        degree_sem: "6",
+      });
+    }
+  }, [degree, isOpen]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -26,42 +42,48 @@ const AddDegreeModal = ({ isOpen, onClose, onSubmit }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-200 animate-fadeIn">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">Add New Degree</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition">
-            <FiX className="w-5 h-5" />
+    <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 border border-slate-200 animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex items-center justify-between mb-5 pb-3 border-b border-slate-100">
+          <h3 className="text-base font-extrabold text-slate-800 tracking-tight flex items-center gap-2">
+            <FiBookOpen className="text-[#3730a3] w-4.5 h-4.5" /> 
+            {degree ? "Edit Degree Program" : "Add New Degree Program"}
+          </h3>
+          <button onClick={onClose} className="p-1.5 text-slate-400 hover:text-slate-650 hover:bg-slate-100 rounded-lg transition">
+            <FiX className="w-4 h-4" />
           </button>
         </div>
+        
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Degree Name</label>
+            <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-2">Degree Name</label>
             <input
               type="text"
               placeholder="e.g. Bachelor of Computer Applications"
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none text-sm"
+              className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#3730a3] focus:border-[#3730a3] outline-none text-xs font-semibold text-slate-700 placeholder-slate-400 transition-all duration-200 bg-white"
               value={form.degree_name}
               onChange={(e) => setForm({ ...form, degree_name: e.target.value })}
               required
             />
           </div>
+          
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Degree Code</label>
+            <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-2">Degree Code / Abbreviation</label>
             <input
               type="text"
               placeholder="e.g. BCA"
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none text-sm"
+              className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#3730a3] focus:border-[#3730a3] outline-none text-xs font-semibold text-slate-700 placeholder-slate-400 transition-all duration-200 bg-white"
               value={form.degree_code}
               onChange={(e) => setForm({ ...form, degree_code: e.target.value })}
               required
             />
           </div>
+          
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Total Semesters</label>
+            <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-2">Total Semesters</label>
             <input
               type="number"
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none text-sm"
+              className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#3730a3] focus:border-[#3730a3] outline-none text-xs font-semibold text-slate-700 placeholder-slate-400 transition-all duration-200 bg-white"
               value={form.degree_sem}
               onChange={(e) => setForm({ ...form, degree_sem: e.target.value })}
               required
@@ -69,19 +91,20 @@ const AddDegreeModal = ({ isOpen, onClose, onSubmit }) => {
               max="12"
             />
           </div>
-          <div className="flex justify-end gap-3 pt-2">
+          
+          <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 mt-5">
             <button
               type="button"
               onClick={onClose}
-              className="bg-white hover:bg-gray-50 text-gray-700 font-medium py-2 px-4 rounded-lg border border-gray-300 text-sm transition"
+              className="bg-white hover:bg-slate-50 text-slate-755 font-bold py-2 px-4 rounded-xl border border-slate-200 transition text-xs shadow-sm"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-lg text-sm transition shadow-sm"
+              className="bg-[#3730a3] hover:bg-indigo-750 text-white font-bold py-2 px-4 rounded-xl transition shadow-md shadow-indigo-500/10 text-xs flex items-center gap-1.5"
             >
-              Add Degree
+              {degree ? "Save Changes" : "Add Degree"}
             </button>
           </div>
         </form>

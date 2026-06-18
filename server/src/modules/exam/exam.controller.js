@@ -1,5 +1,6 @@
 import tbl_exam from "./exam.model.js";
 import tbl_job from "../job/job.model.js";
+import { RecruitmentSubscription } from "../subscription/subscription.model.js";
 import { StatusCodes } from "http-status-codes";
 import { NotFoundError } from "../../errors/customErrors.js";
 import generateMCQs, { generateFromJobDescription } from "../../utils/generateMCQs.js";
@@ -17,147 +18,27 @@ export const getAllExams = async (req, res) => {
   }
 };
 
-export const createExam = async (req, res) => {
-  try {
-    const company_id = req.user.userId;
-    const {
-      job_id,
-      title,
-      subject,
-      noOfQuestion,
-      hard,
-      medium,
-      easy,
-      timeLimit,
-    } = req.body;
-
-    const missingFields = [];
-    for (const field of [
-      "job_id",
-      "title",
-      "subject",
-      "noOfQuestion",
-      "hard",
-      "medium",
-      "easy",
-      "timeLimit",
-    ]) {
-      if (!req.body[field] && req.body[field] !== 0) {
-        missingFields.push(field);
-      }
-    }
-
-    if (missingFields.length) {
-      return res.status(400).json({
-        success: false,
-        message: `Missing required fields: ${missingFields.join(", ")}`,
-        statusCode: 400,
-      });
-    }
-
-    const totalDifficulty = hard + medium + easy;
-    if (totalDifficulty !== 100) {
-      return res.status(400).json({
-        success: false,
-        message: "Difficulty percentages must sum to 100.",
-        statusCode: 400,
-      });
-    }
-
-    const generateBatchWithRetry = async (count, difficultyLabel) => {
-      let attempts = 0;
-      let collected = [];
-
-      while (collected.length < count && attempts < 3) {
-        const prompt = `
-Generate exactly ${count - collected.length} ${difficultyLabel} multiple-choice questions on the subject "${subject}".
-
-Instructions:
-- Each question must be clear, technical, and accurate.
-- Each must have 4 answer options.
-- Only one option should be correct, marked with 'isCorrect: true'.
-- Return ONLY a valid JSON array.
-
-Format:
-[
-  {
-    "questionText": "Question here?",
-    "difficulty": "${difficultyLabel}",
-    "options": [
-      { "optionText": "Option A", "isCorrect": false },
-      { "optionText": "Option B", "isCorrect": true },
-      { "optionText": "Option C", "isCorrect": false },
-      { "optionText": "Option D", "isCorrect": false }
-    ]
-  }
-]
-Return only this JSON array, nothing else.
-`.trim();
-
-        try {
-          const batch = await generateMCQs(prompt);
-          collected.push(...batch);
-        } catch (err) {
-          console.warn(
-            `Attempt ${attempts + 1} failed for ${difficultyLabel}:`,
-            err.message
-          );
-        }
-        attempts++;
-      }
-
-      if (collected.length < count) {
-        throw new Error(
-          `Expected ${count} ${difficultyLabel} questions, but got ${collected.length}`
-        );
-      }
-
-      return collected.slice(0, count);
-    };
-
-    const hardCount = Math.round((hard / 100) * noOfQuestion);
-    const mediumCount = Math.round((medium / 100) * noOfQuestion);
-    const easyCount = noOfQuestion - hardCount - mediumCount;
-
-    const hardQuestions = await generateBatchWithRetry(hardCount, "hard");
-    const mediumQuestions = await generateBatchWithRetry(mediumCount, "medium");
-    const easyQuestions = await generateBatchWithRetry(easyCount, "easy");
-
-    const questions = [...hardQuestions, ...mediumQuestions, ...easyQuestions];
-
-    const newExam = new tbl_exam({
-      company_id,
-      job_id,
-      title,
-      subject,
-      noOfQuestion,
-      timeLimit,
-      questions,
-      proctoring: req.body.proctoring || {},
-    });
-
-    await newExam.save();
-
-    res.status(201).json({
-      success: true,
-      message: "AI-generated exam created successfully",
-      data: newExam,
-      statusCode: 201,
-    });
-  } catch (error) {
-    console.error("Error creating exam:", error.message);
-    res.status(500).json({
-      success: false,
-      message: error.message || "Something went wrong",
-      statusCode: 500,
-    });
-  }
-};
-
 // Generate exam paper from Job Description
 export const createExamFromJD = async (req, res) => {
   try {
     const company_id = req.user.userId;
+
+    // Check if the company has an active paid subscription plan
+    const now = new Date();
+    const activeSub = await RecruitmentSubscription.findOne({
+      company_id,
+      status: "Paid",
+      is_active: true,
+      expires_at: { $gt: now },
+    });
+
+    if (!activeSub) {
+      return res.status(StatusCodes.FORBIDDEN).json({
+        error: "subscription_required",
+        message: "An active recruitment subscription plan is required to generate exams.",
+      });
+    }
+
     const {
       job_id,
       title,
@@ -259,8 +140,11 @@ Answer all questions within the time limit. Tab switching and camera monitoring 
 export const getExam = async (req, res) => {
   try {
     const { id } = req.params;
-    const exam = await tbl_exam.findOne({ job_id: id });
+    const exam = await tbl_exam.findOne({ job_id: id }).populate("job_id");
     if (!exam) throw new NotFoundError(`No Exam with id: ${id}`);
+    if (exam.job_id && exam.job_id.job_status === "0") {
+      throw new NotFoundError(`Exam is no longer active`);
+    }
     res.status(StatusCodes.OK).json({ exam });
   } catch (error) {
     res
@@ -272,8 +156,11 @@ export const getExam = async (req, res) => {
 export const getExamById = async (req, res) => {
   try {
     const { id } = req.params;
-    const exam = await tbl_exam.findById(id);
+    const exam = await tbl_exam.findById(id).populate("job_id");
     if (!exam) throw new NotFoundError(`No Exam with id: ${id}`);
+    if (exam.job_id && exam.job_id.job_status === "0") {
+      throw new NotFoundError(`Exam is no longer active`);
+    }
     res.status(StatusCodes.OK).json({ exam });
   } catch (error) {
     res

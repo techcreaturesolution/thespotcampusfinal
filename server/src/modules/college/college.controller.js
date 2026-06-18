@@ -1,14 +1,29 @@
 import tbl_college from "./college.model.js";
+import tbl_degree from "../degree/degree.model.js";
+import tbl_tpo from "../tpo/tpo.model.js";
 import { StatusCodes } from "http-status-codes";
 import { NotFoundError } from "../../errors/customErrors.js";
 import { hashPassword } from "../../utils/passwordUtils.js";
+import { isEmailExists } from "../../utils/emailCheck.js";
 import cloudinary from "cloudinary";
 import { promises as fs } from "fs";
 
 export const getAllColleges = async (req, res) => {
   try {
     const colleges = await tbl_college.find({}).populate("college_university_id").sort("-createdAt");
-    res.status(StatusCodes.OK).json({ colleges });
+    const collegesWithCounts = await Promise.all(
+      colleges.map(async (c) => {
+        const degreeCount = await tbl_degree.countDocuments({ college_id: c._id });
+        const tpoCount = await tbl_tpo.countDocuments({ tpo_college_id: c._id });
+        const collegeObj = c.toJSON();
+        return {
+          ...collegeObj,
+          degreeCount,
+          tpoCount,
+        };
+      })
+    );
+    res.status(StatusCodes.OK).json({ colleges: collegesWithCounts });
   } catch (error) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
   }
@@ -16,6 +31,13 @@ export const getAllColleges = async (req, res) => {
 
 export const createCollege = async (req, res) => {
   try {
+    const emailConflict = await isEmailExists(req.body.college_email);
+    if (emailConflict) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ msg: "Email is already registered on this platform" });
+    }
+
     const hashedPassword = await hashPassword(req.body.college_password);
     req.body.college_password = hashedPassword;
 
@@ -95,6 +117,18 @@ export const updateStatus = async (req, res) => {
     if (!updatedCollege) throw new NotFoundError(`No college with id: ${id}`);
 
     res.status(StatusCodes.OK).json({ msg: "College status modified", college: updatedCollege });
+  } catch (error) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
+  }
+};
+
+export const getMyColleges = async (req, res) => {
+  try {
+    const universityId = req.user.userId;
+    const colleges = await tbl_college
+      .find({ college_university_id: universityId })
+      .sort("-createdAt");
+    res.status(StatusCodes.OK).json({ colleges });
   } catch (error) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
   }

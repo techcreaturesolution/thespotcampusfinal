@@ -24,8 +24,15 @@ export const login = async (req, res) => {
 
     // 1. Search in Student
     if (!user) {
-      user = await tbl_student.findOne({ student_email: email }).select("+student_password");
+      user = await tbl_student.findOne({ student_email: email })
+        .select("+student_password")
+        .populate("college_id university_id degree_id branch_id");
       if (user) {
+        if (!user.isVerifiedByTPO) {
+          return res
+            .status(StatusCodes.UNAUTHORIZED)
+            .json({ msg: "Your account is pending verification by your college TPO. Please contact your TPO." });
+        }
         detectedRole = "Student";
         userPassword = user.student_password;
       }
@@ -35,6 +42,12 @@ export const login = async (req, res) => {
     if (!user) {
       user = await tbl_company.findOne({ company_email: email }).select("+company_password");
       if (user) {
+        if (user.company_verified !== "Approved") {
+          const statusText = user.company_verified === "Rejected" ? "rejected" : "pending verification";
+          return res
+            .status(StatusCodes.UNAUTHORIZED)
+            .json({ msg: `Your account is ${statusText} by the Admin. Please contact the administrator.` });
+        }
         detectedRole = "Company";
         userPassword = user.company_password;
       }
@@ -44,6 +57,12 @@ export const login = async (req, res) => {
     if (!user) {
       user = await tbl_college.findOne({ college_email: email }).select("+college_password");
       if (user) {
+        if (user.college_verified !== "Approved") {
+          const statusText = user.college_verified === "Rejected" ? "rejected" : "pending verification";
+          return res
+            .status(StatusCodes.UNAUTHORIZED)
+            .json({ msg: `Your account is ${statusText} by the Admin. Please contact the administrator.` });
+        }
         detectedRole = "College";
         userPassword = user.college_password;
       }
@@ -53,6 +72,12 @@ export const login = async (req, res) => {
     if (!user) {
       user = await tbl_university.findOne({ university_email: email }).select("+university_password");
       if (user) {
+        if (user.university_verified !== "Approved") {
+          const statusText = user.university_verified === "Rejected" ? "rejected" : "pending verification";
+          return res
+            .status(StatusCodes.UNAUTHORIZED)
+            .json({ msg: `Your account is ${statusText} by the Admin. Please contact the administrator.` });
+        }
         detectedRole = "University";
         userPassword = user.university_password;
       }
@@ -115,19 +140,28 @@ export const getCurrentUser = async (req, res) => {
         user = await tbl_admin.findById(userId);
         break;
       case "Student":
-        user = await tbl_student.findById(userId);
+        user = await tbl_student.findById(userId)
+          .populate("college_id")
+          .populate("university_id")
+          .populate("degree_id")
+          .populate("branch_id");
         break;
       case "Company":
         user = await tbl_company.findById(userId);
         break;
       case "College":
-        user = await tbl_college.findById(userId);
+        user = await tbl_college.findById(userId).populate("college_university_id");
         break;
       case "University":
         user = await tbl_university.findById(userId);
         break;
       case "TPO":
-        user = await tbl_tpo.findById(userId);
+        user = await tbl_tpo.findById(userId)
+          .populate({
+            path: "tpo_college_id",
+            populate: { path: "college_university_id" },
+          })
+          .populate("tpo_degree_id");
         break;
       default:
         return res

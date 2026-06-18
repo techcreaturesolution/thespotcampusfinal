@@ -4,6 +4,7 @@ import tbl_application from "../application/application.model.js";
 import { StatusCodes } from "http-status-codes";
 import { NotFoundError } from "../../errors/customErrors.js";
 import { hashPassword } from "../../utils/passwordUtils.js";
+import { isEmailExists } from "../../utils/emailCheck.js";
 import cloudinary from "cloudinary";
 import { promises as fs } from "fs";
 
@@ -18,6 +19,13 @@ export const getAllCompanys = async (req, res) => {
 
 export const createCompany = async (req, res) => {
   try {
+    const emailConflict = await isEmailExists(req.body.company_email);
+    if (emailConflict) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ msg: "Email is already registered on this platform" });
+    }
+
     const hashedPassword = await hashPassword(req.body.company_password);
     req.body.company_password = hashedPassword;
 

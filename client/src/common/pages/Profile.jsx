@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useOutletContext } from "react-router-dom";
+import { useOutletContext, Link } from "react-router-dom";
 import { FiUser, FiCamera, FiEdit2, FiSave, FiX, FiCheck } from "react-icons/fi";
 import { toast } from "react-toastify";
 import PageHeader from "../components/PageHeader";
@@ -11,6 +11,25 @@ const Profile = () => {
   const [loading, setLoading] = useState(false);
   const [previewImage, setPreviewImage] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
+
+  // CV Builder Status State
+  const [hasCv, setHasCv] = useState(false);
+
+  useEffect(() => {
+    if (role === "Student") {
+      const checkCvStatus = async () => {
+        try {
+          const { data } = await customFetch.get("/student/resume/me");
+          if (data?.resume?.ai_compiled_html) {
+            setHasCv(true);
+          }
+        } catch (error) {
+          console.error("Failed to check CV status", error);
+        }
+      };
+      checkCvStatus();
+    }
+  }, [role]);
 
   // Dynamic profile photo resolver
   const profilePhoto =
@@ -236,6 +255,44 @@ const Profile = () => {
 
               {role === "Student" && (
                 <>
+                  {/* CV status banner */}
+                  <div className="col-span-1 md:col-span-2 p-5 rounded-2xl border flex flex-col sm:flex-row items-center justify-between gap-4 transition-all border-slate-200 shadow-sm bg-gradient-to-r from-indigo-50/50 to-white mb-2">
+                    <div className="flex items-center gap-3.5 text-left">
+                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 border ${
+                        hasCv 
+                          ? "bg-emerald-50 text-emerald-600 border-emerald-150" 
+                          : "bg-amber-50 text-amber-600 border-amber-150"
+                      }`}>
+                        <FiCheck className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-slate-800 text-sm">
+                          {hasCv ? "CV Generated & Saved to Profile" : "CV Not Saved to Profile"}
+                        </h4>
+                        <p className="text-[11px] font-semibold text-slate-400 mt-0.5 leading-normal">
+                          {hasCv 
+                            ? "Your generated CV is successfully saved in your profile and is ready for job applications." 
+                            : "You must generate and save your CV to your profile before applying for jobs."}
+                        </p>
+                      </div>
+                    </div>
+                    {hasCv ? (
+                      <Link
+                        to="/dashboard/student/ai-cv-builder"
+                        className="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-[#3730a3] border border-indigo-200/50 text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-xs shrink-0 active:scale-95 text-center"
+                      >
+                        Edit CV
+                      </Link>
+                    ) : (
+                      <Link
+                        to="/dashboard/student/ai-cv-builder"
+                        className="px-4 py-2 bg-[#3730a3] hover:bg-[#2e288a] text-white text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-sm shrink-0 active:scale-95 text-center"
+                      >
+                        Create CV Now
+                      </Link>
+                    )}
+                  </div>
+
                   <div className="space-y-1.5">
                     <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Student Name</label>
                     <input
@@ -280,6 +337,42 @@ const Profile = () => {
                           ? "bg-white border-gray-300 text-gray-900 focus:border-primary-500"
                           : "bg-gray-50 border-gray-200 text-gray-800 cursor-not-allowed"
                       }`}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">University</label>
+                    <input
+                      type="text"
+                      value={user?.university_id?.university_name || "—"}
+                      disabled
+                      className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-gray-500 text-sm focus:outline-none cursor-not-allowed font-medium"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">College</label>
+                    <input
+                      type="text"
+                      value={user?.college_id?.college_name || "—"}
+                      disabled
+                      className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-gray-500 text-sm focus:outline-none cursor-not-allowed font-medium"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Degree</label>
+                    <input
+                      type="text"
+                      value={user?.degree_id?.degree_name || "—"}
+                      disabled
+                      className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-gray-500 text-sm focus:outline-none cursor-not-allowed font-medium"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Branch</label>
+                    <input
+                      type="text"
+                      value={user?.branch_id?.branch_name || "—"}
+                      disabled
+                      className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-gray-500 text-sm focus:outline-none cursor-not-allowed font-medium"
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -414,6 +507,15 @@ const Profile = () => {
                           : "bg-gray-50 border-gray-200 text-gray-800 cursor-not-allowed"
                       }`}
                       required
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Affiliated University</label>
+                    <input
+                      type="text"
+                      value={user?.college_university_id?.university_name || "—"}
+                      disabled
+                      className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-gray-500 text-sm focus:outline-none cursor-not-allowed font-medium"
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -593,6 +695,33 @@ const Profile = () => {
                           ? "bg-white border-gray-300 text-gray-900 focus:border-primary-500"
                           : "bg-gray-50 border-gray-200 text-gray-800 cursor-not-allowed"
                       }`}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">College</label>
+                    <input
+                      type="text"
+                      value={user?.tpo_college_id?.college_name || "—"}
+                      disabled
+                      className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-gray-500 text-sm focus:outline-none cursor-not-allowed font-medium"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">University</label>
+                    <input
+                      type="text"
+                      value={user?.tpo_college_id?.college_university_id?.university_name || "—"}
+                      disabled
+                      className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-gray-500 text-sm focus:outline-none cursor-not-allowed font-medium"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Assigned Degree</label>
+                    <input
+                      type="text"
+                      value={user?.tpo_degree_id?.degree_name || "—"}
+                      disabled
+                      className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-gray-500 text-sm focus:outline-none cursor-not-allowed font-medium"
                     />
                   </div>
                 </>

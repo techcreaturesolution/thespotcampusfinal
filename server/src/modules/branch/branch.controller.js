@@ -13,6 +13,9 @@ export const getAllBranches = async (req, res) => {
 
 export const createBranch = async (req, res) => {
   try {
+    if (req.user && req.user.role === "College") {
+      req.body.college_id = req.user.userId;
+    }
     const branch = await tbl_branch.create(req.body);
     res.status(StatusCodes.CREATED).json({ msg: "Branch created", branch });
   } catch (error) {

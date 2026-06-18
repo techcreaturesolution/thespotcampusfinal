@@ -79,6 +79,7 @@ export const ROUND_STATUS = {
 export const CANDIDATE_ROUND_STATUS = {
   PENDING: "pending",
   IN_PROGRESS: "in_progress",
+  COMPLETED: "completed",
   PASSED: "passed",
   FAILED: "failed",
   ABSENT: "absent",

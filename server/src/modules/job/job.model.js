@@ -50,6 +50,12 @@ const JobSchema = new mongoose.Schema(
       type: String,
       default: STATUS.ACTIVE,
     },
+    approved_colleges: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "tbl_college",
+      },
+    ],
     job_college: [
       {
         job_university_id: {
@@ -76,6 +82,9 @@ const JobSchema = new mongoose.Schema(
         level_name: String,
       },
     ],
+    target_degree: {
+      type: mongoose.Schema.Types.Mixed,
+    },
     // Multi-round recruitment
     has_multiple_rounds: { type: Boolean, default: false },
     rounds: [

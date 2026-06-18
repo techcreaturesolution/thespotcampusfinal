@@ -1,22 +1,65 @@
 import tbl_paper from "./paper.model.js";
 import tbl_exam from "./exam.model.js";
+import tbl_candidate_round from "../interview/round.model.js";
+import tbl_application from "../application/application.model.js";
 import { StatusCodes } from "http-status-codes";
 import { NotFoundError } from "../../errors/customErrors.js";
 
 export const getAllPaper = async (req, res) => {
   try {
+    const exam = await tbl_exam.findOne({ job_id: req.params.id }).populate("job_id");
+    if (!exam) throw new NotFoundError(`No exam found for job id: ${req.params.id}`);
+
     const papers = await tbl_paper
       .find({ exam_id: req.params.id })
       .populate("student_id")
       .sort("-createdAt");
 
-    res.status(StatusCodes.OK).json({ papers });
+    // Filter out duplicate 'in_progress' papers if a submitted/auto_submitted one exists for the student
+    const studentPaperMap = new Map();
+    papers.forEach(p => {
+      const studentId = p.student_id?._id?.toString() || p.student_id?.toString();
+      if (!studentId) return;
+
+      const existing = studentPaperMap.get(studentId);
+      if (!existing) {
+        studentPaperMap.set(studentId, p);
+      } else {
+        // If the current one is submitted/auto_submitted, prefer it over in_progress
+        if (p.status !== "in_progress" && existing.status === "in_progress") {
+          studentPaperMap.set(studentId, p);
+        }
+      }
+    });
+
+    const uniquePapers = Array.from(studentPaperMap.values());
+
+    const enrichedPapers = [];
+    for (const paper of uniquePapers) {
+      const studentId = paper.student_id?._id || paper.student_id;
+      const jobId = exam.job_id?._id || exam.job_id;
+
+      const application = await tbl_application.findOne({ job_id: jobId, student_id: studentId });
+      const candidateRound = await tbl_candidate_round.findOne({
+        job_id: jobId,
+        student_id: studentId,
+        round_number: 1,
+      });
+
+      const paperObj = paper.toObject();
+      paperObj.application = application || null;
+      paperObj.candidateRound = candidateRound || null;
+      enrichedPapers.push(paperObj);
+    }
+
+    res.status(StatusCodes.OK).json({ papers: enrichedPapers, exam });
   } catch (error) {
     res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json({ error: error.message });
   }
 };
+
 
 export const createPaper = async (req, res) => {
   const { answers } = req.body;
@@ -57,7 +100,67 @@ export const createPaper = async (req, res) => {
       }
     }
 
-    const paper = await tbl_paper.create(req.body);
+    let paper = await tbl_paper.findOne({
+      exam_id: req.params.id,
+      student_id: req.user.userId,
+      status: "in_progress",
+    });
+
+    if (paper) {
+      paper.answers = answers;
+      paper.score = score;
+      paper.status = "submitted";
+
+      if (!paper.proctoring) {
+        paper.proctoring = {};
+      }
+
+      // Sync final proctoring score and violations count from client
+      if (req.body.proctoring) {
+        paper.proctoring.trustScore = req.body.proctoring.trustScore ?? paper.proctoring.trustScore;
+        paper.proctoring.totalViolations = req.body.proctoring.totalViolations ?? paper.proctoring.totalViolations;
+
+        // Merge violations if needed
+        if (req.body.proctoring.violations && req.body.proctoring.violations.length > 0) {
+          const dbViolationKeys = new Set(
+            paper.proctoring.violations.map(v => `${v.type}-${new Date(v.timestamp).getTime()}`)
+          );
+          req.body.proctoring.violations.forEach(v => {
+            const key = `${v.type}-${new Date(v.timestamp).getTime()}`;
+            if (!dbViolationKeys.has(key)) {
+              paper.proctoring.violations.push(v);
+            }
+          });
+        }
+      }
+
+      paper.proctoring.submittedAt = new Date();
+      if (paper.proctoring.startedAt) {
+        const startTime = new Date(paper.proctoring.startedAt);
+        paper.proctoring.totalTimeSpentSeconds = Math.floor(
+          (Date.now() - startTime.getTime()) / 1000
+        );
+      }
+
+      await paper.save();
+    } else {
+      paper = await tbl_paper.create(req.body);
+    }
+
+    // Sync score with candidate round in recruitment pipeline
+    try {
+      const studentId = req.user.userId;
+      const jobId = req.params.id;
+      if (studentId && jobId) {
+        await tbl_candidate_round.findOneAndUpdate(
+          { job_id: jobId, student_id: studentId, round_number: 1 },
+          { score, max_score: exam.questions.length }
+        );
+      }
+    } catch (syncErr) {
+      console.warn("Failed to sync candidate round score:", syncErr);
+    }
+
     res.status(StatusCodes.CREATED).json({ paper });
   } catch (error) {
     res
@@ -174,12 +277,34 @@ export const autoSubmitPaper = async (req, res) => {
       }
     }
 
+    if (req.body.proctoring) {
+      paper.proctoring.trustScore = req.body.proctoring.trustScore ?? paper.proctoring.trustScore;
+      paper.proctoring.totalViolations = req.body.proctoring.totalViolations ?? paper.proctoring.totalViolations;
+    }
+
     paper.status = "auto_submitted";
     paper.proctoring.autoSubmitted = true;
     paper.proctoring.autoSubmitReason = reason || "Maximum violations exceeded";
     paper.proctoring.submittedAt = new Date();
 
     await paper.save();
+
+    // Sync score with candidate round in recruitment pipeline
+    try {
+      const studentId = paper.student_id;
+      const jobId = paper.exam_id;
+      if (studentId && jobId) {
+        // Load exam to know the total questions count
+        const exam = await tbl_exam.findOne({ job_id: jobId });
+        const maxQuestions = exam ? exam.questions.length : 0;
+        await tbl_candidate_round.findOneAndUpdate(
+          { job_id: jobId, student_id: studentId, round_number: 1 },
+          { score: paper.score, max_score: maxQuestions }
+        );
+      }
+    } catch (syncErr) {
+      console.warn("Failed to sync candidate round score on auto-submit:", syncErr);
+    }
 
     res.status(StatusCodes.OK).json({
       msg: "Paper auto-submitted",

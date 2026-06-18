@@ -1,134 +1,146 @@
 import React, { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { toast } from "react-toastify";
-import { FiPlus, FiTrash2, FiBookOpen, FiX } from "react-icons/fi";
+import { FiBookOpen, FiClock, FiCpu } from "react-icons/fi";
 import customFetch from "../../utils/customFetch";
 import Loading from "../../common/components/Loading";
 import PageHeader from "../../common/components/PageHeader";
 import DataTable from "../../common/components/DataTable";
-import IconButton from "../../common/components/IconButton";
-import AddDegreeModal from "../components/AddDegreeModal";
 
 const ManageDegree = () => {
   const { user } = useOutletContext();
   const [degrees, setDegrees] = useState([]);
+  const [branches, setBranches] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
 
-  const fetchDegrees = async () => {
+  const fetchData = async () => {
     try {
-      const { data } = await customFetch.get("/degree");
-      setDegrees(data.degrees || []);
+      const [degreeRes, branchRes] = await Promise.all([
+        customFetch.get("/degree"),
+        customFetch.get("/branch"),
+      ]);
+      setDegrees(degreeRes.data.degrees || []);
+      setBranches(branchRes.data.branches || []);
     } catch (error) {
-      toast.error("Failed to load degrees");
+      toast.error("Failed to load academic data");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchDegrees();
+    fetchData();
   }, []);
-
-  const handleSubmit = async (degreeData) => {
-    try {
-      const payload = {
-        ...degreeData,
-      };
-      await customFetch.post("/degree", payload);
-      toast.success("Degree added successfully!");
-      resetForm();
-      fetchDegrees();
-    } catch (error) {
-      toast.error(error?.response?.data?.msg || "Failed to add degree");
-    }
-  };
-
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this degree?")) return;
-    try {
-      await customFetch.delete(`/degree/${id}`);
-      toast.success("Degree deleted successfully");
-      fetchDegrees();
-    } catch (error) {
-      toast.error("Failed to delete degree");
-    }
-  };
-
-  const resetForm = () => {
-    setShowForm(false);
-  };
 
   if (loading) return <Loading />;
 
   return (
-    <div>
+    <div className="max-w-7xl mx-auto px-1 sm:px-4 py-3 space-y-6">
       <PageHeader
         icon={FiBookOpen}
-        title="Manage Degrees"
-        subtitle="Manage the academic degrees offered by your college."
-        badge={`${degrees.length} degrees`}
-        action={
-          <button
-            onClick={() => setShowForm(true)}
-            className="bg-primary-600 hover:bg-primary-700 text-white font-medium py-2.5 px-5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md flex items-center gap-2"
-          >
-            <FiPlus /> Add Degree
-          </button>
-        }
+        title="Degrees & Branches"
+        subtitle="View the academic degrees and specialization branches offered under your university affiliation."
+        badge={`${degrees.length} Degrees • ${branches.length} Branches`}
       />
 
-      <DataTable
-        data={degrees}
-        searchKeys={["degree_name", "degree_code"]}
-        searchPlaceholder="Search degrees…"
-        emptyMessage="No degrees added yet. Add a new academic degree to get started."
-        columns={[
-          {
-            key: "code",
-            label: "Degree Code",
-            render: (d) => (
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary-100 text-primary-800">
-                {d.degree_code}
-              </span>
-            ),
-          },
-          {
-            key: "name",
-            label: "Degree Name",
-            render: (d) => (
-              <span className="font-semibold text-slate-900">
-                {d.degree_name}
-              </span>
-            ),
-          },
-          {
-            key: "semesters",
-            label: "Semesters",
-            render: (d) => d.degree_sem || "—",
-          },
-          {
-            key: "actions",
-            label: "Actions",
-            className: "w-24",
-            render: (d) => (
-              <IconButton
-                variant="danger"
-                title="Delete"
-                onClick={() => handleDelete(d._id)}
-              >
-                <FiTrash2 className="w-4 h-4" />
-              </IconButton>
-            ),
-          },
-        ]}
-      />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+        {/* Degrees Column */}
+        <div className="bg-white rounded-3xl border border-slate-200/80 p-5 shadow-sm space-y-4">
+          <h2 className="text-base font-extrabold text-slate-800 flex items-center gap-2">
+            <FiBookOpen className="text-[#3730a3] w-4.5 h-4.5" /> Degrees Offered
+          </h2>
+          {degrees.length === 0 ? (
+            <div className="text-center py-10 text-slate-400">
+              <p className="text-sm font-semibold">No degrees added yet.</p>
+            </div>
+          ) : (
+            <DataTable
+              data={degrees}
+              searchKeys={["degree_name", "degree_code"]}
+              searchPlaceholder="Search degrees..."
+              emptyMessage="No degrees match your search query"
+              columns={[
+                {
+                  key: "code",
+                  label: "Code",
+                  render: (d) => (
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-indigo-50 text-[#3730a3] border border-indigo-150">
+                      {d.degree_code}
+                    </span>
+                  ),
+                },
+                {
+                  key: "name",
+                  label: "Degree Name",
+                  render: (d) => (
+                    <span className="font-extrabold text-slate-800 text-xs">
+                      {d.degree_name}
+                    </span>
+                  ),
+                },
+                {
+                  key: "semesters",
+                  label: "Duration",
+                  render: (d) => (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-50 text-slate-600 border border-slate-200 rounded text-[11px] font-bold">
+                      <FiClock className="w-3 h-3 text-slate-400" />
+                      {d.degree_sem || 6} Sems
+                    </span>
+                  ),
+                },
+              ]}
+            />
+          )}
+        </div>
 
-      <AddDegreeModal
-        isOpen={showForm}
-        onClose={resetForm}
-        onSubmit={handleSubmit}
-      />
+        {/* Branches Column */}
+        <div className="bg-white rounded-3xl border border-slate-200/80 p-5 shadow-sm space-y-4">
+          <h2 className="text-base font-extrabold text-slate-800 flex items-center gap-2">
+            <FiCpu className="text-emerald-500 w-4.5 h-4.5" /> Specialization Branches
+          </h2>
+          {branches.length === 0 ? (
+            <div className="text-center py-10 text-slate-400">
+              <p className="text-sm font-semibold">No branches configured.</p>
+            </div>
+          ) : (
+            <DataTable
+              data={branches}
+              searchKeys={["branch_name", "branch_code", "degree_id.degree_name"]}
+              searchPlaceholder="Search branches..."
+              emptyMessage="No branches match your search criteria"
+              columns={[
+                {
+                  key: "code",
+                  label: "Code",
+                  render: (b) => (
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-indigo-50 text-[#3730a3] border border-indigo-150">
+                      {b.branch_code}
+                    </span>
+                  ),
+                },
+                {
+                  key: "name",
+                  label: "Branch / Specialization",
+                  render: (b) => (
+                    <span className="font-extrabold text-slate-800 text-xs">
+                      {b.branch_name}
+                    </span>
+                  ),
+                },
+                {
+                  key: "degree",
+                  label: "Parent Degree",
+                  render: (b) => (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-150">
+                      {b.degree_id?.degree_code || "—"}
+                    </span>
+                  ),
+                },
+              ]}
+            />
+          )}
+        </div>
+      </div>
     </div>
   );
 };
