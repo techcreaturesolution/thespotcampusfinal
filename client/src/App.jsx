@@ -30,6 +30,10 @@ const AdminContactList = lazy(() => import("./admin/pages/ContactList"));
 const AdminManageCvTemplates = lazy(() => import("./admin/pages/ManageCvTemplates"));
 const AdminReport = lazy(() => import("./admin/pages/AdminReport"));
 const AdminAllTransactions = lazy(() => import("./admin/pages/AllTransactions"));
+const AdminManageSubjects = lazy(() => import("./admin/pages/preparation/ManageSubjects"));
+const AdminManageQuestions = lazy(() => import("./admin/pages/preparation/ManageQuestions"));
+const AdminManageMockTests = lazy(() => import("./admin/pages/preparation/ManageMockTests"));
+const AdminManagePdfs = lazy(() => import("./admin/pages/preparation/ManagePdfs"));
 
 // Student Pages
 const StudentOpeningList = lazy(() => import("./student/pages/OpeningList"));
@@ -39,6 +43,17 @@ const StudentExamResult = lazy(() => import("./student/pages/ExamResult"));
 const StudentInterviews = lazy(() => import("./student/pages/StudentInterviews"));
 const Plans = lazy(() => import("./student/pages/Plans"));
 const StudentResumeBuilder = lazy(() => import("./student/pages/ResumeBuilder"));
+const PreparationDashboard = lazy(() => import("./student/pages/preparation/PreparationDashboard"));
+const PreviousYearPapers = lazy(() => import("./student/pages/preparation/PreviousYearPapers"));
+const MockTests = lazy(() => import("./student/pages/preparation/MockTests"));
+const TakeTest = lazy(() => import("./student/pages/preparation/TakeTest"));
+const TestResult = lazy(() => import("./student/pages/preparation/TestResult"));
+const SubjectPractice = lazy(() => import("./student/pages/preparation/SubjectPractice"));
+const PracticeSession = lazy(() => import("./student/pages/preparation/PracticeSession"));
+const ReadingMaterial = lazy(() => import("./student/pages/preparation/ReadingMaterial"));
+const DailyChallenge = lazy(() => import("./student/pages/preparation/DailyChallenge"));
+const PerformanceDashboard = lazy(() => import("./student/pages/preparation/PerformanceDashboard"));
+const Bookmarks = lazy(() => import("./student/pages/preparation/Bookmarks"));
 
 // Company Pages
 const CompanyManageJob = lazy(() => import("./company/pages/ManageJob"));
@@ -114,6 +129,10 @@ const router = createBrowserRouter([
       { path: "admin/manage-student", element: <AdminManageStudent /> },
       { path: "admin/manage-tpo", element: <AdminManageTpo /> },
       { path: "admin/manage-recruitment-plans", element: <AdminManageRecruitmentPlans /> },
+      { path: "admin/preparation/subjects", element: <AdminManageSubjects /> },
+      { path: "admin/preparation/questions", element: <AdminManageQuestions /> },
+      { path: "admin/preparation/mock-tests", element: <AdminManageMockTests /> },
+      { path: "admin/preparation/pdfs", element: <AdminManagePdfs /> },
       { path: "admin/contact-list", element: <AdminContactList /> },
       { path: "admin/manage-cv-templates", element: <AdminManageCvTemplates /> },
       { path: "admin/reports", element: <AdminReport /> },
@@ -129,6 +148,17 @@ const router = createBrowserRouter([
       { path: "student/profile", element: <Profile /> },
       { path: "student/plans", element: <Plans /> },
       { path: "student/ai-cv-builder", element: <StudentResumeBuilder /> },
+      { path: "student/preparation", element: <PreparationDashboard /> },
+      { path: "student/preparation/previous-papers", element: <PreviousYearPapers /> },
+      { path: "student/preparation/mock-tests", element: <MockTests /> },
+      { path: "student/preparation/take-test/:attemptId", element: <TakeTest /> },
+      { path: "student/preparation/test-result/:attemptId", element: <TestResult /> },
+      { path: "student/preparation/subjects", element: <SubjectPractice /> },
+      { path: "student/preparation/practice/:topicId", element: <PracticeSession /> },
+      { path: "student/preparation/reading-material", element: <ReadingMaterial /> },
+      { path: "student/preparation/daily-challenge", element: <DailyChallenge /> },
+      { path: "student/preparation/performance", element: <PerformanceDashboard /> },
+      { path: "student/preparation/bookmarks", element: <Bookmarks /> },
 
       // Company Pages
       { path: "company/manage-job", element: <CompanyManageJob /> },

@@ -14,6 +14,13 @@ import 'screens/my_applications_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/interview_list_screen.dart';
 import 'screens/plans_screen.dart';
+import 'screens/preparation/preparation_dashboard_screen.dart';
+import 'screens/preparation/mock_tests_screen.dart';
+import 'screens/preparation/subject_practice_screen.dart';
+import 'screens/preparation/daily_challenge_screen.dart';
+import 'screens/preparation/performance_screen.dart';
+import 'screens/preparation/reading_material_screen.dart';
+import 'screens/preparation/previous_papers_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -92,6 +99,13 @@ class SpotCampusApp extends StatelessWidget {
         '/profile': (context) => const ProfileScreen(),
         '/interviews': (context) => const InterviewListScreen(),
         '/plans': (context) => const PlansScreen(),
+        '/preparation': (context) => const PreparationDashboardScreen(),
+        '/preparation/mock-tests': (context) => const MockTestsScreen(),
+        '/preparation/subjects': (context) => const SubjectPracticeScreen(),
+        '/preparation/daily-challenge': (context) => const DailyChallengeScreen(),
+        '/preparation/performance': (context) => const PerformanceScreen(),
+        '/preparation/reading': (context) => const ReadingMaterialScreen(),
+        '/preparation/previous-papers': (context) => const PreviousPapersScreen(),
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/job-detail') {

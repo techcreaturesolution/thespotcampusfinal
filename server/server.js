@@ -46,6 +46,7 @@ import RoundRouter from "./src/modules/interview/round.route.js";
 import InterviewRouter from "./src/modules/interview/interview.route.js";
 import RecruitmentSubscriptionRouter from "./src/modules/subscription/subscription.route.js";
 import { getActivePlans } from "./src/modules/subscription/subscription.controller.js";
+import PreparationRouter from "./src/modules/preparation/preparation.route.js";
 
 // Middleware
 import errorHandlerMiddleware from "./src/middleware/errorHandlerMiddleware.js";
@@ -211,6 +212,7 @@ app.use("/api/rounds", authenticateUser, RoundRouter);
 app.use("/api/interviews", authenticateUser, InterviewRouter);
 app.get("/api/recruitment-subscription/plans/active", getActivePlans);
 app.use("/api/recruitment-subscription", authenticateUser, RecruitmentSubscriptionRouter);
+app.use("/api/preparation", authenticateUser, PreparationRouter);
 app.use("/api/company", CompanyRouter);
 app.use("/api/application", authenticateUser, ApplicationRouter);
 app.use("/api/college", CollegeRouter);

@@ -289,12 +289,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const SizedBox(height: 12),
                     GridView.count(
-                      crossAxisCount: 2,
+                      crossAxisCount: 3,
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       mainAxisSpacing: 12,
                       crossAxisSpacing: 12,
-                      childAspectRatio: 1.3,
+                      childAspectRatio: 1.0,
                       children: [
                         _QuickActionCard(
                           icon: Icons.work_outline,
@@ -333,6 +333,26 @@ class _HomeScreenState extends State<HomeScreen> {
                           color: const Color(0xFFDC2626),
                           onTap: () async {
                             await Navigator.pushNamed(context, '/interviews');
+                            _fetchDashboardData();
+                          },
+                        ),
+                        _QuickActionCard(
+                          icon: Icons.menu_book_outlined,
+                          title: 'Preparation',
+                          subtitle: 'Practice Now',
+                          color: const Color(0xFF059669),
+                          onTap: () async {
+                            await Navigator.pushNamed(context, '/preparation');
+                            _fetchDashboardData();
+                          },
+                        ),
+                        _QuickActionCard(
+                          icon: Icons.bolt_outlined,
+                          title: 'Daily Challenge',
+                          subtitle: '10 Questions',
+                          color: const Color(0xFFEA580C),
+                          onTap: () async {
+                            await Navigator.pushNamed(context, '/preparation/daily-challenge');
                             _fetchDashboardData();
                           },
                         ),
