@@ -5,7 +5,8 @@ import Loading from "../components/Loading";
 import {
   FiHome, FiBriefcase, FiUsers, FiBookOpen,
   FiLogOut, FiMenu, FiX, FiUser, FiFileText, FiGrid,
-  FiMessageSquare, FiVideo, FiLayers, FiDollarSign, FiCpu,
+  FiMessageSquare, FiVideo, FiLayers, FiDollarSign, FiCpu, FiBook,
+  FiBookmark,
 } from "react-icons/fi";
 import customFetch from "../../utils/customFetch";
 import AdminDashboard from "../../admin/pages/AdminDashboard";
@@ -61,6 +62,7 @@ const DashboardLayout = () => {
         { path: "/dashboard/admin/manage-student", icon: <FiUsers />, label: "Students" },
         { path: "/dashboard/admin/manage-tpo", icon: <FiUser />, label: "TPOs" },
         { path: "/dashboard/admin/manage-recruitment-plans", icon: <FiDollarSign />, label: "Recruitment Plans" },
+        { path: "/dashboard/admin/preparation/subjects", icon: <FiBook />, label: "Preparation" },
         { path: "/dashboard/admin/manage-cv-templates", icon: <FiFileText />, label: "CV Templates" },
         { path: "/dashboard/admin/contact-list", icon: <FiMessageSquare />, label: "Contacts" },
         { path: "/dashboard/admin/reports", icon: <FiFileText />, label: "Reports" },
@@ -76,8 +78,10 @@ const DashboardLayout = () => {
         return [...base,
         { path: "/dashboard/student/opening-list", icon: <FiBriefcase />, label: "Job Openings" },
         { path: "/dashboard/student/apply-list", icon: <FiFileText />, label: "My Applications" },
+        { path: "/dashboard/student/preparation", icon: <FiBook />, label: "Preparation" },
         { path: "/dashboard/student/ai-cv-builder", icon: <FiFileText />, label: "AI CV Builder" },
         { path: "/dashboard/student/my-interviews", icon: <FiVideo />, label: "My Interviews" },
+        { path: "/dashboard/student/preparation/bookmarks", icon: <FiBookmark />, label: "Saved Items" },
         { path: "/dashboard/student/plans", icon: <FiDollarSign />, label: "Subscription Plans" },
         ];
       case "College":
