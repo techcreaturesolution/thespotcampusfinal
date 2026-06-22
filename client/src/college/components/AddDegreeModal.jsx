@@ -46,14 +46,14 @@ const AddDegreeModal = ({ isOpen, onClose, degree, onSubmit }) => {
       <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 border border-slate-200 animate-in fade-in zoom-in-95 duration-200">
         <div className="flex items-center justify-between mb-5 pb-3 border-b border-slate-100">
           <h3 className="text-base font-extrabold text-slate-800 tracking-tight flex items-center gap-2">
-            <FiBookOpen className="text-[#3730a3] w-4.5 h-4.5" /> 
+            <FiBookOpen className="text-[#3730a3] w-4.5 h-4.5" />
             {degree ? "Edit Degree Program" : "Add New Degree Program"}
           </h3>
           <button onClick={onClose} className="p-1.5 text-slate-400 hover:text-slate-650 hover:bg-slate-100 rounded-lg transition">
             <FiX className="w-4 h-4" />
           </button>
         </div>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-2">Degree Name</label>
@@ -66,7 +66,7 @@ const AddDegreeModal = ({ isOpen, onClose, degree, onSubmit }) => {
               required
             />
           </div>
-          
+
           <div>
             <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-2">Degree Code / Abbreviation</label>
             <input
@@ -78,7 +78,7 @@ const AddDegreeModal = ({ isOpen, onClose, degree, onSubmit }) => {
               required
             />
           </div>
-          
+
           <div>
             <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-2">Total Semesters</label>
             <input
@@ -91,7 +91,7 @@ const AddDegreeModal = ({ isOpen, onClose, degree, onSubmit }) => {
               max="12"
             />
           </div>
-          
+
           <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 mt-5">
             <button
               type="button"

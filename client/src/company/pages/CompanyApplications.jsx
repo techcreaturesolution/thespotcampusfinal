@@ -208,33 +208,29 @@ const CompanyApplications = () => {
             </span>
             <button
               onClick={() => setStatusFilter("all")}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition shrink-0 ${
-                statusFilter === "all" ? "bg-[#3730a3] text-white" : "hover:bg-slate-100 text-slate-650"
-              }`}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition shrink-0 ${statusFilter === "all" ? "bg-[#3730a3] text-white" : "hover:bg-slate-100 text-slate-650"
+                }`}
             >
               All
             </button>
             <button
               onClick={() => setStatusFilter("pending")}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition shrink-0 flex items-center gap-1.5 ${
-                statusFilter === "pending" ? "bg-amber-600 text-white" : "hover:bg-slate-100 text-slate-650"
-              }`}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition shrink-0 flex items-center gap-1.5 ${statusFilter === "pending" ? "bg-amber-600 text-white" : "hover:bg-slate-100 text-slate-650"
+                }`}
             >
               <span className={`w-1.5 h-1.5 rounded-full ${statusFilter === "pending" ? "bg-white" : "bg-amber-500"}`} /> Pending
             </button>
             <button
               onClick={() => setStatusFilter("selected")}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition shrink-0 flex items-center gap-1.5 ${
-                statusFilter === "selected" ? "bg-emerald-600 text-white" : "hover:bg-slate-100 text-slate-650"
-              }`}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition shrink-0 flex items-center gap-1.5 ${statusFilter === "selected" ? "bg-emerald-600 text-white" : "hover:bg-slate-100 text-slate-650"
+                }`}
             >
               <span className={`w-1.5 h-1.5 rounded-full ${statusFilter === "selected" ? "bg-white" : "bg-emerald-500"}`} /> Selected
             </button>
             <button
               onClick={() => setStatusFilter("rejected")}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition shrink-0 flex items-center gap-1.5 ${
-                statusFilter === "rejected" ? "bg-rose-600 text-white" : "hover:bg-slate-100 text-slate-650"
-              }`}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition shrink-0 flex items-center gap-1.5 ${statusFilter === "rejected" ? "bg-rose-600 text-white" : "hover:bg-slate-100 text-slate-650"
+                }`}
             >
               <span className={`w-1.5 h-1.5 rounded-full ${statusFilter === "rejected" ? "bg-white" : "bg-rose-500"}`} /> Rejected
             </button>

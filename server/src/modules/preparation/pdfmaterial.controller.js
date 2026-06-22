@@ -2,6 +2,7 @@ import PdfMaterial from "./pdfmaterial.model.js";
 import StudentProgress from "./studentprogress.model.js";
 import { StatusCodes } from "http-status-codes";
 import cloudinary from "cloudinary";
+import { promises as fs } from "fs";
 
 // Admin: Upload PDF
 export const createPdfMaterial = async (req, res) => {
@@ -10,12 +11,20 @@ export const createPdfMaterial = async (req, res) => {
   let file_public_id = "";
 
   if (req.file) {
-    const result = await cloudinary.v2.uploader.upload(req.file.path, {
-      resource_type: "raw",
-      folder: "preparation_pdfs",
-    });
-    file_url = result.secure_url;
-    file_public_id = result.public_id;
+    try {
+      const result = await cloudinary.v2.uploader.upload(req.file.path, {
+        resource_type: "raw",
+        folder: "preparation_pdfs",
+      });
+      file_url = result.secure_url;
+      file_public_id = result.public_id;
+    } finally {
+      try {
+        await fs.unlink(req.file.path);
+      } catch (err) {
+        console.error("Failed to delete local temp PDF file:", err);
+      }
+    }
   }
 
   const pdf = await PdfMaterial.create({

@@ -50,22 +50,37 @@ const DailyChallenge = () => {
   };
 
   if (loading) return <Loading />;
-  if (!challenge) return <p className="text-center text-gray-500 py-10">No daily challenge available today. Check back tomorrow!</p>;
+  if (!challenge) return (
+    <div className="max-w-xl mx-auto py-12 text-center animate-fade-in">
+      <FiZap className="w-12 h-12 text-slate-350 mx-auto mb-3" />
+      <h3 className="font-extrabold text-slate-800 text-sm uppercase tracking-wide">No Challenge Today</h3>
+      <p className="text-xs text-slate-450 mt-1">No daily challenge is available right now. Check back tomorrow!</p>
+    </div>
+  );
 
   // Already completed view
   if (alreadyCompleted && previousAttempt) {
     return (
-      <div>
+      <div className="space-y-6 max-w-xl mx-auto py-2 text-left animate-fade-in">
         <PageHeader title="Daily Challenge" subtitle="Today's challenge completed!" />
-        <div className="max-w-lg mx-auto bg-green-50 rounded-xl border border-green-200 p-6 text-center">
-          <FiAward className="mx-auto text-green-600 mb-3" size={40} />
-          <h3 className="text-xl font-bold text-green-700 mb-2">Already Completed!</h3>
-          <div className="grid grid-cols-3 gap-4 mt-4">
-            <div><p className="text-lg font-bold text-green-600">{previousAttempt.correct_answers}</p><p className="text-xs text-gray-500">Correct</p></div>
-            <div><p className="text-lg font-bold text-red-600">{previousAttempt.wrong_answers}</p><p className="text-xs text-gray-500">Wrong</p></div>
-            <div><p className="text-lg font-bold text-purple-600">{previousAttempt.accuracy}%</p><p className="text-xs text-gray-500">Accuracy</p></div>
+        <div className="bg-emerald-50/50 border border-emerald-150 rounded-3xl p-6 text-center shadow-xs">
+          <FiAward className="mx-auto text-emerald-600 mb-3" size={40} />
+          <h3 className="text-lg font-black text-emerald-700 uppercase tracking-wide">Already Completed!</h3>
+          <div className="grid grid-cols-3 gap-4 mt-6">
+            <div>
+              <p className="text-2xl font-black text-emerald-600">{previousAttempt.correct_answers}</p>
+              <p className="text-[10px] text-slate-450 font-extrabold uppercase mt-1">Correct</p>
+            </div>
+            <div>
+              <p className="text-2xl font-black text-rose-600">{previousAttempt.wrong_answers}</p>
+              <p className="text-[10px] text-slate-455 font-extrabold uppercase mt-1">Wrong</p>
+            </div>
+            <div>
+              <p className="text-2xl font-black text-[#3730a3]">{previousAttempt.accuracy}%</p>
+              <p className="text-[10px] text-slate-450 font-extrabold uppercase mt-1">Accuracy</p>
+            </div>
           </div>
-          <p className="text-sm text-gray-600 mt-4">Come back tomorrow for a new challenge!</p>
+          <p className="text-xs text-slate-500 font-semibold mt-6">Come back tomorrow for a new challenge!</p>
         </div>
       </div>
     );
@@ -74,32 +89,57 @@ const DailyChallenge = () => {
   // Result view
   if (submitted && result) {
     return (
-      <div>
-        <PageHeader title="Daily Challenge" subtitle="Results" />
-        <div className="max-w-lg mx-auto bg-white rounded-xl shadow-sm border border-gray-200 p-6 text-center">
-          <FiZap className="mx-auto text-amber-500 mb-3" size={40} />
-          <h3 className="text-xl font-bold text-gray-800 mb-4">Challenge Complete!</h3>
-          <div className="grid grid-cols-4 gap-4 mb-4">
-            <div><p className="text-lg font-bold text-indigo-600">{result.score}/{result.max_score}</p><p className="text-xs text-gray-500">Score</p></div>
-            <div><p className="text-lg font-bold text-green-600">{result.correct_answers}</p><p className="text-xs text-gray-500">Correct</p></div>
-            <div><p className="text-lg font-bold text-red-600">{result.wrong_answers}</p><p className="text-xs text-gray-500">Wrong</p></div>
-            <div><p className="text-lg font-bold text-purple-600">{result.accuracy}%</p><p className="text-xs text-gray-500">Accuracy</p></div>
+      <div className="space-y-6 max-w-xl mx-auto py-2 text-left animate-fade-in">
+        <PageHeader title="Daily Challenge" subtitle="Challenge summary results" />
+        <div className="bg-white border border-slate-200 rounded-3xl p-6 text-center shadow-sm">
+          <FiZap className="mx-auto text-amber-500 mb-3 animate-bounce-slow" size={40} />
+          <h3 className="text-lg font-black text-slate-800 uppercase tracking-wide mb-5">Challenge Completed!</h3>
+          <div className="grid grid-cols-4 gap-4">
+            <div>
+              <p className="text-2xl font-black text-[#3730a3]">{result.score}/{result.max_score}</p>
+              <p className="text-[9px] text-slate-450 font-extrabold uppercase mt-1">Score</p>
+            </div>
+            <div>
+              <p className="text-2xl font-black text-emerald-600">{result.correct_answers}</p>
+              <p className="text-[9px] text-slate-450 font-extrabold uppercase mt-1">Correct</p>
+            </div>
+            <div>
+              <p className="text-2xl font-black text-rose-600">{result.wrong_answers}</p>
+              <p className="text-[9px] text-slate-455 font-extrabold uppercase mt-1">Wrong</p>
+            </div>
+            <div>
+              <p className="text-2xl font-black text-purple-600">{result.accuracy}%</p>
+              <p className="text-[9px] text-slate-450 font-extrabold uppercase mt-1">Accuracy</p>
+            </div>
           </div>
         </div>
+
         {/* Show answers review */}
-        <div className="max-w-lg mx-auto mt-4 space-y-3">
+        <div className="space-y-3">
+          <h4 className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider pl-1">Review Answers</h4>
           {challenge.questions.map((q, i) => {
             const userAns = answers[q._id];
             const isCorrect = userAns === q.correct_option_index;
             return (
-              <div key={q._id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-                <div className="flex items-start gap-2 mb-2">
-                  {userAns === undefined ? <FiX className="text-gray-400 mt-0.5" /> : isCorrect ? <FiCheck className="text-green-600 mt-0.5" /> : <FiX className="text-red-600 mt-0.5" />}
-                  <p className="text-sm text-gray-800">{q.question_text}</p>
+              <div key={q._id} className="bg-white border border-slate-200 rounded-3xl p-5 shadow-xs">
+                <div className="flex items-start gap-2.5 mb-3">
+                  <div className={`mt-0.5 p-0.5 rounded-full ${userAns === undefined ? "text-slate-400" : isCorrect ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-650"}`}>
+                    {userAns === undefined ? <FiX className="w-4 h-4" /> : isCorrect ? <FiCheck className="w-4 h-4" /> : <FiX className="w-4 h-4" />}
+                  </div>
+                  <p className="text-xs font-extrabold text-slate-800 leading-snug">{q.question_text}</p>
                 </div>
-                <div className="ml-6 space-y-1">
+                <div className="ml-7 space-y-1.5">
                   {q.options.map((opt, idx) => (
-                    <p key={idx} className={`text-xs px-2 py-0.5 rounded ${idx === q.correct_option_index ? "bg-green-50 text-green-700 font-medium" : idx === userAns && !isCorrect ? "bg-red-50 text-red-700" : "text-gray-500"}`}>
+                    <p
+                      key={idx}
+                      className={`text-xs px-3 py-1.5 rounded-xl border ${
+                        idx === q.correct_option_index
+                          ? "bg-emerald-50/50 border-emerald-100 text-emerald-800 font-extrabold"
+                          : idx === userAns && !isCorrect
+                          ? "bg-rose-50 border-rose-100 text-rose-700 font-extrabold"
+                          : "border-slate-100 text-slate-500"
+                      }`}
+                    >
                       {String.fromCharCode(65 + idx)}. {opt.text}
                     </p>
                   ))}
@@ -117,49 +157,101 @@ const DailyChallenge = () => {
   const answeredCount = Object.keys(answers).length;
 
   return (
-    <div>
-      <PageHeader title="Daily Challenge" subtitle={`${challenge.total_questions} mixed questions`} />
-      <div className="max-w-3xl mx-auto">
-        {/* Progress */}
-        <div className="flex items-center justify-between mb-4">
-          <span className="text-sm text-gray-500">Q {currentIdx + 1}/{challenge.questions.length}</span>
-          <span className="text-sm text-gray-500">{answeredCount}/{challenge.questions.length} answered</span>
+    <div className="space-y-6 max-w-3xl mx-auto py-2 text-left animate-fade-in">
+      <PageHeader
+        icon={FiZap}
+        title="Daily Challenge"
+        subtitle={`${challenge.total_questions} mixed topic practice questions`}
+      />
+
+      <div className="space-y-4">
+        {/* Progress Bar & Summary */}
+        <div className="flex items-center justify-between text-[10px] font-extrabold text-slate-400 uppercase tracking-wider pl-1">
+          <span>Question {currentIdx + 1} of {challenge.questions.length}</span>
+          <span>{answeredCount} of {challenge.questions.length} answered</span>
         </div>
 
-        {/* Question */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-4">
-          <p className="text-gray-800 font-medium mb-5">{currentQ?.question_text}</p>
-          <div className="space-y-2">
+        {/* Question Panel */}
+        <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
+          <p className="text-sm font-extrabold text-slate-800 leading-relaxed mb-6">
+            {currentQ?.question_text}
+          </p>
+          <div className="space-y-2.5">
             {currentQ?.options.map((opt, idx) => (
-              <button key={idx} onClick={() => handleAnswer(currentQ._id, idx)}
-                className={`w-full text-left px-4 py-3 rounded-lg border transition text-sm ${answers[currentQ._id] === idx ? "border-indigo-400 bg-indigo-50 text-indigo-800 font-medium" : "border-gray-200 hover:border-indigo-200 hover:bg-gray-50"}`}>
-                <span className="font-medium mr-2">{String.fromCharCode(65 + idx)}.</span> {opt.text}
+              <button
+                key={idx}
+                onClick={() => handleAnswer(currentQ._id, idx)}
+                className={`w-full text-left px-5 py-4 rounded-2xl border transition-all text-xs font-bold active:scale-99 flex items-center gap-3 ${
+                  answers[currentQ._id] === idx
+                    ? "border-indigo-500 bg-indigo-50/30 text-[#3730a3]"
+                    : "border-slate-200 text-slate-650 hover:bg-slate-50"
+                }`}
+              >
+                <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] uppercase font-black transition-colors ${
+                  answers[currentQ._id] === idx
+                    ? "bg-[#3730a3] text-white"
+                    : "bg-slate-100 text-slate-500"
+                }`}>
+                  {String.fromCharCode(65 + idx)}
+                </span>
+                <span>{opt.text}</span>
               </button>
             ))}
           </div>
         </div>
 
-        {/* Navigation */}
+        {/* Navigation Actions */}
         <div className="flex justify-between items-center">
-          <button onClick={() => setCurrentIdx(i => Math.max(0, i - 1))} disabled={currentIdx === 0}
-            className="px-4 py-2 rounded-lg bg-gray-100 text-gray-700 text-sm disabled:opacity-50">Previous</button>
+          <button
+            onClick={() => setCurrentIdx(i => Math.max(0, i - 1))}
+            disabled={currentIdx === 0}
+            className="px-5 py-2.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-extrabold rounded-full text-[10px] uppercase tracking-wider transition-all disabled:opacity-50 active:scale-95 shadow-sm"
+          >
+            Previous
+          </button>
+          
           {currentIdx === challenge.questions.length - 1 ? (
-            <button onClick={handleSubmit} disabled={answeredCount === 0}
-              className="px-6 py-2 rounded-lg bg-green-600 text-white text-sm hover:bg-green-700 disabled:opacity-50">Submit Challenge</button>
+            <button
+              onClick={handleSubmit}
+              disabled={answeredCount === 0}
+              className="vibrant-btn text-white font-extrabold py-2.5 px-6 rounded-full transition-all duration-200 shadow-md hover:opacity-95 text-[10px] uppercase tracking-wider disabled:opacity-50 active:scale-95"
+            >
+              Submit Challenge
+            </button>
           ) : (
-            <button onClick={() => setCurrentIdx(i => i + 1)}
-              className="px-4 py-2 rounded-lg bg-indigo-600 text-white text-sm hover:bg-indigo-700">Next</button>
+            <button
+              onClick={() => setCurrentIdx(i => i + 1)}
+              className="vibrant-btn text-white font-extrabold py-2.5 px-6 rounded-full transition-all duration-200 active:scale-95 text-[10px] uppercase tracking-wider shadow-md"
+            >
+              Next
+            </button>
           )}
         </div>
 
-        {/* Palette */}
-        <div className="mt-4 flex flex-wrap gap-2">
-          {challenge.questions.map((q, i) => (
-            <button key={q._id} onClick={() => setCurrentIdx(i)}
-              className={`w-7 h-7 rounded text-xs font-medium ${i === currentIdx ? "bg-indigo-600 text-white" : answers[q._id] !== undefined ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"}`}>
-              {i + 1}
-            </button>
-          ))}
+        {/* Palette Grid */}
+        <div className="bg-white border border-slate-200 rounded-3xl p-5 shadow-xs">
+          <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-3">Question Palette</p>
+          <div className="flex flex-wrap gap-2">
+            {challenge.questions.map((q, i) => {
+              const isActive = i === currentIdx;
+              const isAnswered = answers[q._id] !== undefined;
+              let btnStyle = "bg-slate-50 border-slate-200 text-slate-500 hover:bg-slate-100";
+              if (isActive) {
+                btnStyle = "vibrant-btn border-transparent text-white shadow-sm";
+              } else if (isAnswered) {
+                btnStyle = "bg-emerald-50 border-emerald-150 text-emerald-700";
+              }
+              return (
+                <button
+                  key={q._id}
+                  onClick={() => setCurrentIdx(i)}
+                  className={`w-9 h-9 rounded-full text-xs font-black transition active:scale-95 border flex items-center justify-center ${btnStyle}`}
+                >
+                  {i + 1}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>

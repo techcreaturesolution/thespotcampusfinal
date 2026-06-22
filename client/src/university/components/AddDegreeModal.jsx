@@ -36,7 +36,7 @@ const AddDegreeModal = ({ isOpen, onClose, onSubmit }) => {
             <FiX className="w-4 h-4" />
           </button>
         </div>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-2">Degree Name</label>
@@ -49,7 +49,7 @@ const AddDegreeModal = ({ isOpen, onClose, onSubmit }) => {
               required
             />
           </div>
-          
+
           <div>
             <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-2">Degree Code / abbreviation</label>
             <input
@@ -61,7 +61,7 @@ const AddDegreeModal = ({ isOpen, onClose, onSubmit }) => {
               required
             />
           </div>
-          
+
           <div>
             <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-2">Total Semesters</label>
             <input
@@ -74,7 +74,7 @@ const AddDegreeModal = ({ isOpen, onClose, onSubmit }) => {
               max="12"
             />
           </div>
-          
+
           <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 mt-5">
             <button
               type="button"

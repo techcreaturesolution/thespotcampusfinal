@@ -29,7 +29,7 @@ export const getBookmarks = async (req, res) => {
   for (const bm of bookmarks) {
     let item = null;
     if (bm.item_type === "question") {
-      item = await Question.findById(bm.item_id).populate("subject_id", "name").populate("topic_id", "name").lean();
+      item = await Question.findById(bm.item_id).populate("subject_id", "name").lean();
     } else if (bm.item_type === "mock_test") {
       item = await MockTest.findById(bm.item_id).lean();
     } else if (bm.item_type === "pdf") {

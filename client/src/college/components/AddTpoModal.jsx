@@ -68,7 +68,7 @@ const AddTpoModal = ({ isOpen, onClose, degrees = [], onSubmit, tpo = null }) =>
             <FiX className="w-4 h-4" />
           </button>
         </div>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-[10px] font-extrabold text-slate-505 uppercase tracking-wider mb-2">Full Name</label>
@@ -81,7 +81,7 @@ const AddTpoModal = ({ isOpen, onClose, degrees = [], onSubmit, tpo = null }) =>
               required
             />
           </div>
-          
+
           <div>
             <label className="block text-[10px] font-extrabold text-slate-505 uppercase tracking-wider mb-2">Email Address</label>
             <input
@@ -93,7 +93,7 @@ const AddTpoModal = ({ isOpen, onClose, degrees = [], onSubmit, tpo = null }) =>
               required
             />
           </div>
-          
+
           <div>
             <label className="block text-[10px] font-extrabold text-slate-505 uppercase tracking-wider mb-2">Contact Number</label>
             <input
@@ -121,7 +121,7 @@ const AddTpoModal = ({ isOpen, onClose, degrees = [], onSubmit, tpo = null }) =>
               ))}
             </select>
           </div>
-          
+
           <div>
             <label className="block text-[10px] font-extrabold text-slate-505 uppercase tracking-wider mb-2">Password</label>
             <div className="relative">
@@ -142,7 +142,7 @@ const AddTpoModal = ({ isOpen, onClose, degrees = [], onSubmit, tpo = null }) =>
               </button>
             </div>
           </div>
-          
+
           <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 mt-5">
             <button
               type="button"

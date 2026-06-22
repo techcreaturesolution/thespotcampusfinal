@@ -1,5 +1,4 @@
 import Subject from "./subject.model.js";
-import Topic from "./topic.model.js";
 import Question from "./question.model.js";
 import { StatusCodes } from "http-status-codes";
 
@@ -20,6 +19,10 @@ export const getAllSubjects = async (req, res) => {
 };
 
 // Admin: Update subject
+export const InstrumentPatchSubject = async (req, res) => {
+  // Let's keep original name export const updateSubject
+};
+
 export const updateSubject = async (req, res) => {
   const subject = await Subject.findByIdAndUpdate(req.params.id, req.body, { new: true });
   if (!subject) return res.status(StatusCodes.NOT_FOUND).json({ msg: "Subject not found" });
@@ -30,28 +33,21 @@ export const updateSubject = async (req, res) => {
 export const deleteSubject = async (req, res) => {
   const subject = await Subject.findByIdAndDelete(req.params.id);
   if (!subject) return res.status(StatusCodes.NOT_FOUND).json({ msg: "Subject not found" });
-  await Topic.deleteMany({ subject_id: req.params.id });
   await Question.deleteMany({ subject_id: req.params.id });
   res.status(StatusCodes.OK).json({ msg: "Subject deleted" });
 };
 
-// Public: Get active subjects with topic count
+// Public: Get active subjects with question count
 export const getActiveSubjects = async (req, res) => {
   const subjects = await Subject.find({ is_active: true }).sort({ sort_order: 1, name: 1 }).lean();
   const subjectIds = subjects.map((s) => s._id);
-  const topicCounts = await Topic.aggregate([
-    { $match: { subject_id: { $in: subjectIds }, is_active: true } },
-    { $group: { _id: "$subject_id", count: { $sum: 1 } } },
-  ]);
   const questionCounts = await Question.aggregate([
     { $match: { subject_id: { $in: subjectIds }, is_active: true } },
     { $group: { _id: "$subject_id", count: { $sum: 1 } } },
   ]);
-  const tcMap = Object.fromEntries(topicCounts.map((t) => [t._id.toString(), t.count]));
   const qcMap = Object.fromEntries(questionCounts.map((q) => [q._id.toString(), q.count]));
   const result = subjects.map((s) => ({
     ...s,
-    topic_count: tcMap[s._id.toString()] || 0,
     question_count: qcMap[s._id.toString()] || 0,
   }));
   res.status(StatusCodes.OK).json({ subjects: result });

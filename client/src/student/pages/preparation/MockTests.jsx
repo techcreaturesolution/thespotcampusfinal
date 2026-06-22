@@ -27,54 +27,137 @@ const MockTests = () => {
   const handleStart = async (id) => {
     try {
       const { data } = await customFetch.post(`/preparation/mock-tests/${id}/start`);
-      navigate(`/dashboard/student/preparation/take-test/${data.attempt._id}`, { state: { questions: data.questions, attempt: data.attempt, mockTestId: id } });
+      navigate(`/dashboard/student/preparation/take-test/${data.attempt._id}`, {
+        state: {
+          questions: data.questions,
+          attempt: data.attempt,
+          mockTestId: id,
+          remainingSeconds: data.remaining_seconds
+        }
+      });
     } catch (err) { toast.error(err?.response?.data?.msg || "Failed to start test"); }
   };
 
   const filtered = mockTests.filter(mt => mt.title.toLowerCase().includes(search.toLowerCase()));
-  const types = ["company", "subject", "topic", "mixed"];
+  const types = ["company", "subject", "mixed"];
+
   if (loading) return <Loading />;
 
   return (
-    <div>
-      <PageHeader title="Mock Tests" subtitle="Simulate real placement rounds" />
+    <div className="space-y-6 max-w-6xl mx-auto py-2 text-left animate-fade-in">
+      <PageHeader
+        icon={FiTarget}
+        title="Mock Tests"
+        subtitle="Simulate real placement rounds under timed conditions"
+        badge={`${mockTests.length} tests`}
+      />
 
-      <div className="flex flex-wrap gap-3 mb-6">
-        <button onClick={() => setFilter("")} className={`px-4 py-2 rounded-lg text-sm transition ${!filter ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}>All</button>
-        {types.map(t => (
-          <button key={t} onClick={() => setFilter(t)} className={`px-4 py-2 rounded-lg text-sm transition capitalize ${filter === t ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}>{t}</button>
-        ))}
-        <div className="relative flex-1 min-w-[150px] ml-auto">
-          <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input type="text" placeholder="Search..." value={search} onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-lg text-sm" />
+      {/* Filter and Search Bar */}
+      <div className="flex flex-wrap gap-3 items-center">
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setFilter("")}
+            className={`px-4 py-2 rounded-full text-xs font-black uppercase tracking-wider transition-all duration-200 border ${
+              !filter
+                ? "vibrant-btn text-white border-transparent shadow-sm"
+                : "bg-white border-slate-200 text-slate-650 hover:bg-slate-50 hover:border-slate-350"
+            }`}
+          >
+            All
+          </button>
+          {types.map(t => (
+            <button
+              key={t}
+              onClick={() => setFilter(t)}
+              className={`px-4 py-2 rounded-full text-xs font-black uppercase tracking-wider transition-all duration-200 border capitalize ${
+                filter === t
+                  ? "vibrant-btn text-white border-transparent shadow-sm"
+                  : "bg-white border-slate-200 text-slate-650 hover:bg-slate-50 hover:border-slate-350"
+              }`}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
+
+        <div className="relative flex-1 min-w-[200px] sm:ml-auto">
+          <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search mock tests..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-full text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#3730a3]/20 focus:border-[#3730a3] transition bg-white"
+          />
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* Mock Tests Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filtered.map(mt => (
-          <div key={mt._id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition">
-            <div className="flex items-start justify-between mb-3">
-              <div>
-                <h4 className="font-bold text-gray-800 text-sm">{mt.title}</h4>
-                <p className="text-xs text-gray-500 mt-1">{mt.description || `${mt.test_type} mock test`}</p>
+          <div
+            key={mt._id}
+            className="bg-white border border-slate-200 rounded-3xl p-5 hover:shadow-md transition-all duration-350 flex flex-col justify-between hover:-translate-y-1 group relative"
+          >
+            <div>
+              <div className="flex justify-between items-start mb-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-[#3730a3]">
+                    <FiTarget className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="font-extrabold text-slate-800 text-sm tracking-tight leading-snug group-hover:text-[#3730a3] transition-colors">
+                      {mt.title}
+                    </h4>
+                    <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">
+                      {mt.difficulty} Difficulty
+                    </p>
+                  </div>
+                </div>
+                <span className="bg-indigo-50 border border-indigo-100 text-[#3730a3] text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md">
+                  {mt.test_type}
+                </span>
               </div>
-              <span className={`px-2 py-0.5 rounded text-xs font-medium capitalize ${mt.test_type === "company" ? "bg-blue-50 text-blue-700" : mt.test_type === "subject" ? "bg-purple-50 text-purple-700" : "bg-gray-100 text-gray-600"}`}>{mt.test_type}</span>
+              <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed mb-4">
+                {mt.description || `${mt.test_type} mock test simulation.`}
+              </p>
             </div>
-            <div className="flex flex-wrap gap-2 mb-4 text-xs text-gray-500">
-              <span className="flex items-center gap-1"><FiTarget size={12} />{mt.total_questions} Q</span>
-              <span className="flex items-center gap-1"><FiClock size={12} />{mt.duration_minutes} min</span>
-              {mt.negative_marking && <span className="text-red-500">-ve marking</span>}
-              <span className={`px-2 py-0.5 rounded ${mt.difficulty === "easy" ? "bg-green-50 text-green-700" : mt.difficulty === "hard" ? "bg-red-50 text-red-700" : "bg-yellow-50 text-yellow-700"}`}>{mt.difficulty}</span>
+            
+            <div className="space-y-4 pt-3 border-t border-slate-100">
+              <div className="flex flex-wrap gap-3 text-[10px] font-extrabold text-slate-500 uppercase tracking-wide">
+                <span className="flex items-center gap-1 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-lg">
+                  <FiTarget className="w-3.5 h-3.5 text-indigo-550" /> {mt.total_questions} Questions
+                </span>
+                <span className="flex items-center gap-1 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-lg">
+                  <FiClock className="w-3.5 h-3.5 text-indigo-550" /> {mt.duration_minutes} Minutes
+                </span>
+                {mt.negative_marking && (
+                  <span className="bg-rose-50 border border-rose-100 text-rose-600 px-2.5 py-1 rounded-lg">
+                    -ve marking
+                  </span>
+                )}
+              </div>
+              
+              <button
+                onClick={() => handleStart(mt._id)}
+                className="w-full flex items-center justify-center gap-2 vibrant-btn text-white font-extrabold py-2.5 px-5 rounded-full transition-all duration-200 active:scale-95 text-xs shadow-md"
+              >
+                <FiPlay className="w-4 h-4" /> Start Test
+              </button>
             </div>
-            <button onClick={() => handleStart(mt._id)}
-              className="w-full flex items-center justify-center gap-2 bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition text-sm">
-              <FiPlay size={14} /> Start Test
-            </button>
           </div>
         ))}
       </div>
-      {filtered.length === 0 && <p className="text-center text-gray-500 py-8">No mock tests available</p>}
+
+      {filtered.length === 0 && (
+        <div className="bg-white border border-slate-200 rounded-3xl p-12 text-center text-slate-500 shadow-sm flex flex-col items-center justify-center space-y-3">
+          <FiTarget className="w-12 h-12 text-slate-350" />
+          <div>
+            <h4 className="font-extrabold text-slate-800 text-sm uppercase tracking-wide">No Active Mock Tests</h4>
+            <p className="text-xs text-slate-450 mt-1">There are no mock tests available right now.</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

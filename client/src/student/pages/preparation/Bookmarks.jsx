@@ -32,43 +32,124 @@ const Bookmarks = () => {
   if (loading) return <Loading />;
 
   return (
-    <div>
-      <PageHeader title="Saved Items" subtitle="Your bookmarked questions, tests, and PDFs" />
+    <div className="space-y-6 max-w-4xl mx-auto py-2 text-left animate-fade-in">
+      <PageHeader
+        icon={FiBookmark}
+        title="Saved Items"
+        subtitle="Your bookmarked questions, tests, and study materials"
+        badge={`${bookmarks.length} bookmarks`}
+      />
 
-      <div className="flex gap-3 mb-6">
-        <button onClick={() => setFilter("")} className={`px-4 py-2 rounded-lg text-sm ${!filter ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}>All</button>
-        <button onClick={() => setFilter("question")} className={`px-4 py-2 rounded-lg text-sm flex items-center gap-1 ${filter === "question" ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}><FiBook size={12} /> Questions</button>
-        <button onClick={() => setFilter("mock_test")} className={`px-4 py-2 rounded-lg text-sm flex items-center gap-1 ${filter === "mock_test" ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}><FiTarget size={12} /> Tests</button>
-        <button onClick={() => setFilter("pdf")} className={`px-4 py-2 rounded-lg text-sm flex items-center gap-1 ${filter === "pdf" ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}><FiFileText size={12} /> PDFs</button>
+      {/* Filter Tabs */}
+      <div className="flex flex-wrap gap-2">
+        <button
+          onClick={() => setFilter("")}
+          className={`px-4 py-2 rounded-full text-xs font-black uppercase tracking-wider transition-all duration-200 border ${
+            !filter
+              ? "vibrant-btn text-white border-transparent shadow-sm"
+              : "bg-white border-slate-200 text-slate-650 hover:bg-slate-50 hover:border-slate-350"
+          }`}
+        >
+          All
+        </button>
+        <button
+          onClick={() => setFilter("question")}
+          className={`px-4 py-2 rounded-full text-xs font-black uppercase tracking-wider transition-all duration-200 border flex items-center gap-1.5 ${
+            filter === "question"
+              ? "vibrant-btn text-white border-transparent shadow-sm"
+              : "bg-white border-slate-200 text-slate-650 hover:bg-slate-50 hover:border-slate-350"
+          }`}
+        >
+          <FiBook size={12} /> Questions
+        </button>
+        <button
+          onClick={() => setFilter("mock_test")}
+          className={`px-4 py-2 rounded-full text-xs font-black uppercase tracking-wider transition-all duration-200 border flex items-center gap-1.5 ${
+            filter === "mock_test"
+              ? "vibrant-btn text-white border-transparent shadow-sm"
+              : "bg-white border-slate-200 text-slate-650 hover:bg-slate-50 hover:border-slate-350"
+          }`}
+        >
+          <FiTarget size={12} /> Tests
+        </button>
+        <button
+          onClick={() => setFilter("pdf")}
+          className={`px-4 py-2 rounded-full text-xs font-black uppercase tracking-wider transition-all duration-200 border flex items-center gap-1.5 ${
+            filter === "pdf"
+              ? "vibrant-btn text-white border-transparent shadow-sm"
+              : "bg-white border-slate-200 text-slate-650 hover:bg-slate-50 hover:border-slate-350"
+          }`}
+        >
+          <FiFileText size={12} /> PDFs
+        </button>
       </div>
 
-      <div className="space-y-3">
+      {/* Bookmarks List */}
+      <div className="space-y-3.5">
         {bookmarks.map(bm => (
-          <div key={bm._id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 flex items-center justify-between">
-            <div className="flex items-center gap-3 flex-1 min-w-0">
-              <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${bm.item_type === "question" ? "bg-blue-50" : bm.item_type === "mock_test" ? "bg-purple-50" : "bg-red-50"}`}>
-                {bm.item_type === "question" ? <FiBook className="text-blue-600" size={14} /> : bm.item_type === "mock_test" ? <FiTarget className="text-purple-600" size={14} /> : <FiFileText className="text-red-600" size={14} />}
+          <div
+            key={bm._id}
+            className="bg-white rounded-3xl border border-slate-200 p-5 flex items-center justify-between shadow-sm hover:shadow-md hover:border-slate-300 transition duration-300 group"
+          >
+            <div className="flex items-center gap-3.5 flex-1 min-w-0">
+              <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                bm.item_type === "question"
+                  ? "bg-blue-50 text-blue-600"
+                  : bm.item_type === "mock_test"
+                  ? "bg-purple-50 text-purple-600"
+                  : "bg-rose-50 text-rose-600"
+              }`}>
+                {bm.item_type === "question" ? (
+                  <FiBook className="w-4 h-4" />
+                ) : bm.item_type === "mock_test" ? (
+                  <FiTarget className="w-4 h-4" />
+                ) : (
+                  <FiFileText className="w-4 h-4" />
+                )}
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-gray-800 truncate">
-                  {bm.item?.question_text || bm.item?.title || "Item"}
+                <p className="text-sm font-extrabold text-slate-800 truncate leading-snug">
+                  {bm.item?.question_text || bm.item?.title || "Unnamed Item"}
                 </p>
-                <div className="flex gap-2 text-xs text-gray-500">
-                  <span className="capitalize">{bm.item_type?.replace("_", " ")}</span>
-                  {bm.item?.subject_id?.name && <span>&middot; {bm.item.subject_id.name}</span>}
-                  {bm.item?.difficulty && <span className={`px-1.5 py-0.5 rounded ${bm.item.difficulty === "easy" ? "bg-green-50 text-green-700" : bm.item.difficulty === "hard" ? "bg-red-50 text-red-700" : "bg-yellow-50 text-yellow-700"}`}>{bm.item.difficulty}</span>}
+                <div className="flex items-center gap-2 text-[10px] text-slate-400 font-extrabold uppercase mt-1">
+                  <span className="bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200/50">
+                    {bm.item_type?.replace("_", " ")}
+                  </span>
+                  {bm.item?.subject_id?.name && (
+                    <span>&middot; {bm.item.subject_id.name}</span>
+                  )}
+                  {bm.item?.difficulty && (
+                    <span className={`px-1.5 py-0.5 rounded border ${
+                      bm.item.difficulty === "easy"
+                        ? "bg-emerald-50 border-emerald-100 text-emerald-700"
+                        : bm.item.difficulty === "hard"
+                        ? "bg-rose-50 border-rose-100 text-rose-700"
+                        : "bg-amber-50 border-amber-100 text-amber-700"
+                    }`}>
+                      {bm.item.difficulty}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
-            <button onClick={() => handleRemove(bm.item_id)} className="text-red-400 hover:text-red-600 p-2"><FiTrash2 size={14} /></button>
+            <button
+              onClick={() => handleRemove(bm.item_id)}
+              className="w-8 h-8 rounded-full border border-slate-200 text-slate-400 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-100 flex items-center justify-center transition-colors shadow-sm flex-shrink-0 active:scale-95"
+              title="Remove Bookmark"
+            >
+              <FiTrash2 className="w-3.5 h-3.5" />
+            </button>
           </div>
         ))}
       </div>
+
       {bookmarks.length === 0 && (
-        <div className="text-center py-12">
-          <FiBookmark className="mx-auto text-gray-300 mb-3" size={40} />
-          <p className="text-gray-500">No bookmarks yet</p>
-          <p className="text-sm text-gray-400 mt-1">Bookmark questions, tests, or PDFs while practicing</p>
+        <div className="bg-white border border-slate-200 rounded-3xl p-12 text-center text-slate-500 shadow-sm flex flex-col items-center justify-center space-y-3">
+          <FiBookmark className="w-12 h-12 text-slate-350" />
+          <div>
+            <h4 className="font-extrabold text-slate-800 text-sm uppercase tracking-wide">No Saved Items Found</h4>
+            <p className="text-xs text-slate-450 mt-1">Bookmark questions, mock tests, or PDFs while practicing to view them here.</p>
+          </div>
         </div>
       )}
     </div>

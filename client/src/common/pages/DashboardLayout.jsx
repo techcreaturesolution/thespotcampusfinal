@@ -6,7 +6,7 @@ import {
   FiHome, FiBriefcase, FiUsers, FiBookOpen,
   FiLogOut, FiMenu, FiX, FiUser, FiFileText, FiGrid,
   FiMessageSquare, FiVideo, FiLayers, FiDollarSign, FiCpu, FiBook,
-  FiBookmark,
+  FiBookmark, FiChevronDown, FiChevronUp,
 } from "react-icons/fi";
 import customFetch from "../../utils/customFetch";
 import AdminDashboard from "../../admin/pages/AdminDashboard";
@@ -62,7 +62,16 @@ const DashboardLayout = () => {
         { path: "/dashboard/admin/manage-student", icon: <FiUsers />, label: "Students" },
         { path: "/dashboard/admin/manage-tpo", icon: <FiUser />, label: "TPOs" },
         { path: "/dashboard/admin/manage-recruitment-plans", icon: <FiDollarSign />, label: "Recruitment Plans" },
-        { path: "/dashboard/admin/preparation/subjects", icon: <FiBook />, label: "Preparation" },
+        {
+          label: "Preparation",
+          icon: <FiBook />,
+          children: [
+            { path: "/dashboard/admin/preparation/subjects", label: "Subjects" },
+            { path: "/dashboard/admin/preparation/questions", label: "Questions" },
+            { path: "/dashboard/admin/preparation/mock-tests", label: "Mock Tests" },
+            { path: "/dashboard/admin/preparation/pdfs", label: "PDF Materials" },
+          ]
+        },
         { path: "/dashboard/admin/manage-cv-templates", icon: <FiFileText />, label: "CV Templates" },
         { path: "/dashboard/admin/contact-list", icon: <FiMessageSquare />, label: "Contacts" },
         { path: "/dashboard/admin/reports", icon: <FiFileText />, label: "Reports" },
@@ -108,6 +117,38 @@ const DashboardLayout = () => {
         ];
       default:
         return base;
+    }
+  };
+
+  const [expandedMenus, setExpandedMenus] = useState({});
+
+  useEffect(() => {
+    const activeSubmenu = {};
+    const items = getMenuItems();
+    items.forEach(item => {
+      if (item.children) {
+        const hasActiveChild = item.children.some(child => location.pathname === child.path);
+        if (hasActiveChild) {
+          activeSubmenu[item.label] = true;
+        }
+      }
+    });
+    setExpandedMenus(prev => ({ ...prev, ...activeSubmenu }));
+  }, [location.pathname, role]);
+
+  const toggleSubmenu = (label) => {
+    setExpandedMenus(prev => ({
+      ...prev,
+      [label]: !prev[label]
+    }));
+  };
+
+  const handleParentClick = (item) => {
+    if (isCollapsed) {
+      setIsCollapsed(false);
+      setExpandedMenus(prev => ({ ...prev, [item.label]: true }));
+    } else {
+      toggleSubmenu(item.label);
     }
   };
 
@@ -184,8 +225,8 @@ const DashboardLayout = () => {
               <img src="/logo_TSC.webp" alt="The Spot Campus" width="91" height="28" className="h-[28px] max-w-none" style={{ objectPosition: "left center", objectFit: "cover", width: "auto" }} />
             </div>
           )}
-          <button 
-            type="button" 
+          <button
+            type="button"
             onClick={() => setIsCollapsed(!isCollapsed)}
             className={`hidden lg:flex p-1.5 hover:bg-white rounded-lg text-slate-500 hover:text-slate-900 transition-all duration-200 ${isCollapsed ? "mt-1 mx-auto" : "ml-auto"}`}
             title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
@@ -198,24 +239,80 @@ const DashboardLayout = () => {
         </div>
 
         <nav className="px-3 py-4 space-y-1">
-          {menuItems.map((item) => (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={
-                location.pathname === item.path 
-                  ? `flex items-center ${isCollapsed ? "lg:justify-center lg:gap-0 lg:px-2 lg:py-3 border-l-4 border-[#3730a3]" : "gap-3 px-4 py-2.5 border-l-4 border-[#3730a3]"} rounded-xl bg-white text-[#3730a3] font-bold shadow-sm shadow-indigo-500/5 transition-all duration-200` 
-                  : `flex items-center ${isCollapsed ? "lg:justify-center lg:gap-0 lg:px-2 lg:py-3" : "gap-3 px-4 py-2.5"} rounded-xl text-slate-600 hover:bg-white/60 hover:text-[#3730a3] transition-all duration-200`
-              }
-              onClick={() => setSidebarOpen(false)}
-              title={isCollapsed ? item.label : ""}
-            >
-              <span className={isCollapsed ? "text-lg lg:text-xl" : "text-sm"}>{item.icon}</span>
-              <span className={`text-sm transition-all duration-200 whitespace-nowrap ${isCollapsed ? "lg:w-0 lg:opacity-0 lg:hidden block" : "w-auto opacity-100 block"}`}>
-                {item.label}
-              </span>
-            </Link>
-          ))}
+          {menuItems.map((item) => {
+            if (item.children) {
+              const isExpanded = expandedMenus[item.label];
+              const hasActiveChild = item.children.some(child => location.pathname === child.path);
+
+              return (
+                <div key={item.label} className="space-y-1">
+                  <button
+                    type="button"
+                    onClick={() => handleParentClick(item)}
+                    className={
+                      hasActiveChild
+                        ? `flex items-center justify-between w-full ${isCollapsed ? "lg:justify-center lg:gap-0 lg:px-2 lg:py-3 border-l-4 border-[#3730a3]" : "gap-3 px-4 py-2.5 border-l-4 border-[#3730a3]"} rounded-xl bg-white text-[#3730a3] font-bold shadow-sm shadow-indigo-500/5 transition-all duration-200`
+                        : `flex items-center justify-between w-full ${isCollapsed ? "lg:justify-center lg:gap-0 lg:px-2 lg:py-3" : "gap-3 px-4 py-2.5"} rounded-xl text-slate-600 hover:bg-white/60 hover:text-[#3730a3] transition-all duration-200`
+                    }
+                    title={isCollapsed ? item.label : ""}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className={isCollapsed ? "text-lg lg:text-xl" : "text-sm"}>{item.icon}</span>
+                      <span className={`text-sm transition-all duration-200 whitespace-nowrap ${isCollapsed ? "lg:w-0 lg:opacity-0 lg:hidden block" : "w-auto opacity-100 block"}`}>
+                        {item.label}
+                      </span>
+                    </div>
+                    {!isCollapsed && (
+                      <span className="text-slate-400">
+                        {isExpanded ? <FiChevronUp className="w-4 h-4" /> : <FiChevronDown className="w-4 h-4" />}
+                      </span>
+                    )}
+                  </button>
+
+                  {isExpanded && !isCollapsed && (
+                    <div className="pl-9 space-y-1 transition-all duration-200">
+                      {item.children.map((child) => {
+                        const isChildActive = location.pathname === child.path;
+                        return (
+                          <Link
+                            key={child.path}
+                            to={child.path}
+                            className={
+                              isChildActive
+                                ? "flex items-center gap-3 px-4 py-2 rounded-xl bg-indigo-50 text-[#3730a3] font-bold transition-all duration-200"
+                                : "flex items-center gap-3 px-4 py-2 rounded-xl text-slate-500 hover:bg-white/40 hover:text-[#3730a3] transition-all duration-200"
+                            }
+                            onClick={() => setSidebarOpen(false)}
+                          >
+                            <span className="text-xs">{child.label}</span>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            }
+
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={
+                  location.pathname === item.path
+                    ? `flex items-center ${isCollapsed ? "lg:justify-center lg:gap-0 lg:px-2 lg:py-3 border-l-4 border-[#3730a3]" : "gap-3 px-4 py-2.5 border-l-4 border-[#3730a3]"} rounded-xl bg-white text-[#3730a3] font-bold shadow-sm shadow-indigo-500/5 transition-all duration-200`
+                    : `flex items-center ${isCollapsed ? "lg:justify-center lg:gap-0 lg:px-2 lg:py-3" : "gap-3 px-4 py-2.5"} rounded-xl text-slate-600 hover:bg-white/60 hover:text-[#3730a3] transition-all duration-200`
+                }
+                onClick={() => setSidebarOpen(false)}
+                title={isCollapsed ? item.label : ""}
+              >
+                <span className={isCollapsed ? "text-lg lg:text-xl" : "text-sm"}>{item.icon}</span>
+                <span className={`text-sm transition-all duration-200 whitespace-nowrap ${isCollapsed ? "lg:w-0 lg:opacity-0 lg:hidden block" : "w-auto opacity-100 block"}`}>
+                  {item.label}
+                </span>
+              </Link>
+            );
+          })}
         </nav>
 
         <div className="absolute bottom-0 left-0 right-0 p-3 border-t border-slate-200/50 bg-[#eef1f6]/95 backdrop-blur-md">

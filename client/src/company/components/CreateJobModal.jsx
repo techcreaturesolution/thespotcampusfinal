@@ -31,7 +31,7 @@ const CreateJobModal = ({ isOpen, onClose, jobId, onSuccess }) => {
   const [loading, setLoading] = useState(isEditMode);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showRounds, setShowRounds] = useState(false);
-  
+
   const [formData, setFormData] = useState({
     job_title: "", job_position: "", job_type: "Full-Time",
     job_work_mode: "Physical", job_skills: "", job_salary: "",
@@ -84,7 +84,7 @@ const CreateJobModal = ({ isOpen, onClose, jobId, onSuccess }) => {
       try {
         const { data } = await customFetch.get(`/jobs/${jobId}`);
         const job = data.job;
-        
+
         let targetDegreeVal = [];
         if (job.target_degree) {
           if (Array.isArray(job.target_degree)) {
@@ -234,7 +234,7 @@ const CreateJobModal = ({ isOpen, onClose, jobId, onSuccess }) => {
   return (
     <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadeIn">
       <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col border border-slate-200">
-        
+
         {/* Sticky Header */}
         <div className="flex items-center justify-between p-6 border-b border-slate-100 bg-white flex-shrink-0">
           <div className="flex items-center gap-3">
@@ -316,7 +316,7 @@ const CreateJobModal = ({ isOpen, onClose, jobId, onSuccess }) => {
               {/* Campus Targeting & Degree Selection */}
               <div className="bg-[#f8f9ff]/60 rounded-2xl border border-indigo-100/50 p-5 space-y-4">
                 <h4 className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Campus Targeting</h4>
-                
+
                 <div>
                   <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-2">Target Degrees</label>
                   <div className="flex flex-wrap gap-2.5 p-3 bg-white rounded-xl border border-slate-200">
@@ -335,11 +335,10 @@ const CreateJobModal = ({ isOpen, onClose, jobId, onSuccess }) => {
                             }
                             setFormData({ ...formData, target_degree: updatedDegrees });
                           }}
-                          className={`px-3.5 py-2 rounded-xl border text-xs font-bold transition-all duration-200 active:scale-95 ${
-                            isSelected
+                          className={`px-3.5 py-2 rounded-xl border text-xs font-bold transition-all duration-200 active:scale-95 ${isSelected
                               ? "bg-[#3730a3] text-white border-[#3730a3] shadow-sm"
                               : "bg-slate-50/60 text-slate-600 border-slate-200 hover:bg-slate-100"
-                          }`}
+                            }`}
                         >
                           {deg}
                         </button>
@@ -376,95 +375,95 @@ const CreateJobModal = ({ isOpen, onClose, jobId, onSuccess }) => {
 
               {/* Multi-Round Configuration */}
               <div className="bg-[#f8f9ff]/60 rounded-2xl border border-indigo-100/50 p-5 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h4 className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Recruitment Rounds (Optional)</h4>
-                    <button type="button" onClick={addRound} className="bg-white hover:bg-slate-50 text-[#3730a3] border border-slate-200 font-bold py-1.5 px-3.5 rounded-xl transition text-xs flex items-center gap-1.5 shadow-sm active:scale-95">
-                      <FiPlus className="w-3.5 h-3.5" /> Add Round
-                    </button>
+                <div className="flex items-center justify-between">
+                  <h4 className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Recruitment Rounds (Optional)</h4>
+                  <button type="button" onClick={addRound} className="bg-white hover:bg-slate-50 text-[#3730a3] border border-slate-200 font-bold py-1.5 px-3.5 rounded-xl transition text-xs flex items-center gap-1.5 shadow-sm active:scale-95">
+                    <FiPlus className="w-3.5 h-3.5" /> Add Round
+                  </button>
+                </div>
+
+                {rounds.length === 0 ? (
+                  <div className="text-center py-8 border border-dashed border-slate-200 rounded-xl bg-white">
+                    <p className="text-slate-400 text-xs font-semibold">No rounds configured. Job will use single-round selection.</p>
                   </div>
-
-                  {rounds.length === 0 ? (
-                    <div className="text-center py-8 border border-dashed border-slate-200 rounded-xl bg-white">
-                      <p className="text-slate-400 text-xs font-semibold">No rounds configured. Job will use single-round selection.</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {rounds.map((round, index) => (
-                        <div key={index} className="border border-slate-200 rounded-xl p-4 bg-white space-y-3.5 shadow-sm">
-                          <div className="flex items-center justify-between">
-                            <span className="inline-flex items-center justify-center w-6 h-6 bg-[#3730a3] text-white text-xs font-extrabold rounded-full">
-                              {index + 1}
-                            </span>
-                            <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg border border-slate-200/50">
-                              <button type="button" onClick={() => moveRound(index, -1)} disabled={index === 0}
-                                className="p-1 text-slate-400 hover:text-slate-650 disabled:opacity-30 transition"><FiChevronUp className="w-4 h-4" /></button>
-                              <button type="button" onClick={() => moveRound(index, 1)} disabled={index === rounds.length - 1}
-                                className="p-1 text-slate-400 hover:text-slate-650 disabled:opacity-30 transition"><FiChevronDown className="w-4 h-4" /></button>
-                              <button type="button" onClick={() => removeRound(index)}
-                                className="p-1 text-rose-500 hover:text-rose-600 hover:bg-rose-50 rounded-md transition ml-1"><FiTrash2 className="w-4 h-4" /></button>
-                            </div>
-                          </div>
-                          <div className="grid md:grid-cols-3 gap-3.5">
-                            <div>
-                              <label className="block text-[10px] font-extrabold text-slate-400 mb-1 uppercase tracking-wider">Round Type</label>
-                              <select className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 bg-white cursor-pointer focus:ring-2 focus:ring-[#3730a3]/50 focus:border-[#3730a3]" value={round.round_type}
-                                onChange={(e) => updateRound(index, "round_type", e.target.value)}>
-                                {ROUND_TYPES.map((rt) => (
-                                  <option key={rt.value} value={rt.value}>{rt.label}</option>
-                                ))}
-                              </select>
-                            </div>
-                            <div>
-                              <label className="block text-[10px] font-extrabold text-slate-400 mb-1 uppercase tracking-wider">Round Name</label>
-                              <input type="text" className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:ring-2 focus:ring-[#3730a3]/50 focus:border-[#3730a3] outline-none" value={round.round_name}
-                                onChange={(e) => updateRound(index, "round_name", e.target.value)}
-                                placeholder="e.g. Technical Round 1" required />
-                            </div>
-                            <div>
-                              <label className="block text-[10px] font-extrabold text-slate-400 mb-1 uppercase tracking-wider">Duration (mins)</label>
-                              <input type="number" className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:ring-2 focus:ring-[#3730a3]/50 focus:border-[#3730a3] outline-none" value={round.duration_minutes}
-                                onChange={(e) => updateRound(index, "duration_minutes", parseInt(e.target.value) || 60)}
-                                min="5" max="480" />
-                            </div>
-                          </div>
-
-                          {isInterviewType(round.round_type) && (
-                            <div className="p-3.5 bg-blue-50/50 border border-blue-100 rounded-xl space-y-1.5">
-                              <label className="block text-[10px] font-extrabold text-blue-700 uppercase tracking-wider">Interview Mode</label>
-                              <select className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs bg-white font-semibold text-slate-700 cursor-pointer focus:ring-2 focus:ring-[#3730a3]/50 focus:border-[#3730a3]" value={round.interview_mode}
-                                onChange={(e) => updateRound(index, "interview_mode", e.target.value)}>
-                                {INTERVIEW_MODES.filter((m) => m.value !== "none").map((m) => (
-                                  <option key={m.value} value={m.value}>{m.label}</option>
-                                ))}
-                              </select>
-                              {round.interview_mode === "video_conference" && (
-                                <p className="text-[10px] font-semibold text-blue-600">
-                                  Built-in secure video conferencing room will be generated.
-                                </p>
-                              )}
-                            </div>
-                          )}
-
-                          <div>
-                            <label className="block text-[10px] font-extrabold text-slate-400 mb-1 uppercase tracking-wider">Description (optional)</label>
-                            <input type="text" className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:ring-2 focus:ring-[#3730a3]/50 focus:border-[#3730a3] outline-none" value={round.round_description}
-                               onChange={(e) => updateRound(index, "round_description", e.target.value)}
-                               placeholder="Brief description of this round" />
-                          </div>
-
-                          <div className="flex items-center gap-2">
-                            <input type="checkbox" id={`elim-${index}`} checked={round.is_eliminatory}
-                              onChange={(e) => updateRound(index, "is_eliminatory", e.target.checked)}
-                              className="rounded border-slate-350 text-[#3730a3] focus:ring-[#3730a3] w-4 h-4 cursor-pointer" />
-                            <label htmlFor={`elim-${index}`} className="text-xxs font-bold text-slate-500 cursor-pointer">
-                              Eliminatory (candidates must pass to proceed)
-                            </label>
+                ) : (
+                  <div className="space-y-4">
+                    {rounds.map((round, index) => (
+                      <div key={index} className="border border-slate-200 rounded-xl p-4 bg-white space-y-3.5 shadow-sm">
+                        <div className="flex items-center justify-between">
+                          <span className="inline-flex items-center justify-center w-6 h-6 bg-[#3730a3] text-white text-xs font-extrabold rounded-full">
+                            {index + 1}
+                          </span>
+                          <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg border border-slate-200/50">
+                            <button type="button" onClick={() => moveRound(index, -1)} disabled={index === 0}
+                              className="p-1 text-slate-400 hover:text-slate-650 disabled:opacity-30 transition"><FiChevronUp className="w-4 h-4" /></button>
+                            <button type="button" onClick={() => moveRound(index, 1)} disabled={index === rounds.length - 1}
+                              className="p-1 text-slate-400 hover:text-slate-650 disabled:opacity-30 transition"><FiChevronDown className="w-4 h-4" /></button>
+                            <button type="button" onClick={() => removeRound(index)}
+                              className="p-1 text-rose-500 hover:text-rose-600 hover:bg-rose-50 rounded-md transition ml-1"><FiTrash2 className="w-4 h-4" /></button>
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                        <div className="grid md:grid-cols-3 gap-3.5">
+                          <div>
+                            <label className="block text-[10px] font-extrabold text-slate-400 mb-1 uppercase tracking-wider">Round Type</label>
+                            <select className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 bg-white cursor-pointer focus:ring-2 focus:ring-[#3730a3]/50 focus:border-[#3730a3]" value={round.round_type}
+                              onChange={(e) => updateRound(index, "round_type", e.target.value)}>
+                              {ROUND_TYPES.map((rt) => (
+                                <option key={rt.value} value={rt.value}>{rt.label}</option>
+                              ))}
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-extrabold text-slate-400 mb-1 uppercase tracking-wider">Round Name</label>
+                            <input type="text" className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:ring-2 focus:ring-[#3730a3]/50 focus:border-[#3730a3] outline-none" value={round.round_name}
+                              onChange={(e) => updateRound(index, "round_name", e.target.value)}
+                              placeholder="e.g. Technical Round 1" required />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-extrabold text-slate-400 mb-1 uppercase tracking-wider">Duration (mins)</label>
+                            <input type="number" className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:ring-2 focus:ring-[#3730a3]/50 focus:border-[#3730a3] outline-none" value={round.duration_minutes}
+                              onChange={(e) => updateRound(index, "duration_minutes", parseInt(e.target.value) || 60)}
+                              min="5" max="480" />
+                          </div>
+                        </div>
+
+                        {isInterviewType(round.round_type) && (
+                          <div className="p-3.5 bg-blue-50/50 border border-blue-100 rounded-xl space-y-1.5">
+                            <label className="block text-[10px] font-extrabold text-blue-700 uppercase tracking-wider">Interview Mode</label>
+                            <select className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs bg-white font-semibold text-slate-700 cursor-pointer focus:ring-2 focus:ring-[#3730a3]/50 focus:border-[#3730a3]" value={round.interview_mode}
+                              onChange={(e) => updateRound(index, "interview_mode", e.target.value)}>
+                              {INTERVIEW_MODES.filter((m) => m.value !== "none").map((m) => (
+                                <option key={m.value} value={m.value}>{m.label}</option>
+                              ))}
+                            </select>
+                            {round.interview_mode === "video_conference" && (
+                              <p className="text-[10px] font-semibold text-blue-600">
+                                Built-in secure video conferencing room will be generated.
+                              </p>
+                            )}
+                          </div>
+                        )}
+
+                        <div>
+                          <label className="block text-[10px] font-extrabold text-slate-400 mb-1 uppercase tracking-wider">Description (optional)</label>
+                          <input type="text" className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:ring-2 focus:ring-[#3730a3]/50 focus:border-[#3730a3] outline-none" value={round.round_description}
+                            onChange={(e) => updateRound(index, "round_description", e.target.value)}
+                            placeholder="Brief description of this round" />
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <input type="checkbox" id={`elim-${index}`} checked={round.is_eliminatory}
+                            onChange={(e) => updateRound(index, "is_eliminatory", e.target.checked)}
+                            className="rounded border-slate-350 text-[#3730a3] focus:ring-[#3730a3] w-4 h-4 cursor-pointer" />
+                          <label htmlFor={`elim-${index}`} className="text-xxs font-bold text-slate-500 cursor-pointer">
+                            Eliminatory (candidates must pass to proceed)
+                          </label>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </form>
           )}
         </div>

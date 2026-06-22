@@ -11,19 +11,40 @@ const ExamSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "tbl_jobpost",
     },
-    title: { type: String, required: true },
-    subject: { type: String, required: true },
-    noOfQuestion: { type: Number, required: true },
+    title: {
+      type: String,
+      required: true,
+    },
+    subject: {
+      type: String,
+      required: true,
+    },
+    noOfQuestion: {
+      type: Number,
+      required: true,
+    },
     questions: [
       {
-        questionText: { type: String, required: true },
+        questionText: {
+          type: String,
+          required: true,
+        },
         options: [
           {
-            optionText: { type: String, required: true },
-            isCorrect: { type: Boolean, required: true },
+            optionText: {
+              type: String,
+              required: true,
+            },
+            isCorrect: {
+              type: Boolean,
+              required: true,
+            },
           },
         ],
-        questionType: { type: String, default: "single" },
+        questionType: {
+          type: String,
+          default: "single",
+        },
         difficulty: {
           type: String,
           enum: ["easy", "medium", "hard"],
@@ -31,8 +52,14 @@ const ExamSchema = new mongoose.Schema(
         },
       },
     ],
-    timeLimit: { type: Number, required: true },
-    generatedFromJD: { type: Boolean, default: false },
+    timeLimit: {
+      type: Number,
+      required: true,
+    },
+    generatedFromJD: {
+      type: Boolean,
+      default: false,
+    },
     status: {
       type: String,
       enum: Object.values(EXAM_STATUS),
@@ -40,19 +67,55 @@ const ExamSchema = new mongoose.Schema(
     },
     // Proctoring settings
     proctoring: {
-      enabled: { type: Boolean, default: true },
-      tabLockEnabled: { type: Boolean, default: true },
-      cameraEnabled: { type: Boolean, default: true },
-      cameraIntervalSeconds: { type: Number, default: 30 },
-      maxViolations: { type: Number, default: 5 },
-      autoSubmitOnMaxViolations: { type: Boolean, default: true },
-      fullScreenRequired: { type: Boolean, default: true },
-      copyPasteDisabled: { type: Boolean, default: true },
-      rightClickDisabled: { type: Boolean, default: true },
-      screenshotBlocked: { type: Boolean, default: true },
+      enabled: {
+        type: Boolean,
+        default: true,
+      },
+      tabLockEnabled: {
+        type: Boolean,
+        default: true,
+      },
+      cameraEnabled: {
+        type: Boolean,
+        default: true,
+      },
+      cameraIntervalSeconds: {
+        type: Number,
+        default: 30,
+      },
+      maxViolations: {
+        type: Number,
+        default: 5,
+      },
+      autoSubmitOnMaxViolations: {
+        type: Boolean,
+        default: true,
+      },
+      fullScreenRequired: {
+        type: Boolean,
+        default: true,
+      },
+      copyPasteDisabled: {
+        type: Boolean,
+        default: true,
+      },
+      rightClickDisabled: {
+        type: Boolean,
+        default: true,
+      },
+      screenshotBlocked: {
+        type: Boolean,
+        default: true,
+      },
     },
-    passingScore: { type: Number, default: 0 },
-    instructions: { type: String, default: "" },
+    passingScore: {
+      type: Number,
+      default: 0,
+    },
+    instructions: {
+      type: String,
+      default: "",
+    },
   },
   { timestamps: true },
 );

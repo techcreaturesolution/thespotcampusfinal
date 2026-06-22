@@ -17,7 +17,7 @@ export const getSubjectAnalysis = async (req, res) => {
   const studentId = req.user.userId;
   const progress = await StudentProgress.findOne({ student_id: studentId });
   if (!progress) {
-    return res.status(StatusCodes.OK).json({ subject_progress: [], topic_progress: [] });
+    return res.status(StatusCodes.OK).json({ subject_progress: [] });
   }
 
   // Sort by accuracy for strong/weak identification
@@ -27,7 +27,6 @@ export const getSubjectAnalysis = async (req, res) => {
 
   res.status(StatusCodes.OK).json({
     subject_progress: progress.subject_progress,
-    topic_progress: progress.topic_progress,
     strong_subjects,
     weak_subjects,
   });

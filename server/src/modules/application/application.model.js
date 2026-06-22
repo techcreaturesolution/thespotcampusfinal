@@ -30,8 +30,14 @@ const ApplicationSchema = new mongoose.Schema(
       default: STATUS.DEACTIVE,
     },
     // Multi-round tracking
-    current_round: { type: Number, default: 0 },
-    total_rounds: { type: Number, default: 0 },
+    current_round: {
+      type: Number,
+      default: 0,
+    },
+    total_rounds: {
+      type: Number,
+      default: 0,
+    },
     round_status: {
       type: String,
       enum: [

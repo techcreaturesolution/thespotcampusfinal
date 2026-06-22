@@ -86,11 +86,10 @@ const CompanyInterviews = () => {
                 key={f}
                 type="button"
                 onClick={() => setFilter(f)}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 ${
-                  filter === f
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 ${filter === f
                     ? "vibrant-btn text-white shadow-sm"
                     : "text-slate-600 hover:bg-slate-200/60"
-                }`}
+                  }`}
               >
                 {f === "all" ? "All" : f.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase())}
               </button>

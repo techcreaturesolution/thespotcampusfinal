@@ -24,9 +24,15 @@ const JobSchema = new mongoose.Schema(
       required: true,
     },
     job_location: {
-      country: { type: String },
-      state: { type: String },
-      city: { type: String },
+      country: {
+        type: String,
+      },
+      state: {
+        type: String,
+      },
+      city: {
+        type: String,
+      },
     },
     job_skills: {
       type: String,
@@ -86,10 +92,16 @@ const JobSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.Mixed,
     },
     // Multi-round recruitment
-    has_multiple_rounds: { type: Boolean, default: false },
+    has_multiple_rounds: {
+      type: Boolean,
+      default: false,
+    },
     rounds: [
       {
-        round_number: { type: Number, required: true },
+        round_number: {
+          type: Number,
+          required: true,
+        },
         round_type: {
           type: String,
           enum: [
@@ -105,15 +117,27 @@ const JobSchema = new mongoose.Schema(
           ],
           required: true,
         },
-        round_name: { type: String, required: true },
-        round_description: { type: String, default: "" },
-        is_eliminatory: { type: Boolean, default: true },
+        round_name: {
+          type: String,
+          required: true,
+        },
+        round_description: {
+          type: String,
+          default: "",
+        },
+        is_eliminatory: {
+          type: Boolean,
+          default: true,
+        },
         interview_mode: {
           type: String,
           enum: ["video_conference", "in_person", "phone", "none"],
           default: "none",
         },
-        duration_minutes: { type: Number, default: 60 },
+        duration_minutes: {
+          type: Number,
+          default: 60,
+        },
         status: {
           type: String,
           enum: ["pending", "active", "completed", "cancelled"],

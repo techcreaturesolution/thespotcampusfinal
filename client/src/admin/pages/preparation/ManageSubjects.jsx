@@ -4,8 +4,7 @@ import { FiPlus, FiEdit, FiTrash2, FiBook, FiSearch } from "react-icons/fi";
 import customFetch from "../../../utils/customFetch";
 import Loading from "../../../common/components/Loading";
 import PageHeader from "../../../common/components/PageHeader";
-
-const CATEGORIES = ["aptitude", "reasoning", "english", "programming", "technical", "general"];
+import CreateSubjectModal from "../../components/CreateSubjectModal";
 
 const ManageSubjects = () => {
   const [subjects, setSubjects] = useState([]);
@@ -13,7 +12,6 @@ const ManageSubjects = () => {
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState(null);
   const [search, setSearch] = useState("");
-  const [form, setForm] = useState({ name: "", description: "", category: "technical", icon: "", sort_order: 0 });
 
   useEffect(() => { fetchSubjects(); }, []);
 
@@ -25,25 +23,23 @@ const ManageSubjects = () => {
     finally { setLoading(false); }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (subjectData) => {
     try {
       if (editing) {
-        await customFetch.patch(`/preparation/subjects/${editing._id}`, form);
+        await customFetch.patch(`/preparation/subjects/${editing._id}`, subjectData);
         toast.success("Subject updated");
       } else {
-        await customFetch.post("/preparation/subjects", form);
+        await customFetch.post("/preparation/subjects", subjectData);
         toast.success("Subject created");
       }
-      setShowForm(false); setEditing(null);
-      setForm({ name: "", description: "", category: "technical", icon: "", sort_order: 0 });
+      setShowForm(false);
+      setEditing(null);
       fetchSubjects();
     } catch (err) { toast.error(err?.response?.data?.msg || "Error saving subject"); }
   };
 
   const handleEdit = (s) => {
     setEditing(s);
-    setForm({ name: s.name, description: s.description, category: s.category, icon: s.icon, sort_order: s.sort_order });
     setShowForm(true);
   };
 
@@ -58,68 +54,109 @@ const ManageSubjects = () => {
   if (loading) return <Loading />;
 
   return (
-    <div>
-      <PageHeader title="Manage Subjects" subtitle="Create and manage preparation subjects" />
-      <div className="flex flex-wrap gap-3 items-center mb-6">
+    <div className="space-y-6 max-w-6xl mx-auto py-2 text-left animate-fade-in">
+      <PageHeader
+        icon={FiBook}
+        title="Manage Subjects"
+        subtitle="Create and manage preparation subjects"
+        badge={`${subjects.length} subjects`}
+        action={
+          <button
+            onClick={() => { setShowForm(true); setEditing(null); }}
+            className="vibrant-btn text-white font-extrabold py-2.5 px-5 rounded-full transition-all duration-200 active:scale-95 inline-flex items-center gap-2 text-xs shadow-md"
+          >
+            <FiPlus className="w-4 h-4" /> Add Subject
+          </button>
+        }
+      />
+
+      <div className="flex flex-wrap gap-3 items-center">
         <div className="relative flex-1 min-w-[200px]">
-          <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input type="text" placeholder="Search subjects..." value={search} onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" />
+          <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search subjects..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-full text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#3730a3]/20 focus:border-[#3730a3] transition bg-white"
+          />
         </div>
-        <button onClick={() => { setShowForm(true); setEditing(null); setForm({ name: "", description: "", category: "technical", icon: "", sort_order: 0 }); }}
-          className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition">
-          <FiPlus /> Add Subject
-        </button>
       </div>
 
-      {showForm && (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-          <h3 className="text-lg font-bold mb-4">{editing ? "Edit Subject" : "Add Subject"}</h3>
-          <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input type="text" placeholder="Subject Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required
-              className="px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500" />
-            <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}
-              className="px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500">
-              {CATEGORIES.map(c => <option key={c} value={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</option>)}
-            </select>
-            <input type="text" placeholder="Description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}
-              className="px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 md:col-span-2" />
-            <input type="number" placeholder="Sort Order" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) })}
-              className="px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500" />
-            <div className="flex gap-3">
-              <button type="submit" className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition">
-                {editing ? "Update" : "Create"}
-              </button>
-              <button type="button" onClick={() => { setShowForm(false); setEditing(null); }}
-                className="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300 transition">Cancel</button>
-            </div>
-          </form>
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filtered.map(s => (
-          <div key={s._id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition">
-            <div className="flex justify-between items-start mb-3">
-              <div className="flex items-center gap-2">
-                <FiBook className="text-indigo-600" />
-                <h4 className="font-bold text-gray-800">{s.name}</h4>
+          <div
+            key={s._id}
+            className="bg-white border border-slate-200 rounded-3xl p-5 hover:shadow-md transition-all duration-350 flex flex-col justify-between hover:-translate-y-1 group relative"
+          >
+            <div>
+              <div className="flex justify-between items-start mb-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-[#3730a3]">
+                    <FiBook className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="font-extrabold text-slate-800 text-sm tracking-tight leading-snug group-hover:text-[#3730a3] transition-colors">
+                      {s.name}
+                    </h4>
+                    <p className="text-[10px] text-slate-400 font-semibold">
+                      Order: {s.sort_order || 0}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                  <button
+                    onClick={() => handleEdit(s)}
+                    className="w-8 h-8 bg-white hover:bg-indigo-50 border border-slate-200 text-[#3730a3] rounded-full transition shadow-sm active:scale-95 flex items-center justify-center"
+                    title="Edit Subject"
+                  >
+                    <FiEdit className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(s._id)}
+                    className="w-8 h-8 bg-white hover:bg-rose-50 border border-slate-200 text-rose-600 rounded-full transition shadow-sm active:scale-95 flex items-center justify-center"
+                    title="Delete Subject"
+                  >
+                    <FiTrash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
-              <div className="flex gap-2">
-                <button onClick={() => handleEdit(s)} className="text-blue-600 hover:text-blue-800"><FiEdit size={16} /></button>
-                <button onClick={() => handleDelete(s._id)} className="text-red-600 hover:text-red-800"><FiTrash2 size={16} /></button>
-              </div>
+              <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed mb-4">
+                {s.description || "No description provided."}
+              </p>
             </div>
-            <p className="text-sm text-gray-500 mb-2">{s.description || "No description"}</p>
-            <div className="flex gap-2 flex-wrap">
-              <span className="px-2 py-1 bg-indigo-50 text-indigo-700 rounded text-xs font-medium">{s.category}</span>
-              {s.is_active ? <span className="px-2 py-1 bg-green-50 text-green-700 rounded text-xs">Active</span>
-                : <span className="px-2 py-1 bg-red-50 text-red-700 rounded text-xs">Inactive</span>}
+            <div className="flex gap-2 flex-wrap pt-2 border-t border-slate-100">
+              <span className="bg-indigo-50 border border-indigo-100 text-[#3730a3] text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md">
+                {s.category}
+              </span>
+              <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md border ${
+                s.is_active
+                  ? "bg-emerald-50 border-emerald-100 text-emerald-700"
+                  : "bg-rose-50 border-rose-100 text-rose-700"
+              }`}>
+                {s.is_active ? "Active" : "Inactive"}
+              </span>
             </div>
           </div>
         ))}
       </div>
-      {filtered.length === 0 && <p className="text-center text-gray-500 py-8">No subjects found</p>}
+
+      {filtered.length === 0 && (
+        <div className="bg-white border border-slate-200 rounded-3xl p-12 text-center text-slate-500 shadow-sm flex flex-col items-center justify-center space-y-3">
+          <FiBook className="w-12 h-12 text-slate-350" />
+          <div>
+            <h4 className="font-extrabold text-slate-800 text-sm uppercase tracking-wide">No Subjects Found</h4>
+            <p className="text-xs text-slate-450 mt-1">Create your first subject using the button above.</p>
+          </div>
+        </div>
+      )}
+
+      <CreateSubjectModal
+        isOpen={showForm}
+        onClose={() => { setShowForm(false); setEditing(null); }}
+        subject={editing}
+        onSubmit={handleSubmit}
+      />
     </div>
   );
 };

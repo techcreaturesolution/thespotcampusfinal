@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import {
   FiUsers, FiCheck, FiX, FiPlay, FiVideo, FiCalendar,
   FiChevronRight, FiArrowLeft, FiClock, FiUserCheck,
-  FiFileText, FiCpu, FiAward, FiEdit, FiSliders, FiHelpCircle, 
+  FiFileText, FiCpu, FiAward, FiEdit, FiSliders, FiHelpCircle,
   FiSearch, FiLayers, FiGrid, FiList, FiFilter, FiCheckCircle
 } from "react-icons/fi";
 import customFetch from "../../utils/customFetch";
@@ -60,7 +60,7 @@ const RoundManagement = () => {
   const [evaluationModal, setEvaluationModal] = useState(null);
   const [evaluationRating, setEvaluationRating] = useState(10);
   const [evaluationNotes, setEvaluationNotes] = useState("");
-  
+
   // Custom filter and view states
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all"); // all, pending, passed, failed
@@ -206,7 +206,7 @@ const RoundManagement = () => {
     const name = (c.student_id?.student_name || "").toLowerCase();
     const email = (c.student_id?.student_email || "").toLowerCase();
     const matchesSearch = name.includes(searchQuery.toLowerCase()) || email.includes(searchQuery.toLowerCase());
-    
+
     if (!matchesSearch) return false;
 
     if (statusFilter === "pending") {
@@ -269,18 +269,17 @@ const RoundManagement = () => {
             const IconComponent = ROUND_TYPE_ICONS[round.round_type] || FiHelpCircle;
             const isActive = activeRound === round.round_number;
             const isCompleted = round.status === "completed";
-            
+
             return (
               <React.Fragment key={round.round_number}>
                 <button
                   onClick={() => fetchCandidates(round.round_number)}
-                  className={`flex-shrink-0 p-4 rounded-2xl border-2 transition-all duration-300 min-w-[215px] text-left relative flex flex-col gap-3 group ${
-                    isActive
+                  className={`flex-shrink-0 p-4 rounded-2xl border-2 transition-all duration-300 min-w-[215px] text-left relative flex flex-col gap-3 group ${isActive
                       ? "border-[#3730a3] bg-indigo-50/20 shadow-md ring-1 ring-[#3730a3]/40"
                       : isCompleted
-                      ? "border-emerald-200/80 bg-emerald-50/10 hover:border-emerald-300"
-                      : "border-slate-200 hover:border-slate-350 bg-white hover:shadow-sm hover:scale-[1.01]"
-                  }`}
+                        ? "border-emerald-200/80 bg-emerald-50/10 hover:border-emerald-300"
+                        : "border-slate-200 hover:border-slate-350 bg-white hover:shadow-sm hover:scale-[1.01]"
+                    }`}
                 >
                   {/* Glowing dot for active */}
                   {isActive && (
@@ -300,11 +299,10 @@ const RoundManagement = () => {
                   </div>
 
                   <div className="flex items-center gap-3">
-                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200 shrink-0 border ${
-                      isActive
+                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200 shrink-0 border ${isActive
                         ? "bg-[#3730a3] text-white border-[#3730a3] shadow-sm shadow-indigo-500/20"
                         : "bg-indigo-50/60 text-[#3730a3] border-indigo-100 group-hover:bg-[#3730a3] group-hover:text-white group-hover:border-[#3730a3]"
-                    }`}>
+                      }`}>
                       <IconComponent className="w-4.5 h-4.5" />
                     </div>
                     <div className="overflow-hidden">
@@ -386,7 +384,7 @@ const RoundManagement = () => {
               </h2>
               <p className="text-xs font-semibold text-slate-400 mt-0.5">Round {activeRound} Candidates</p>
             </div>
-            
+
             <div className="flex flex-wrap items-center gap-3">
               {/* Search input */}
               <div className="relative w-full sm:w-56">
@@ -558,11 +556,10 @@ const RoundManagement = () => {
                             <button
                               onClick={() => setScheduleModal(c)}
                               disabled={c.status !== "pending"}
-                              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition ${
-                                c.status === "pending"
+                              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition ${c.status === "pending"
                                   ? "bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-250 cursor-pointer"
                                   : "bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed"
-                              }`}
+                                }`}
                             >
                               <FiVideo className="w-3.5 h-3.5" /> Schedule
                             </button>
@@ -573,11 +570,10 @@ const RoundManagement = () => {
                                 setEvaluationNotes(c.remarks || "");
                               }}
                               disabled={c.status !== "completed"}
-                              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition shadow-xs ${
-                                c.status === "completed"
+                              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition shadow-xs ${c.status === "completed"
                                   ? "bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-250 cursor-pointer"
                                   : "bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed"
-                              }`}
+                                }`}
                             >
                               <FiCheckCircle className="w-3.5 h-3.5" /> Evaluate
                             </button>
@@ -610,11 +606,10 @@ const RoundManagement = () => {
                 {filteredCandidates.map((c) => (
                   <div
                     key={c._id}
-                    className={`relative rounded-2xl border p-4 transition-all duration-200 bg-white flex flex-col justify-between group ${
-                      selectedCandidates.includes(c.student_id?._id || c.student_id)
+                    className={`relative rounded-2xl border p-4 transition-all duration-200 bg-white flex flex-col justify-between group ${selectedCandidates.includes(c.student_id?._id || c.student_id)
                         ? "border-[#3730a3] bg-indigo-50/5 ring-1 ring-[#3730a3]/20 shadow-sm"
                         : "border-slate-200 hover:shadow-md hover:border-slate-300"
-                    }`}
+                      }`}
                   >
                     {/* Checkbox Overlay */}
                     {c.status !== "passed" && c.status !== "failed" && (
@@ -639,7 +634,7 @@ const RoundManagement = () => {
                           {c.student_id?.university_id?.university_name && ` (${c.student_id.university_id.university_name})`}
                         </p>
                       )}
-                      
+
                       <div className="mt-3 flex items-center justify-center gap-2">
                         <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold border ${CANDIDATE_COLORS[c.status]}`}>
                           {c.status.toUpperCase()}
@@ -670,11 +665,10 @@ const RoundManagement = () => {
                             <button
                               onClick={() => setScheduleModal(c)}
                               disabled={c.status !== "pending"}
-                              className={`w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border transition ${
-                                c.status === "pending"
+                              className={`w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border transition ${c.status === "pending"
                                   ? "bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-250 cursor-pointer"
                                   : "bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed"
-                              }`}
+                                }`}
                             >
                               <FiVideo className="w-3.5 h-3.5" /> Schedule Interview
                             </button>
@@ -685,11 +679,10 @@ const RoundManagement = () => {
                                 setEvaluationNotes(c.remarks || "");
                               }}
                               disabled={c.status !== "completed"}
-                              className={`w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border transition shadow-xs ${
-                                c.status === "completed"
+                              className={`w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border transition shadow-xs ${c.status === "completed"
                                   ? "bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-250 cursor-pointer"
                                   : "bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed"
-                              }`}
+                                }`}
                             >
                               <FiCheckCircle className="w-3.5 h-3.5" /> Evaluate
                             </button>
@@ -764,11 +757,10 @@ const RoundManagement = () => {
                       key={n}
                       type="button"
                       onClick={() => setEvaluationRating(n)}
-                      className={`w-8 h-8 rounded-lg text-xs font-bold transition-all duration-150 ${
-                        n === evaluationRating
+                      className={`w-8 h-8 rounded-lg text-xs font-bold transition-all duration-150 ${n === evaluationRating
                           ? "bg-[#3730a3] text-white shadow-sm shadow-indigo-500/10"
                           : "bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100"
-                      }`}
+                        }`}
                     >
                       {n}
                     </button>

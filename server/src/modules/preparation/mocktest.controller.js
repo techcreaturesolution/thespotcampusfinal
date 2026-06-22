@@ -18,7 +18,6 @@ export const getAllMockTests = async (req, res) => {
   if (search) filter.title = { $regex: search, $options: "i" };
   const mockTests = await MockTest.find(filter)
     .populate("subject_id", "name")
-    .populate("topic_id", "name")
     .sort({ createdAt: -1 });
   res.status(StatusCodes.OK).json({ mockTests });
 };
@@ -46,7 +45,6 @@ export const getActiveMockTests = async (req, res) => {
   if (subject_id) filter.subject_id = subject_id;
   const mockTests = await MockTest.find(filter)
     .populate("subject_id", "name")
-    .populate("topic_id", "name")
     .sort({ createdAt: -1 });
   res.status(StatusCodes.OK).json({ mockTests });
 };
@@ -61,8 +59,12 @@ export const startMockTest = async (req, res) => {
   // Check for existing in-progress attempt
   const existing = await TestAttempt.findOne({ student_id: studentId, mock_test_id: id, status: "in_progress" });
   if (existing) {
-    const questions = await Question.find({ _id: { $in: mockTest.questions } });
-    return res.status(StatusCodes.OK).json({ attempt: existing, questions, resumed: true });
+    const questionIds = existing.answers.map((a) => a.question_id);
+    const questions = await Question.find({ _id: { $in: questionIds } });
+    const durationMinutes = mockTest.duration_minutes || 30;
+    const elapsedMs = Date.now() - new Date(existing.started_at).getTime();
+    const remaining_seconds = Math.max(0, Math.ceil((durationMinutes * 60 * 1000 - elapsedMs) / 1000));
+    return res.status(StatusCodes.OK).json({ attempt: existing, questions, resumed: true, remaining_seconds });
   }
 
   // Get questions
@@ -72,7 +74,6 @@ export const startMockTest = async (req, res) => {
   } else {
     const filter = { is_active: true };
     if (mockTest.subject_id) filter.subject_id = mockTest.subject_id;
-    if (mockTest.topic_id) filter.topic_id = mockTest.topic_id;
     if (mockTest.company_name) filter.company_name = mockTest.company_name;
     questions = await Question.aggregate([{ $match: filter }, { $sample: { size: mockTest.total_questions } }]);
   }
@@ -86,14 +87,17 @@ export const startMockTest = async (req, res) => {
     test_type: "mock_test",
     mock_test_id: id,
     subject_id: mockTest.subject_id,
-    topic_id: mockTest.topic_id,
     total_questions: questions.length,
     max_score: questions.length * mockTest.marks_per_question,
     answers: questions.map((q) => ({ question_id: q._id })),
   });
 
   await MockTest.findByIdAndUpdate(id, { $inc: { attempts_count: 1 } });
-  res.status(StatusCodes.CREATED).json({ attempt, questions });
+  res.status(StatusCodes.CREATED).json({
+    attempt,
+    questions,
+    remaining_seconds: (mockTest.duration_minutes || 30) * 60
+  });
 };
 
 // Student: Submit mock test
@@ -158,7 +162,12 @@ export const getTestResult = async (req, res) => {
   if (!attempt) return res.status(StatusCodes.NOT_FOUND).json({ msg: "Attempt not found" });
   const questionIds = attempt.answers.map((a) => a.question_id);
   const questions = await Question.find({ _id: { $in: questionIds } });
-  res.status(StatusCodes.OK).json({ attempt, questions });
+  
+  const durationMinutes = attempt.mock_test_id?.duration_minutes || 30;
+  const elapsedMs = Date.now() - new Date(attempt.started_at).getTime();
+  const remaining_seconds = Math.max(0, Math.ceil((durationMinutes * 60 * 1000 - elapsedMs) / 1000));
+  
+  res.status(StatusCodes.OK).json({ attempt, questions, remaining_seconds });
 };
 
 // Student: Get my attempts
@@ -171,7 +180,6 @@ export const getMyAttempts = async (req, res) => {
     TestAttempt.find(filter)
       .populate("mock_test_id", "title test_type")
       .populate("subject_id", "name")
-      .populate("topic_id", "name")
       .sort({ completed_at: -1 })
       .skip(skip)
       .limit(Number(limit)),

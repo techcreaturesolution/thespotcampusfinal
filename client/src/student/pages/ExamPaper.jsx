@@ -144,7 +144,7 @@ const ExamPaper = () => {
       setExamStarted(true);
     } catch (error) {
       if (document.fullscreenElement) {
-        document.exitFullscreen().catch(() => {});
+        document.exitFullscreen().catch(() => { });
       }
       if (error.response?.status === 400) {
         toast.error("You have already submitted this exam");
@@ -516,7 +516,7 @@ const ExamPaper = () => {
       cameraStream.getTracks().forEach((track) => track.stop());
     }
     if (document.fullscreenElement) {
-      document.exitFullscreen().catch(() => {});
+      document.exitFullscreen().catch(() => { });
     }
 
     const answers = Object.entries(selectedAnswers).map(([qid, val]) => ({
@@ -547,7 +547,7 @@ const ExamPaper = () => {
       cameraStream.getTracks().forEach((track) => track.stop());
     }
     if (document.fullscreenElement) {
-      document.exitFullscreen().catch(() => {});
+      document.exitFullscreen().catch(() => { });
     }
 
     const answers = Object.entries(selectedAnswers).map(([qid, val]) => ({
@@ -623,7 +623,7 @@ const ExamPaper = () => {
         <div className="flex-1 flex items-center justify-center p-4 py-8">
           <div className="max-w-3xl w-full bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden relative">
             <div className="bg-gradient-to-r from-[#3730a3] to-[#2563eb] h-2 w-full" />
-            
+
             <div className="p-6 sm:p-8">
               <div className="text-center mb-8">
                 <div className="w-16 h-16 bg-indigo-50 border border-indigo-100 rounded-2xl flex items-center justify-center mx-auto mb-4 text-[#3730a3]">
@@ -758,7 +758,7 @@ const ExamPaper = () => {
           </div>
           <h2 className="text-xl font-black text-slate-800 tracking-tight mb-2">Fullscreen Mode Exited!</h2>
           <p className="text-xs font-bold text-slate-500 mb-6 leading-relaxed">
-            This assessment requires fullscreen mode to prevent external assistance. Exiting fullscreen counts as a proctoring violation. 
+            This assessment requires fullscreen mode to prevent external assistance. Exiting fullscreen counts as a proctoring violation.
             You must re-enter fullscreen immediately to continue the exam.
           </p>
           <button
@@ -811,23 +811,21 @@ const ExamPaper = () => {
 
           <div className="flex items-center justify-between sm:justify-end gap-3 flex-wrap">
             {/* Trust Score */}
-            <div className={`px-3 py-1.5 rounded-xl border flex items-center gap-2 ${
-              trustScore >= 70 
-                ? "bg-emerald-50/60 border-emerald-150 text-emerald-700 font-bold" 
-                : trustScore >= 40 
-                ? "bg-amber-50 border-amber-150 text-amber-700 font-bold" 
-                : "bg-rose-50 border-rose-150 text-rose-700 font-bold"
-            }`}>
+            <div className={`px-3 py-1.5 rounded-xl border flex items-center gap-2 ${trustScore >= 70
+                ? "bg-emerald-50/60 border-emerald-150 text-emerald-700 font-bold"
+                : trustScore >= 40
+                  ? "bg-amber-50 border-amber-150 text-amber-700 font-bold"
+                  : "bg-rose-50 border-rose-150 text-rose-700 font-bold"
+              }`}>
               <FiShield className="w-3.5 h-3.5 shrink-0" />
               <span className="text-xs font-black tracking-wide">Trust: {trustScore}%</span>
             </div>
 
             {/* Violations */}
-            <div className={`px-3 py-1.5 rounded-xl border flex items-center gap-2 ${
-              totalViolations > 0 
-                ? "bg-rose-50/60 border-rose-150 text-rose-700 font-bold" 
+            <div className={`px-3 py-1.5 rounded-xl border flex items-center gap-2 ${totalViolations > 0
+                ? "bg-rose-50/60 border-rose-150 text-rose-700 font-bold"
                 : "bg-slate-50 border-slate-200 text-slate-500 font-bold"
-            }`}>
+              }`}>
               <FiAlertTriangle className="w-3.5 h-3.5 shrink-0" />
               <span className="text-xs font-black tracking-wide">
                 Violations: {totalViolations}/{exam.proctoring?.maxViolations || 5}
@@ -835,13 +833,12 @@ const ExamPaper = () => {
             </div>
 
             {/* Countdown Monospace Timer */}
-            <div className={`px-3.5 py-1.5 rounded-xl border flex items-center gap-2 font-mono text-xs font-black tracking-widest ${
-              timeLeft < 60 
-                ? "bg-rose-50/60 border-rose-150 text-rose-700 animate-pulse" 
-                : timeLeft < 300 
-                ? "bg-amber-50 border-amber-150 text-amber-700" 
-                : "bg-slate-50 border-slate-200 text-slate-700"
-            }`}>
+            <div className={`px-3.5 py-1.5 rounded-xl border flex items-center gap-2 font-mono text-xs font-black tracking-widest ${timeLeft < 60
+                ? "bg-rose-50/60 border-rose-150 text-rose-700 animate-pulse"
+                : timeLeft < 300
+                  ? "bg-amber-50 border-amber-150 text-amber-700"
+                  : "bg-slate-50 border-slate-200 text-slate-700"
+              }`}>
               <FiClock className="w-3.5 h-3.5 shrink-0" />
               <span>{formatTime(timeLeft)}</span>
             </div>
@@ -867,9 +864,8 @@ const ExamPaper = () => {
         <div className="max-w-7xl mx-auto mt-3">
           <div className="w-full h-1 bg-slate-100 rounded-full overflow-hidden">
             <div
-              className={`h-full transition-all duration-500 rounded-full ${
-                timeLeft < 60 ? "bg-red-500" : timeLeft < 300 ? "bg-amber-500" : "bg-gradient-to-r from-[#3730a3] to-blue-500"
-              }`}
+              className={`h-full transition-all duration-500 rounded-full ${timeLeft < 60 ? "bg-red-500" : timeLeft < 300 ? "bg-amber-500" : "bg-gradient-to-r from-[#3730a3] to-blue-500"
+                }`}
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -882,7 +878,7 @@ const ExamPaper = () => {
           {/* Question panel (left) */}
           <div className="lg:col-span-3">
             <div className="bg-white rounded-3xl shadow-md border border-slate-200/80 overflow-hidden">
-              
+
               {/* Question Header Panel with soft indigo-slate tint */}
               <div className="bg-gradient-to-br from-indigo-50/60 via-indigo-50/20 to-slate-50/10 p-6 sm:p-8 border-b border-slate-150 text-left relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-bl-full pointer-events-none" />
@@ -891,13 +887,12 @@ const ExamPaper = () => {
                     Question {currentQuestionIndex + 1}
                   </span>
                   {currentQuestion.difficulty && (
-                    <span className={`text-[10px] font-black px-3 py-1 rounded-md uppercase tracking-wider border ${
-                      currentQuestion.difficulty === "hard"
+                    <span className={`text-[10px] font-black px-3 py-1 rounded-md uppercase tracking-wider border ${currentQuestion.difficulty === "hard"
                         ? "bg-rose-50 border-rose-150 text-rose-700"
                         : currentQuestion.difficulty === "medium"
-                        ? "bg-amber-50 border-amber-150 text-amber-700"
-                        : "bg-emerald-50 border-emerald-150 text-emerald-700"
-                    }`}>
+                          ? "bg-amber-50 border-amber-150 text-amber-700"
+                          : "bg-emerald-50 border-emerald-150 text-emerald-700"
+                      }`}>
                       {currentQuestion.difficulty}
                     </span>
                   )}
@@ -927,11 +922,10 @@ const ExamPaper = () => {
                   return (
                     <label
                       key={option._id}
-                      className={`flex items-center gap-4 p-4 rounded-2xl border transition-all duration-255 cursor-pointer hover:-translate-y-0.5 hover:shadow-md ${
-                        isSelected
+                      className={`flex items-center gap-4 p-4 rounded-2xl border transition-all duration-255 cursor-pointer hover:-translate-y-0.5 hover:shadow-md ${isSelected
                           ? "border-[#3730a3] bg-gradient-to-r from-indigo-50/60 to-blue-50/30 text-slate-850 ring-2 ring-indigo-500/5 shadow-xs"
                           : "border-slate-200 hover:border-indigo-250 bg-white hover:bg-indigo-50/5 text-slate-650"
-                      }`}
+                        }`}
                     >
                       <input
                         type={currentQuestion.questionType === "single" ? "radio" : "checkbox"}
@@ -947,16 +941,14 @@ const ExamPaper = () => {
                         }
                         className="sr-only"
                       />
-                      <span className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-black border uppercase tracking-wider shrink-0 transition-all ${
-                        isSelected 
-                          ? "bg-gradient-to-br from-[#3730a3] to-[#2563eb] border-transparent text-white shadow-sm shadow-indigo-500/20 scale-105" 
+                      <span className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-black border uppercase tracking-wider shrink-0 transition-all ${isSelected
+                          ? "bg-gradient-to-br from-[#3730a3] to-[#2563eb] border-transparent text-white shadow-sm shadow-indigo-500/20 scale-105"
                           : "bg-slate-50 border-slate-200 text-slate-450"
-                      }`}>
+                        }`}>
                         {String.fromCharCode(65 + idx)}
                       </span>
-                      <span className={`text-xs sm:text-sm font-bold leading-relaxed flex-1 ${
-                        isSelected ? "font-extrabold text-[#3730a3]" : "text-slate-650"
-                      }`}>
+                      <span className={`text-xs sm:text-sm font-bold leading-relaxed flex-1 ${isSelected ? "font-extrabold text-[#3730a3]" : "text-slate-650"
+                        }`}>
                         {option.optionText.replace(/^Option\s*\d+\s*[:.-]?\s*/i, "")}
                       </span>
                       {isSelected && (
@@ -997,7 +989,8 @@ const ExamPaper = () => {
                       Next <FiChevronRight className="w-4 h-4 shrink-0" />
                     </button>
                   )}
-                </div>              </div>
+                </div>
+              </div>
             </div>
 
             {/* Security Monitor & Progress Overview side-by-side */}
@@ -1012,7 +1005,7 @@ const ExamPaper = () => {
                       <FiActivity className="w-2.5 h-2.5" /> Secured
                     </span>
                   </div>
-                  
+
                   <div className="space-y-3 text-xs font-semibold text-slate-600">
                     {exam.proctoring.cameraEnabled && (
                       <div className="flex items-center justify-between">
@@ -1054,7 +1047,7 @@ const ExamPaper = () => {
               {/* Exam Summary Progress Stats */}
               <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 text-left">
                 <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3.5">Progress Overview</h4>
-                
+
                 <div className="space-y-3 text-xs font-semibold">
                   <div className="flex items-center justify-between">
                     <span className="text-slate-500">Total Questions</span>
@@ -1084,16 +1077,16 @@ const ExamPaper = () => {
                       }).length}
                     </span>
                   </div>
-                  
+
                   {/* Stats progress bar */}
                   <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden mt-3">
-                    <div 
+                    <div
                       className="h-full bg-gradient-to-r from-emerald-400 to-emerald-600 rounded-full transition-all duration-355"
-                      style={{ 
+                      style={{
                         width: `${(Object.keys(selectedAnswers).filter(qid => {
                           const ans = selectedAnswers[qid];
                           return Array.isArray(ans) ? ans.length > 0 : ans !== undefined && ans !== null;
-                        }).length / exam.questions.length) * 100}%` 
+                        }).length / exam.questions.length) * 100}%`
                       }}
                     />
                   </div>
@@ -1121,7 +1114,7 @@ const ExamPaper = () => {
                   </p>
                 </div>
               </div>
-              
+
               {currentUser?.student_enrollment && (
                 <div className="mt-4 pt-3.5 border-t border-slate-100 flex items-center justify-between text-[10px] font-bold text-slate-500 uppercase tracking-wider">
                   <span>ID / Roll No:</span>
@@ -1134,11 +1127,10 @@ const ExamPaper = () => {
 
             {/* Camera widget */}
             {exam.proctoring?.cameraEnabled && (
-              <div className={`bg-white rounded-2xl shadow-sm border p-4 transition-all duration-200 text-left ${
-                (cameraViolation || showViolationWarning)
+              <div className={`bg-white rounded-2xl shadow-sm border p-4 transition-all duration-200 text-left ${(cameraViolation || showViolationWarning)
                   ? "border-rose-500 ring-4 ring-rose-500/10 animate-pulse"
                   : "border-slate-200"
-              }`}>
+                }`}>
                 <div className="flex items-center gap-2 mb-3">
                   <FiCamera className={`w-4 h-4 ${(cameraViolation || showViolationWarning) ? "text-rose-500 animate-pulse" : "text-slate-500"}`} />
                   <span className={`text-[10px] font-black uppercase tracking-wider ${(cameraViolation || showViolationWarning) ? "text-rose-500" : "text-slate-500"}`}>
@@ -1146,7 +1138,7 @@ const ExamPaper = () => {
                   </span>
                   <div className={`w-2 h-2 rounded-full ml-auto ${(cameraViolation || showViolationWarning) ? "bg-red-500 animate-ping" : "bg-emerald-500 animate-pulse"}`} />
                 </div>
-                
+
                 <div className="relative rounded-xl overflow-hidden bg-slate-900 border border-slate-150 shadow-inner">
                   <video
                     ref={setVideoRef}
@@ -1164,29 +1156,28 @@ const ExamPaper = () => {
             {/* Question palette widget */}
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 text-left">
               <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3.5">Question Palette</h4>
-              
+
               <div className="grid grid-cols-5 gap-2">
                 {exam.questions.map((q, i) => {
                   const isAnswered = selectedAnswers[q._id] !== undefined && selectedAnswers[q._id] !== null && (Array.isArray(selectedAnswers[q._id]) ? selectedAnswers[q._id].length > 0 : true);
-                  
+
                   return (
                     <button
                       key={q._id}
                       onClick={() => setCurrentQuestionIndex(i)}
-                      className={`w-8.5 h-8.5 rounded-xl text-xs font-black transition-all border ${
-                        i === currentQuestionIndex
+                      className={`w-8.5 h-8.5 rounded-xl text-xs font-black transition-all border ${i === currentQuestionIndex
                           ? "bg-gradient-to-br from-[#3730a3] to-[#2563eb] border-transparent text-white shadow-sm shadow-indigo-500/20 scale-105"
                           : isAnswered
-                          ? "bg-emerald-100 border-emerald-300 text-emerald-800 hover:bg-emerald-200/50"
-                          : "bg-slate-50 hover:bg-slate-100 text-slate-650 border-slate-200"
-                      }`}
+                            ? "bg-emerald-100 border-emerald-300 text-emerald-800 hover:bg-emerald-200/50"
+                            : "bg-slate-50 hover:bg-slate-100 text-slate-650 border-slate-200"
+                        }`}
                     >
                       {i + 1}
                     </button>
                   );
                 })}
               </div>
-              
+
               <div className="flex flex-col gap-2 mt-5 pt-4 border-t border-slate-100 text-[10px] font-bold text-slate-555 uppercase tracking-wider">
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 bg-emerald-100 border border-emerald-350 rounded-md shrink-0 shadow-2xs flex items-center justify-center text-emerald-800 font-black text-[9px]">&#10003;</div>

@@ -8,14 +8,37 @@ const AIPaymentSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
-    examId: { type: String, required: true },
-    orderId: { type: String, required: true, unique: true },
-    receiptId: { type: String, required: true },
-    amount: { type: Number, required: true },
-    paymentId: { type: String },
-    signature: { type: String },
-    currency: { type: String, default: "INR" },
-    status: { type: String, default: "Created" },
+    examId: {
+      type: String,
+      required: true,
+    },
+    orderId: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    receiptId: {
+      type: String,
+      required: true,
+    },
+    amount: {
+      type: Number,
+      required: true,
+    },
+    paymentId: {
+      type: String,
+    },
+    signature: {
+      type: String,
+    },
+    currency: {
+      type: String,
+      default: "INR",
+    },
+    status: {
+      type: String,
+      default: "Created",
+    },
   },
   { timestamps: true },
 );

@@ -40,27 +40,27 @@ const compileHtmlTemplate = (html, css, resumeData, student) => {
   const preprocessTemplateHtml = (tempHtml) => {
     let processed = tempHtml || "";
     const loopKeys = ["education", "experience", "projects", "skills", "certifications", "languages"];
-    
+
     for (const key of loopKeys) {
       const openRegex = new RegExp(`\\{\\{\\s*#${key}\\s*\\\}\\}`, "gi");
       const closeRegex = new RegExp(`\\{\\{\\s*\\/${key}\\s*\\\}\\}`, "gi");
-      
+
       const openMatches = [...processed.matchAll(openRegex)];
       const closeMatches = [...processed.matchAll(closeRegex)];
-      
+
       if (openMatches.length > 1 && closeMatches.length > 1) {
         const firstOpen = openMatches[0];
         const lastClose = closeMatches[closeMatches.length - 1];
-        
+
         const lastCloseIndex = lastClose.index;
-        processed = processed.substring(0, lastCloseIndex) + 
-                    `{{/has_${key}}}` + 
-                    processed.substring(lastCloseIndex + lastClose[0].length);
-                    
+        processed = processed.substring(0, lastCloseIndex) +
+          `{{/has_${key}}}` +
+          processed.substring(lastCloseIndex + lastClose[0].length);
+
         const firstOpenIndex = firstOpen.index;
-        processed = processed.substring(0, firstOpenIndex) + 
-                    `{{#has_${key}}}` + 
-                    processed.substring(firstOpenIndex + firstOpen[0].length);
+        processed = processed.substring(0, firstOpenIndex) +
+          `{{#has_${key}}}` +
+          processed.substring(firstOpenIndex + firstOpen[0].length);
       }
     }
     return processed;
@@ -97,7 +97,7 @@ const compileHtmlTemplate = (html, css, resumeData, student) => {
     compiledHtml = compiledHtml.replace(regex, (match, innerContent) => {
       const list = rData[key] || [];
       if (list.length === 0) return "";
-      
+
       return list.map((item) => {
         let renderedItem = innerContent;
         if (typeof item === "string") {
@@ -134,13 +134,13 @@ const compileHtmlTemplate = (html, css, resumeData, student) => {
   // 2. Process Conditional Blocks SECOND (e.g. {{#has_experience}}...{{/has_experience}} or {{#linkedin}}...{{/linkedin}})
   let conditionalRegex = /\{\{\s*#([a-zA-Z0-9_-]+)\s*\}\}([\s\S]*?)\{\{\s*\/\1\s*\}\}/gi;
   let matchesFound = true;
-  
+
   while (matchesFound) {
     matchesFound = false;
     compiledHtml = compiledHtml.replace(conditionalRegex, (match, key, innerContent) => {
       matchesFound = true;
       const lowerKey = key.toLowerCase();
-      
+
       // Check for "has_xxx" conditional
       if (lowerKey.startsWith("has_")) {
         const baseKey = lowerKey.substring(4);
@@ -150,7 +150,7 @@ const compileHtmlTemplate = (html, css, resumeData, student) => {
         }
         return "";
       }
-      
+
       // Simple fields check
       const value = data[lowerKey] !== undefined ? data[lowerKey] : rData[lowerKey];
       if (value && String(value).trim() !== "") {
@@ -240,10 +240,10 @@ const ResumeBuilder = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [showFullscreenPreview, setShowFullscreenPreview] = useState(false);
   const [editorMode, setEditorMode] = useState("content"); // content or design
-  
+
   // Lists fetched from DB
   const [templates, setTemplates] = useState([]);
-  
+
   // Form input states
   const [resumeData, setResumeData] = useState({
     punch_line: "",
@@ -309,7 +309,7 @@ const ResumeBuilder = () => {
 
       setHasSubscription(subRes.data.hasSubscription);
       setTemplates(templatesRes.data.templates || []);
-      
+
       if (resumeRes.data?.resume) {
         const loaded = resumeRes.data.resume;
         setResumeData({
@@ -687,7 +687,7 @@ const ResumeBuilder = () => {
   }
 
   const selectedTemplate = templates.find(t => t._id === resumeData.selected_template_id);
-  
+
   let liveCompiledHtml = "";
   if (selectedTemplate) {
     const compiled = compileHtmlTemplate(selectedTemplate.html_content, selectedTemplate.css_content || "", resumeData, user);
@@ -745,7 +745,7 @@ const ResumeBuilder = () => {
                     <span className="text-[9px] font-black uppercase tracking-wider text-slate-400">No Image Preview</span>
                   </div>
                 )}
-                
+
                 {/* Use Button on Hover */}
                 <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
                   <span className="bg-white text-slate-800 font-extrabold text-[10px] uppercase tracking-wider px-4 py-2 rounded-xl shadow-md">
@@ -817,7 +817,7 @@ const ResumeBuilder = () => {
           </button>
 
           <RefreshButton />
-          
+
           {resumeData.ai_compiled_html && (
             <button
               onClick={handlePrint}
@@ -838,18 +838,16 @@ const ResumeBuilder = () => {
             <button
               type="button"
               onClick={() => setEditorMode("content")}
-              className={`py-2 px-4 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${
-                editorMode === "content" ? "bg-white text-[#3730a3] shadow-xs" : "text-slate-500 hover:text-slate-700"
-              }`}
+              className={`py-2 px-4 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${editorMode === "content" ? "bg-white text-[#3730a3] shadow-xs" : "text-slate-500 hover:text-slate-700"
+                }`}
             >
               <FiEdit className="w-3.5 h-3.5" /> Content
             </button>
             <button
               type="button"
               onClick={() => setEditorMode("design")}
-              className={`py-2 px-4 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${
-                editorMode === "design" ? "bg-white text-[#3730a3] shadow-xs" : "text-slate-500 hover:text-slate-700"
-              }`}
+              className={`py-2 px-4 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${editorMode === "design" ? "bg-white text-[#3730a3] shadow-xs" : "text-slate-500 hover:text-slate-700"
+                }`}
             >
               <FiLayers className="w-3.5 h-3.5" /> Design
             </button>
@@ -861,41 +859,36 @@ const ResumeBuilder = () => {
               <div className="bg-slate-100 p-1.5 rounded-2xl flex border border-slate-200/50 scrollbar-none gap-2 text-xs font-black overflow-x-auto">
                 <button
                   onClick={() => setActiveTab("profile")}
-                  className={`px-4 py-2.5 rounded-xl transition-all duration-200 whitespace-nowrap text-[11px] font-black flex items-center gap-1.5 border border-transparent ${
-                    activeTab === "profile" ? "bg-white text-[#3730a3] shadow-xs" : "text-slate-500 hover:text-slate-700 hover:bg-white/40"
-                  }`}
+                  className={`px-4 py-2.5 rounded-xl transition-all duration-200 whitespace-nowrap text-[11px] font-black flex items-center gap-1.5 border border-transparent ${activeTab === "profile" ? "bg-white text-[#3730a3] shadow-xs" : "text-slate-500 hover:text-slate-700 hover:bg-white/40"
+                    }`}
                 >
                   <FiUser className="w-3.5 h-3.5" /> Profile
                 </button>
                 <button
                   onClick={() => setActiveTab("education")}
-                  className={`px-4 py-2.5 rounded-xl transition-all duration-200 whitespace-nowrap text-[11px] font-black flex items-center gap-1.5 border border-transparent ${
-                    activeTab === "education" ? "bg-white text-[#3730a3] shadow-xs" : "text-slate-500 hover:text-slate-700 hover:bg-white/40"
-                  }`}
+                  className={`px-4 py-2.5 rounded-xl transition-all duration-200 whitespace-nowrap text-[11px] font-black flex items-center gap-1.5 border border-transparent ${activeTab === "education" ? "bg-white text-[#3730a3] shadow-xs" : "text-slate-500 hover:text-slate-700 hover:bg-white/40"
+                    }`}
                 >
                   <FiBookOpen className="w-3.5 h-3.5" /> Education
                 </button>
                 <button
                   onClick={() => setActiveTab("projects")}
-                  className={`px-4 py-2.5 rounded-xl transition-all duration-200 whitespace-nowrap text-[11px] font-black flex items-center gap-1.5 border border-transparent ${
-                    activeTab === "projects" ? "bg-white text-[#3730a3] shadow-xs" : "text-slate-500 hover:text-slate-700 hover:bg-white/40"
-                  }`}
+                  className={`px-4 py-2.5 rounded-xl transition-all duration-200 whitespace-nowrap text-[11px] font-black flex items-center gap-1.5 border border-transparent ${activeTab === "projects" ? "bg-white text-[#3730a3] shadow-xs" : "text-slate-500 hover:text-slate-700 hover:bg-white/40"
+                    }`}
                 >
                   <FiBriefcase className="w-3.5 h-3.5" /> Experience
                 </button>
                 <button
                   onClick={() => setActiveTab("skills")}
-                  className={`px-4 py-2.5 rounded-xl transition-all duration-200 whitespace-nowrap text-[11px] font-black flex items-center gap-1.5 border border-transparent ${
-                    activeTab === "skills" ? "bg-white text-[#3730a3] shadow-xs" : "text-slate-500 hover:text-slate-700 hover:bg-white/40"
-                  }`}
+                  className={`px-4 py-2.5 rounded-xl transition-all duration-200 whitespace-nowrap text-[11px] font-black flex items-center gap-1.5 border border-transparent ${activeTab === "skills" ? "bg-white text-[#3730a3] shadow-xs" : "text-slate-500 hover:text-slate-700 hover:bg-white/40"
+                    }`}
                 >
                   <FiCpu className="w-3.5 h-3.5" /> Skills
                 </button>
                 <button
                   onClick={() => setActiveTab("summary")}
-                  className={`px-4 py-2.5 rounded-xl transition-all duration-200 whitespace-nowrap text-[11px] font-black flex items-center gap-1.5 border border-transparent ${
-                    activeTab === "summary" ? "bg-white text-[#3730a3] shadow-xs" : "text-slate-500 hover:text-slate-700 hover:bg-white/40"
-                  }`}
+                  className={`px-4 py-2.5 rounded-xl transition-all duration-200 whitespace-nowrap text-[11px] font-black flex items-center gap-1.5 border border-transparent ${activeTab === "summary" ? "bg-white text-[#3730a3] shadow-xs" : "text-slate-500 hover:text-slate-700 hover:bg-white/40"
+                    }`}
                 >
                   <FiZap className="w-3.5 h-3.5" /> AI Summary
                 </button>
@@ -905,7 +898,7 @@ const ResumeBuilder = () => {
               {activeTab === "profile" && (
                 <div className="space-y-4 text-left">
                   <h3 className="text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Profile & Social Details</h3>
-                  
+
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wide">Punch line / Job Title</label>
                     <input
@@ -935,7 +928,7 @@ const ResumeBuilder = () => {
                 <div className="space-y-6 text-left">
                   <div>
                     <h3 className="text-xs font-black text-slate-400 uppercase tracking-wider mb-3">Education History</h3>
-                    
+
                     {/* List of existing educations */}
                     <div className="space-y-3 mb-4 max-h-48 overflow-y-auto pr-1">
                       {resumeData.education.length === 0 ? (
@@ -1041,7 +1034,7 @@ const ResumeBuilder = () => {
                   {/* Projects Section */}
                   <div>
                     <h3 className="text-xs font-black text-slate-400 uppercase tracking-wider mb-3">Projects Details</h3>
-                    
+
                     {/* List of existing projects */}
                     <div className="space-y-3 mb-4 max-h-48 overflow-y-auto pr-1">
                       {resumeData.projects.length === 0 ? (
@@ -1135,7 +1128,7 @@ const ResumeBuilder = () => {
                   {/* Experience / Internship Section */}
                   <div>
                     <h3 className="text-xs font-black text-slate-400 uppercase tracking-wider mb-3">Work / Intern Experience</h3>
-                    
+
                     {/* List of existing experiences */}
                     <div className="space-y-3 mb-4 max-h-48 overflow-y-auto pr-1">
                       {resumeData.experience.length === 0 ? (
@@ -1354,7 +1347,7 @@ const ResumeBuilder = () => {
               {activeTab === "summary" && (
                 <div className="space-y-4 text-left animate-fade-in">
                   <h3 className="text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Professional Summary</h3>
-                  
+
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wide">Write or Generate Summary</label>
@@ -1399,11 +1392,10 @@ const ResumeBuilder = () => {
                                   setResumeData({ ...resumeData, chosen_summary: summary });
                                   toast.success(`Applied ${tones[index]} summary!`);
                                 }}
-                                className={`w-full text-left p-3 rounded-xl border text-xs transition-all flex flex-col gap-1 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 ${
-                                  isSelected
+                                className={`w-full text-left p-3 rounded-xl border text-xs transition-all flex flex-col gap-1 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 ${isSelected
                                     ? "border-[#3730a3] bg-indigo-50/50 text-[#3730a3] ring-1 ring-[#3730a3]/20"
                                     : "border-slate-200 bg-white hover:border-slate-350 text-slate-700 hover:bg-slate-50/50"
-                                }`}
+                                  }`}
                               >
                                 <span className={`text-[9px] font-black uppercase tracking-wider ${isSelected ? "text-[#3730a3]" : "text-slate-400"}`}>
                                   Option {index + 1}: {tones[index]} {isSelected && "✓ (Active)"}
@@ -1470,7 +1462,7 @@ const ResumeBuilder = () => {
           {editorMode === "design" && (
             <div className="space-y-6 text-left animate-fade-in">
               <h3 className="text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Design Customization</h3>
-              
+
               {/* Template Theme Selector */}
               <div className="space-y-2">
                 <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider block">Resume Layout Template</label>
@@ -1480,11 +1472,10 @@ const ResumeBuilder = () => {
                       key={t._id}
                       type="button"
                       onClick={() => changeTemplate(t._id)}
-                      className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all text-center flex items-center justify-between gap-1 truncate ${
-                        resumeData.selected_template_id === t._id
+                      className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all text-center flex items-center justify-between gap-1 truncate ${resumeData.selected_template_id === t._id
                           ? "border-[#3730a3] bg-indigo-50/50 text-[#3730a3]"
                           : "border-slate-200 bg-white hover:border-slate-350 text-slate-700"
-                      }`}
+                        }`}
                     >
                       <span className="truncate">{t.name}</span>
                       {resumeData.selected_template_id === t._id && <FiCheck className="w-3.5 h-3.5 shrink-0" />}
@@ -1502,11 +1493,10 @@ const ResumeBuilder = () => {
                       key={font}
                       type="button"
                       onClick={() => setResumeData({ ...resumeData, font_family: font })}
-                      className={`py-2.5 px-4 rounded-xl border text-xs font-bold transition-all text-center ${
-                        resumeData.font_family === font
+                      className={`py-2.5 px-4 rounded-xl border text-xs font-bold transition-all text-center ${resumeData.font_family === font
                           ? "border-[#3730a3] bg-indigo-50/50 text-[#3730a3]"
                           : "border-slate-200 bg-white hover:border-slate-350 text-slate-700"
-                      }`}
+                        }`}
                     >
                       {font}
                     </button>
@@ -1530,11 +1520,10 @@ const ResumeBuilder = () => {
                       type="button"
                       onClick={() => setResumeData({ ...resumeData, color_theme: color.value })}
                       style={{ backgroundColor: color.value }}
-                      className={`w-7 h-7 rounded-full border-2 transition-all relative ${
-                        resumeData.color_theme === color.value
+                      className={`w-7 h-7 rounded-full border-2 transition-all relative ${resumeData.color_theme === color.value
                           ? "border-slate-900 ring-2 ring-indigo-500/20 scale-110"
                           : "border-transparent hover:scale-105"
-                      }`}
+                        }`}
                       title={color.name}
                     >
                       {resumeData.color_theme === color.value && (
@@ -1542,7 +1531,7 @@ const ResumeBuilder = () => {
                       )}
                     </button>
                   ))}
-                  
+
                   {/* Custom color picker */}
                   <div className="flex items-center gap-2 ml-2 border border-slate-200 rounded-xl p-1 px-2.5 bg-slate-50/50">
                     <input
@@ -1569,11 +1558,10 @@ const ResumeBuilder = () => {
                       key={mode.id}
                       type="button"
                       onClick={() => setResumeData({ ...resumeData, layout_columns: mode.id })}
-                      className={`py-2.5 px-2.5 rounded-xl border text-[11px] font-bold transition-all text-center truncate ${
-                        resumeData.layout_columns === mode.id
+                      className={`py-2.5 px-2.5 rounded-xl border text-[11px] font-bold transition-all text-center truncate ${resumeData.layout_columns === mode.id
                           ? "border-[#3730a3] bg-indigo-50/50 text-[#3730a3]"
                           : "border-slate-200 bg-white hover:border-slate-350 text-slate-700"
-                      }`}
+                        }`}
                     >
                       {mode.label}
                     </button>
@@ -1590,11 +1578,10 @@ const ResumeBuilder = () => {
                       key={margin}
                       type="button"
                       onClick={() => setResumeData({ ...resumeData, page_margin: margin })}
-                      className={`py-2.5 px-3 rounded-xl border text-xs font-bold transition-all text-center capitalize ${
-                        resumeData.page_margin === margin
+                      className={`py-2.5 px-3 rounded-xl border text-xs font-bold transition-all text-center capitalize ${resumeData.page_margin === margin
                           ? "border-[#3730a3] bg-indigo-50/50 text-[#3730a3]"
                           : "border-slate-200 bg-white hover:border-slate-350 text-slate-700"
-                      }`}
+                        }`}
                     >
                       {margin}
                     </button>
@@ -1609,7 +1596,7 @@ const ResumeBuilder = () => {
             </div>
           )}
         </div>
-             {/* Right Preview Panel */}
+        {/* Right Preview Panel */}
         <div className={`md:col-span-6 lg:col-span-7 space-y-6 ${showPreview ? "block" : "hidden md:block"}`}>
           {/* Action Row */}
           <div className="bg-white border border-slate-200 p-4 rounded-3xl shadow-sm flex items-center justify-between no-print">
@@ -1640,7 +1627,7 @@ const ResumeBuilder = () => {
                 <FiEye className="w-4 h-4" />
               </button>
             </div>
-            
+
             <div className="flex-1 bg-white overflow-hidden relative">
               <iframe
                 id="resume-iframe"
@@ -1893,14 +1880,14 @@ const LocalResumePreview = ({ data, user }) => {
   };
 
   return (
-    <div 
-      className={`w-full min-h-[500px] bg-white text-slate-800 shadow-inner border border-slate-100 rounded-2xl text-left select-none pointer-events-none ${spacingClass.padding} ${spacingClass.gap}`} 
+    <div
+      className={`w-full min-h-[500px] bg-white text-slate-800 shadow-inner border border-slate-100 rounded-2xl text-left select-none pointer-events-none ${spacingClass.padding} ${spacingClass.gap}`}
       style={fontStyle}
     >
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap');
       `}</style>
-      
+
       {layout_columns === "single" ? (
         <div className="space-y-5">
           {renderHeader()}

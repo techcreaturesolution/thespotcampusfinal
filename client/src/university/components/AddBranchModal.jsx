@@ -36,7 +36,7 @@ const AddBranchModal = ({ isOpen, onClose, degrees, onSubmit }) => {
             <FiX className="w-4 h-4" />
           </button>
         </div>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-2">Parent Degree Program</label>
@@ -54,7 +54,7 @@ const AddBranchModal = ({ isOpen, onClose, degrees, onSubmit }) => {
               ))}
             </select>
           </div>
-          
+
           <div>
             <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-2">Branch / Specialization Name</label>
             <input
@@ -66,7 +66,7 @@ const AddBranchModal = ({ isOpen, onClose, degrees, onSubmit }) => {
               required
             />
           </div>
-          
+
           <div>
             <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-2">Branch Code</label>
             <input
@@ -78,7 +78,7 @@ const AddBranchModal = ({ isOpen, onClose, degrees, onSubmit }) => {
               required
             />
           </div>
-          
+
           <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 mt-5">
             <button
               type="button"

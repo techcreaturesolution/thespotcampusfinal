@@ -1,6 +1,5 @@
 import { Router } from "express";
 import { createSubject, getAllSubjects, updateSubject, deleteSubject, getActiveSubjects } from "./subject.controller.js";
-import { createTopic, getTopicsBySubject, getAllTopics, updateTopic, deleteTopic } from "./topic.controller.js";
 import { createQuestion, bulkUploadQuestions, getAllQuestions, updateQuestion, deleteQuestion, getPracticeQuestions, getPreviousYearQuestions } from "./question.controller.js";
 import { createMockTest, getAllMockTests, updateMockTest, deleteMockTest, getActiveMockTests, startMockTest, submitMockTest, getTestResult, getMyAttempts } from "./mocktest.controller.js";
 import { getTodayChallenge, submitDailyChallenge, createDailyChallenge } from "./dailychallenge.controller.js";
@@ -18,16 +17,9 @@ router.post("/subjects", createSubject);
 router.patch("/subjects/:id", updateSubject);
 router.delete("/subjects/:id", deleteSubject);
 
-// =========== TOPICS ===========
-router.get("/topics", getAllTopics);
-router.get("/topics/subject/:subjectId", getTopicsBySubject);
-router.post("/topics", createTopic);
-router.patch("/topics/:id", updateTopic);
-router.delete("/topics/:id", deleteTopic);
-
 // =========== QUESTIONS ===========
 router.get("/questions", getAllQuestions);
-router.get("/questions/practice/:topicId", getPracticeQuestions);
+router.get("/questions/practice/:subjectId", getPracticeQuestions);
 router.get("/questions/previous-year", getPreviousYearQuestions);
 router.post("/questions", createQuestion);
 router.post("/questions/bulk", bulkUploadQuestions);

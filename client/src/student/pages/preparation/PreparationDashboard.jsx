@@ -18,77 +18,103 @@ const PreparationDashboard = () => {
   }, []);
 
   const modules = [
-    { path: "/dashboard/student/preparation/previous-papers", icon: <FiBook className="text-2xl" />, title: "Previous Year Papers", desc: "Practice real placement questions from top companies", color: "bg-blue-50 text-blue-600 border-blue-100" },
-    { path: "/dashboard/student/preparation/mock-tests", icon: <FiTarget className="text-2xl" />, title: "Mock Tests", desc: "Simulate real placement rounds with timed tests", color: "bg-purple-50 text-purple-600 border-purple-100" },
-    { path: "/dashboard/student/preparation/subjects", icon: <FiBookOpen className="text-2xl" />, title: "Subject Wise Practice", desc: "Focused preparation by subject and topic", color: "bg-emerald-50 text-emerald-600 border-emerald-100" },
-    { path: "/dashboard/student/preparation/reading-material", icon: <FiFileText className="text-2xl" />, title: "Reading Material", desc: "Study PDFs for comprehensive preparation", color: "bg-amber-50 text-amber-600 border-amber-100" },
-    { path: "/dashboard/student/preparation/daily-challenge", icon: <FiZap className="text-2xl" />, title: "Daily Challenge", desc: "10 mixed questions daily to keep your streak", color: "bg-red-50 text-red-600 border-red-100" },
-    { path: "/dashboard/student/preparation/performance", icon: <FiTrendingUp className="text-2xl" />, title: "Performance Dashboard", desc: "Track your progress and identify weak areas", color: "bg-indigo-50 text-indigo-600 border-indigo-100" },
+    { path: "/dashboard/student/preparation/previous-papers", icon: <FiBook className="text-2xl" />, title: "Previous Year Papers", desc: "Practice real placement questions from top companies", color: "bg-blue-50/50 text-blue-600 border-blue-100 hover:border-blue-300" },
+    { path: "/dashboard/student/preparation/mock-tests", icon: <FiTarget className="text-2xl" />, title: "Mock Tests", desc: "Simulate real placement rounds with timed tests", color: "bg-purple-50/50 text-purple-600 border-purple-100 hover:border-purple-300" },
+    { path: "/dashboard/student/preparation/subjects", icon: <FiBookOpen className="text-2xl" />, title: "Subject Wise Practice", desc: "Focused preparation by subject", color: "bg-emerald-50/50 text-emerald-600 border-emerald-100 hover:border-emerald-300" },
+    { path: "/dashboard/student/preparation/reading-material", icon: <FiFileText className="text-2xl" />, title: "Reading Material", desc: "Study PDFs for comprehensive preparation", color: "bg-amber-50/50 text-amber-600 border-amber-100 hover:border-amber-300" },
+    { path: "/dashboard/student/preparation/daily-challenge", icon: <FiZap className="text-2xl" />, title: "Daily Challenge", desc: "10 mixed questions daily to keep your streak", color: "bg-rose-50/50 text-rose-600 border-rose-100 hover:border-rose-300" },
+    { path: "/dashboard/student/preparation/performance", icon: <FiTrendingUp className="text-2xl" />, title: "Performance Dashboard", desc: "Track your progress and identify weak areas", color: "bg-indigo-50/50 text-indigo-600 border-indigo-100 hover:border-indigo-300" },
   ];
 
   if (loading) return <Loading />;
 
   return (
-    <div>
-      <PageHeader title="Preparation" subtitle="Your complete placement preparation hub" />
+    <div className="space-y-6 max-w-6xl mx-auto py-2 text-left animate-fade-in">
+      <PageHeader
+        icon={FiBookOpen}
+        title="Preparation Hub"
+        subtitle="Your complete placement preparation suite"
+      />
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 text-center">
-          <p className="text-2xl font-bold text-indigo-600">{progress?.total_questions_solved || 0}</p>
-          <p className="text-xs text-gray-500 mt-1">Questions Solved</p>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+        <div className="bg-white rounded-3xl border border-slate-200 p-5 text-center shadow-sm hover:shadow-md transition">
+          <p className="text-3xl font-black text-indigo-650">{progress?.total_questions_solved || 0}</p>
+          <p className="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider mt-1.5">Questions Solved</p>
         </div>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 text-center">
-          <p className="text-2xl font-bold text-emerald-600">{progress?.tests_attempted || 0}</p>
-          <p className="text-xs text-gray-500 mt-1">Tests Attempted</p>
+        <div className="bg-white rounded-3xl border border-slate-200 p-5 text-center shadow-sm hover:shadow-md transition">
+          <p className="text-3xl font-black text-emerald-600">{progress?.tests_attempted || 0}</p>
+          <p className="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider mt-1.5">Tests Attempted</p>
         </div>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 text-center">
-          <p className="text-2xl font-bold text-amber-600">{progress?.overall_accuracy || 0}%</p>
-          <p className="text-xs text-gray-500 mt-1">Accuracy</p>
+        <div className="bg-white rounded-3xl border border-slate-200 p-5 text-center shadow-sm hover:shadow-md transition">
+          <p className="text-3xl font-black text-amber-600">{progress?.overall_accuracy || 0}%</p>
+          <p className="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider mt-1.5">Accuracy</p>
         </div>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 text-center">
-          <div className="flex items-center justify-center gap-1">
-            <FiZap className="text-red-500" />
-            <p className="text-2xl font-bold text-red-600">{progress?.current_streak || 0}</p>
+        <div className="bg-white rounded-3xl border border-slate-200 p-5 text-center shadow-sm hover:shadow-md transition">
+          <div className="flex items-center justify-center gap-1.5">
+            <FiZap className="text-red-500 w-6 h-6 animate-pulse" />
+            <p className="text-3xl font-black text-red-600">{progress?.current_streak || 0}</p>
           </div>
-          <p className="text-xs text-gray-500 mt-1">Day Streak</p>
+          <p className="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider mt-1.5">Day Streak</p>
         </div>
       </div>
 
-      {/* Module Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      {/* Module Cards Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {modules.map((m) => (
-          <Link key={m.path} to={m.path}
-            className={`rounded-xl border p-6 hover:shadow-lg transition-all duration-200 ${m.color}`}>
-            <div className="mb-3">{m.icon}</div>
-            <h3 className="font-bold text-gray-800 mb-1">{m.title}</h3>
-            <p className="text-sm text-gray-500">{m.desc}</p>
+          <Link
+            key={m.path}
+            to={m.path}
+            className={`rounded-3xl border p-6 shadow-xs hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between ${m.color}`}
+          >
+            <div>
+              <div className="mb-4 inline-block p-2 bg-white rounded-xl shadow-xs">{m.icon}</div>
+              <h3 className="font-extrabold text-slate-800 text-sm tracking-tight mb-1.5">{m.title}</h3>
+              <p className="text-xs text-slate-500 leading-relaxed">{m.desc}</p>
+            </div>
           </Link>
         ))}
       </div>
 
       {/* Strong & Weak Subjects */}
       {progress?.subject_progress?.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-            <h3 className="font-bold text-gray-800 mb-3 flex items-center gap-2"><FiAward className="text-green-600" /> Strong Subjects</h3>
-            {progress.subject_progress.filter(s => s.accuracy >= 70).slice(0, 4).map((s, i) => (
-              <div key={i} className="flex justify-between items-center py-2 border-b border-gray-100 last:border-0">
-                <span className="text-sm text-gray-700">{s.subject_name}</span>
-                <span className="text-sm font-bold text-green-600">{s.accuracy}%</span>
-              </div>
-            ))}
-            {progress.subject_progress.filter(s => s.accuracy >= 70).length === 0 && <p className="text-sm text-gray-400">Keep practicing to identify strengths</p>}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+          <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
+            <h3 className="font-extrabold text-slate-800 text-sm tracking-tight mb-4 flex items-center gap-2">
+              <FiAward className="text-emerald-600 w-5 h-5" /> Strong Subjects
+            </h3>
+            <div className="divide-y divide-slate-100">
+              {progress.subject_progress.filter(s => s.accuracy >= 70).slice(0, 4).map((s, i) => (
+                <div key={i} className="flex justify-between items-center py-3 first:pt-0 last:pb-0">
+                  <span className="text-xs font-bold text-slate-700">{s.subject_name}</span>
+                  <span className="text-xs font-extrabold text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-md">
+                    {s.accuracy}%
+                  </span>
+                </div>
+              ))}
+              {progress.subject_progress.filter(s => s.accuracy >= 70).length === 0 && (
+                <p className="text-xs text-slate-400 py-2">Keep practicing to identify strengths</p>
+              )}
+            </div>
           </div>
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-            <h3 className="font-bold text-gray-800 mb-3 flex items-center gap-2"><FiCheckCircle className="text-red-500" /> Weak Subjects</h3>
-            {progress.subject_progress.filter(s => s.accuracy < 50 && s.questions_attempted > 0).slice(0, 4).map((s, i) => (
-              <div key={i} className="flex justify-between items-center py-2 border-b border-gray-100 last:border-0">
-                <span className="text-sm text-gray-700">{s.subject_name}</span>
-                <span className="text-sm font-bold text-red-600">{s.accuracy}%</span>
-              </div>
-            ))}
-            {progress.subject_progress.filter(s => s.accuracy < 50 && s.questions_attempted > 0).length === 0 && <p className="text-sm text-gray-400">No weak areas detected yet</p>}
+          
+          <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
+            <h3 className="font-extrabold text-slate-800 text-sm tracking-tight mb-4 flex items-center gap-2">
+              <FiCheckCircle className="text-red-500 w-5 h-5" /> Weak Subjects
+            </h3>
+            <div className="divide-y divide-slate-100">
+              {progress.subject_progress.filter(s => s.accuracy < 50 && s.questions_attempted > 0).slice(0, 4).map((s, i) => (
+                <div key={i} className="flex justify-between items-center py-3 first:pt-0 last:pb-0">
+                  <span className="text-xs font-bold text-slate-700">{s.subject_name}</span>
+                  <span className="text-xs font-extrabold text-red-600 bg-red-50 border border-red-100 px-2 py-0.5 rounded-md">
+                    {s.accuracy}%
+                  </span>
+                </div>
+              ))}
+              {progress.subject_progress.filter(s => s.accuracy < 50 && s.questions_attempted > 0).length === 0 && (
+                <p className="text-xs text-slate-400 py-2">No weak areas detected yet</p>
+              )}
+            </div>
           </div>
         </div>
       )}

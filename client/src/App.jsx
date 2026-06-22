@@ -154,7 +154,7 @@ const router = createBrowserRouter([
       { path: "student/preparation/take-test/:attemptId", element: <TakeTest /> },
       { path: "student/preparation/test-result/:attemptId", element: <TestResult /> },
       { path: "student/preparation/subjects", element: <SubjectPractice /> },
-      { path: "student/preparation/practice/:topicId", element: <PracticeSession /> },
+      { path: "student/preparation/practice/:subjectId", element: <PracticeSession /> },
       { path: "student/preparation/reading-material", element: <ReadingMaterial /> },
       { path: "student/preparation/daily-challenge", element: <DailyChallenge /> },
       { path: "student/preparation/performance", element: <PerformanceDashboard /> },

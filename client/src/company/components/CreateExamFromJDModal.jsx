@@ -80,7 +80,7 @@ const CreateExamFromJDModal = ({ isOpen, onClose, jobId, onSuccess }) => {
   return (
     <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col border border-slate-200">
-        
+
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-slate-100 bg-white">
           <div className="flex items-center gap-3">

@@ -26,6 +26,7 @@ async function seedMasterAdmin() {
         admin_password: hashedPassword,
         role: "Admin"
       });
+      console.log("Master admin created successfully!");
     }
   } catch (error) {
     console.error("Error seeding master admin:", error);
