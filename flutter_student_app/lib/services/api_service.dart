@@ -27,6 +27,24 @@ class ApiService {
     return _handleResponse(response);
   }
 
+  Future<List<int>> getBytes(String endpoint) async {
+    final token = await _getToken();
+    final response = await http.get(
+      Uri.parse('${AppConstants.baseUrl}$endpoint'),
+      headers: _headers(token),
+    );
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      return response.bodyBytes;
+    } else {
+      try {
+        final data = jsonDecode(response.body);
+        throw Exception(data['error'] ?? 'Download failed');
+      } catch (_) {
+        throw Exception('Download failed');
+      }
+    }
+  }
+
   Future<Map<String, dynamic>> post(String endpoint, Map<String, dynamic> body) async {
     final token = await _getToken();
     final response = await http.post(
@@ -61,7 +79,7 @@ class ApiService {
     if (response.statusCode >= 200 && response.statusCode < 300) {
       return data;
     } else {
-      throw Exception(data['msg'] ?? data['message'] ?? 'Request failed');
+      throw Exception(data['error'] ?? data['msg'] ?? data['message'] ?? 'Request failed');
     }
   }
 }

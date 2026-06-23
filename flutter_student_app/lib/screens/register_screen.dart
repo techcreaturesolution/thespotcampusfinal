@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
 import '../services/api_service.dart';
+import '../utils/constants.dart';
+import '../widgets/glass_container.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -168,18 +170,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           Container(
             width: double.infinity,
             height: double.infinity,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Color(0xFF0B132B), // Very dark navy
-                  Color(0xFF1C2541), // Deep slate blue
-                  Color(0xFF2563EB), // Accent brand blue
-                ],
-                stops: [0.2, 0.6, 1.0],
-              ),
-            ),
+            decoration: AppStyles.glassmorphismBackground,
           ),
 
           // 2. Floating Background Orbs
@@ -280,40 +271,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     const SizedBox(height: 24),
 
                     // 4. Scrollable Floating Form Card
-                    Container(
+                    GlassContainer(
                       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(30),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Color(0x3D000000),
-                            blurRadius: 32,
-                            offset: Offset(0, 16),
-                          ),
-                        ],
-                      ),
                       child: Form(
                         key: _formKey,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             // SECTION 1: Personal Details
-                            const Row(
+                            Row(
                               children: [
-                                Icon(Icons.person, color: Color(0xFF2563EB), size: 20),
+                                Icon(Icons.person, color: Colors.white, size: 20),
                                 SizedBox(width: 8),
                                 Text(
                                   'Personal Information',
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
-                                    color: Color(0xFF1E3A8A),
+                                    color: Colors.white,
                                   ),
                                 ),
                               ],
                             ),
-                            const Divider(height: 24, thickness: 1, color: Color(0xFFCBD5E1)),
+                            Divider(height: 24, thickness: 1, color: Colors.white.withOpacity(0.2)),
                             const SizedBox(height: 12),
 
                             _buildTextField(
@@ -337,14 +317,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 4),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 4),
                                   child: Text(
                                     'Password',
                                     style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.bold,
-                                      color: Color(0xFF475569),
+                                      color: Colors.white.withOpacity(0.9),
                                     ),
                                   ),
                                 ),
@@ -352,24 +332,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 TextFormField(
                                   controller: _passwordController,
                                   obscureText: _obscurePassword,
-                                  style: const TextStyle(color: Color(0xFF0F172A), fontSize: 15, fontWeight: FontWeight.w500),
+                                  style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w500),
                                   decoration: InputDecoration(
                                     hintText: 'Choose a strong password',
-                                    hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
-                                    prefixIcon: const Icon(Icons.lock_outlined, color: Color(0xFF2563EB), size: 20),
+                                    hintStyle: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 14),
+                                    prefixIcon: Icon(Icons.lock_outlined, color: Colors.white.withOpacity(0.8), size: 20),
                                     suffixIcon: Padding(
                                       padding: const EdgeInsets.only(right: 8),
                                       child: IconButton(
                                         icon: Icon(
                                           _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                                          color: Colors.grey.shade500,
+                                          color: Colors.white.withOpacity(0.7),
                                           size: 20,
                                         ),
                                         onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                                       ),
                                     ),
                                     filled: true,
-                                    fillColor: const Color(0xFFF8FAFC),
+                                    fillColor: Colors.white.withOpacity(0.1),
                                     contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(30),
@@ -377,19 +357,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(30),
-                                      borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                                      borderSide: BorderSide(color: Colors.white.withOpacity(0.2)),
                                     ),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(30),
-                                      borderSide: const BorderSide(color: Color(0xFF2563EB), width: 1.5),
+                                      borderSide: const BorderSide(color: Colors.white, width: 1.5),
                                     ),
                                     errorBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(30),
-                                      borderSide: const BorderSide(color: Colors.red, width: 1),
+                                      borderSide: const BorderSide(color: Colors.redAccent, width: 1),
                                     ),
                                     focusedErrorBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(30),
-                                      borderSide: const BorderSide(color: Colors.red, width: 1.5),
+                                      borderSide: const BorderSide(color: Colors.redAccent, width: 1.5),
                                     ),
                                   ),
                                   validator: (v) => v == null || v.length < 6 ? 'Min 6 characters' : null,
@@ -418,21 +398,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             const SizedBox(height: 20),
                             
                             // SECTION 2: Academic Details
-                            const Row(
+                            Row(
                               children: [
-                                Icon(Icons.school, color: Color(0xFF2563EB), size: 20),
+                                Icon(Icons.school, color: Colors.white, size: 20),
                                 SizedBox(width: 8),
                                 Text(
                                   'Academic Information',
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
-                                    color: Color(0xFF1E3A8A),
+                                    color: Colors.white,
                                   ),
                                 ),
                               ],
                             ),
-                            const Divider(height: 24, thickness: 1, color: Color(0xFFCBD5E1)),
+                            Divider(height: 24, thickness: 1, color: Colors.white.withOpacity(0.2)),
                             const SizedBox(height: 12),
 
                             // University Dropdown
@@ -697,10 +677,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 4),
           child: Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF475569),
+              color: Colors.white.withOpacity(0.9),
             ),
           ),
         ),
@@ -709,14 +689,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
           controller: controller,
           obscureText: obscureText,
           keyboardType: keyboardType,
-          style: const TextStyle(color: Color(0xFF0F172A), fontSize: 15, fontWeight: FontWeight.w500),
+          style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w500),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
-            prefixIcon: Icon(icon, color: const Color(0xFF2563EB), size: 20),
+            hintStyle: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 14),
+            prefixIcon: Icon(icon, color: Colors.white.withOpacity(0.8), size: 20),
             suffixIcon: suffixIcon,
             filled: true,
-            fillColor: const Color(0xFFF8FAFC),
+            fillColor: Colors.white.withOpacity(0.1),
             contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(30),
@@ -724,19 +704,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(30),
-              borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+              borderSide: BorderSide(color: Colors.white.withOpacity(0.2)),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(30),
-              borderSide: const BorderSide(color: Color(0xFF2563EB), width: 1.5),
+              borderSide: const BorderSide(color: Colors.white, width: 1.5),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(30),
-              borderSide: const BorderSide(color: Colors.red, width: 1),
+              borderSide: const BorderSide(color: Colors.redAccent, width: 1),
             ),
             focusedErrorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(30),
-              borderSide: const BorderSide(color: Colors.red, width: 1.5),
+              borderSide: const BorderSide(color: Colors.redAccent, width: 1.5),
             ),
           ),
           validator: validator,
@@ -762,10 +742,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 4),
           child: Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF475569),
+              color: Colors.white.withOpacity(0.9),
             ),
           ),
         ),
@@ -773,12 +753,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
         DropdownButtonFormField<T>(
           value: value,
           isExpanded: true,
-          icon: Icon(Icons.arrow_drop_down, color: Colors.grey.shade600),
-          style: const TextStyle(color: Color(0xFF0F172A), fontSize: 15, fontWeight: FontWeight.w500),
+          icon: Icon(Icons.arrow_drop_down, color: Colors.white.withOpacity(0.8)),
+          style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w500),
+          dropdownColor: const Color(0xFF1C2541), // Deep slate blue for dropdown menu
           decoration: InputDecoration(
-            prefixIcon: Icon(icon, color: const Color(0xFF2563EB), size: 20),
+            prefixIcon: Icon(icon, color: Colors.white.withOpacity(0.8), size: 20),
             filled: true,
-            fillColor: const Color(0xFFF8FAFC),
+            fillColor: Colors.white.withOpacity(0.1),
             contentPadding: const EdgeInsets.only(left: 8, right: 20, top: 12, bottom: 12),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(30),
@@ -786,22 +767,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(30),
-              borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+              borderSide: BorderSide(color: Colors.white.withOpacity(0.2)),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(30),
-              borderSide: const BorderSide(color: Color(0xFF2563EB), width: 1.5),
+              borderSide: const BorderSide(color: Colors.white, width: 1.5),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(30),
-              borderSide: const BorderSide(color: Colors.red, width: 1),
+              borderSide: const BorderSide(color: Colors.redAccent, width: 1),
             ),
             focusedErrorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(30),
-              borderSide: const BorderSide(color: Colors.red, width: 1.5),
+              borderSide: const BorderSide(color: Colors.redAccent, width: 1.5),
             ),
           ),
-          hint: Text(hint, style: TextStyle(color: Colors.grey.shade400, fontSize: 14), overflow: TextOverflow.ellipsis),
+          hint: Text(hint, style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 14), overflow: TextOverflow.ellipsis),
           items: items,
           onChanged: onChanged,
           validator: validator,

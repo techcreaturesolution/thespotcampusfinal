@@ -25,20 +25,104 @@ class _PreviousPapersScreenState extends State<PreviousPapersScreen> {
     _fetchQuestions();
   }
 
+  // TODO: STATIC DATA – remove when API is ready
+  static final List<Map<String, dynamic>> _staticQuestions = [
+    {
+      'question_text': 'A train travels 360 km at a uniform speed. If the speed had been 5 km/h more, it would have taken 1 hour less. Find the speed of the train.',
+      'options': [{'text': '40 km/h'}, {'text': '45 km/h'}, {'text': '36 km/h'}, {'text': '30 km/h'}],
+      'correct_option_index': 0,
+      'company_name': 'TCS',
+      'difficulty': 'medium',
+      'explanation': 'Using speed–distance–time relation: 360/s - 360/(s+5) = 1 → s = 40 km/h.',
+    },
+    {
+      'question_text': 'Which data structure is used to implement recursion?',
+      'options': [{'text': 'Queue'}, {'text': 'Stack'}, {'text': 'Array'}, {'text': 'Linked List'}],
+      'correct_option_index': 1,
+      'company_name': 'Infosys',
+      'difficulty': 'easy',
+      'explanation': 'Function call stack is used internally by the OS/compiler to manage recursion.',
+    },
+    {
+      'question_text': 'Find the odd one out: 2, 5, 10, 17, 26, 37, 50, 64',
+      'options': [{'text': '37'}, {'text': '50'}, {'text': '64'}, {'text': '26'}],
+      'correct_option_index': 2,
+      'company_name': 'Wipro',
+      'difficulty': 'medium',
+      'explanation': 'The series is n²+1: 5, 10, 17, 26, 37, 50, 65. 64 should be 65.',
+    },
+    {
+      'question_text': 'What is the time complexity of binary search?',
+      'options': [{'text': 'O(n)'}, {'text': 'O(n²)'}, {'text': 'O(log n)'}, {'text': 'O(n log n)'}],
+      'correct_option_index': 2,
+      'company_name': 'Accenture',
+      'difficulty': 'easy',
+      'explanation': 'Binary search halves the search space at each step, giving O(log n) complexity.',
+    },
+    {
+      'question_text': 'A bag contains 4 red, 5 blue and 3 green balls. If 2 balls are picked at random, what is the probability that both are blue?',
+      'options': [{'text': '5/33'}, {'text': '10/66'}, {'text': '2/11'}, {'text': '5/22'}],
+      'correct_option_index': 1,
+      'company_name': 'TCS',
+      'difficulty': 'hard',
+      'explanation': 'P = C(5,2)/C(12,2) = 10/66.',
+    },
+    {
+      'question_text': 'Which of the following is NOT a feature of Object-Oriented Programming?',
+      'options': [{'text': 'Encapsulation'}, {'text': 'Pointer Arithmetic'}, {'text': 'Inheritance'}, {'text': 'Polymorphism'}],
+      'correct_option_index': 1,
+      'company_name': 'HCL',
+      'difficulty': 'easy',
+      'explanation': 'Pointer arithmetic is a feature of procedural languages like C, not OOP.',
+    },
+    {
+      'question_text': 'In a class of 30, 20 students play cricket, 15 play football and 10 play both. How many play neither?',
+      'options': [{'text': '3'}, {'text': '5'}, {'text': '7'}, {'text': '10'}],
+      'correct_option_index': 1,
+      'company_name': 'Capgemini',
+      'difficulty': 'medium',
+      'explanation': 'By inclusion-exclusion: 20+15-10=25. Neither = 30-25 = 5.',
+    },
+    {
+      'question_text': 'What does SQL stand for?',
+      'options': [{'text': 'Structured Query Language'}, {'text': 'Simple Query Language'}, {'text': 'Standard Question Language'}, {'text': 'Sequential Query Logic'}],
+      'correct_option_index': 0,
+      'company_name': 'Infosys',
+      'difficulty': 'easy',
+      'explanation': 'SQL stands for Structured Query Language, used to manage relational databases.',
+    },
+  ];
+
   Future<void> _fetchQuestions() async {
-    try {
-      final api = Provider.of<ApiService>(context, listen: false);
-      String params = '?page=1&limit=30';
-      if (_companyFilter.isNotEmpty) params += '&company_name=$_companyFilter';
-      if (_difficultyFilter.isNotEmpty) params += '&difficulty=$_difficultyFilter';
-      final data = await api.get('/preparation/questions/previous-year$params');
-      setState(() {
-        _questions = data['questions'] ?? [];
-        _companies = List<String>.from(data['companies'] ?? []);
-        _isLoading = false;
-      });
-    } catch (e) { setState(() => _isLoading = false); }
+    // TODO: Uncomment API call and remove static data below when backend is ready
+    // try {
+    //   final api = Provider.of<ApiService>(context, listen: false);
+    //   String params = '?page=1&limit=30';
+    //   if (_companyFilter.isNotEmpty) params += '&company_name=$_companyFilter';
+    //   if (_difficultyFilter.isNotEmpty) params += '&difficulty=$_difficultyFilter';
+    //   final data = await api.get('/preparation/questions/previous-year$params');
+    //   setState(() {
+    //     _questions = data['questions'] ?? [];
+    //     _companies = List<String>.from(data['companies'] ?? []);
+    //     _isLoading = false;
+    //   });
+    // } catch (e) { setState(() => _isLoading = false); }
+
+    await Future.delayed(const Duration(milliseconds: 300)); // simulate loading
+    var filtered = List<Map<String, dynamic>>.from(_staticQuestions);
+    if (_companyFilter.isNotEmpty) {
+      filtered = filtered.where((q) => q['company_name'] == _companyFilter).toList();
+    }
+    if (_difficultyFilter.isNotEmpty) {
+      filtered = filtered.where((q) => q['difficulty'] == _difficultyFilter).toList();
+    }
+    setState(() {
+      _questions = filtered;
+      _companies = ['TCS', 'Infosys', 'Wipro', 'Accenture', 'HCL', 'Capgemini'];
+      _isLoading = false;
+    });
   }
+
 
   @override
   Widget build(BuildContext context) {

@@ -5,6 +5,7 @@ import { StatusCodes } from "http-status-codes";
 import cloudinary from "cloudinary";
 import { promises as fs } from "fs";
 import { BUILTIN_LAYOUTS } from "../../utils/cvTemplates.js";
+import { generatePdfFromHtml } from "../../utils/pdfGenerator.js";
 
 
 // Seed default templates helper
@@ -385,6 +386,50 @@ export const compileResumeWithAi = async (req, res) => {
     });
   } catch (error) {
     console.error("CV Compile error:", error);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
+  }
+};
+
+export const downloadResumePdf = async (req, res) => {
+  try {
+    const studentId = req.user.userId;
+
+    const [student, resume] = await Promise.all([
+      tbl_student.findById(studentId).populate("branch_id degree_id college_id"),
+      tbl_resume.findOne({ student_id: studentId }),
+    ]);
+
+    if (!student) {
+      return res.status(StatusCodes.NOT_FOUND).json({ error: "Student profile not found." });
+    }
+    if (!resume) {
+      return res.status(StatusCodes.NOT_FOUND).json({ error: "Please fill and save your resume details first." });
+    }
+
+    let template;
+    if (resume.selected_template_id) {
+      template = await tbl_cv_template.findById(resume.selected_template_id);
+    }
+    if (!template) {
+      template = await tbl_cv_template.findOne({});
+    }
+    if (!template) {
+      return res.status(StatusCodes.BAD_REQUEST).json({ error: "No CV Templates found. Admin needs to upload at least one template first!" });
+    }
+
+    const { compiledHtml } = compileHtmlTemplate(template.html_content, template.css_content || "", resume, student);
+
+    const pdfBuffer = await generatePdfFromHtml(compiledHtml);
+
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': 'attachment; filename="resume.pdf"',
+      'Content-Length': pdfBuffer.length
+    });
+
+    return res.end(pdfBuffer);
+  } catch (error) {
+    console.error("CV PDF generation error:", error);
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
   }
 };

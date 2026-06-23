@@ -29,7 +29,7 @@ class AuthService extends ChangeNotifier {
             'Content-Type': 'application/json',
             'Cookie': 'token=$token',
           },
-        );
+        ).timeout(const Duration(seconds: 5));
         if (response.statusCode == 200) {
           final data = jsonDecode(response.body);
           _user = data['user'];
@@ -60,7 +60,7 @@ class AuthService extends ChangeNotifier {
           'password': password,
           'role': 'Student',
         }),
-      );
+      ).timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         final cookies = response.headers['set-cookie'];
@@ -96,7 +96,7 @@ class AuthService extends ChangeNotifier {
         Uri.parse('${AppConstants.baseUrl}/register'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(studentData),
-      );
+      ).timeout(const Duration(seconds: 10));
 
       _isLoading = false;
       notifyListeners();

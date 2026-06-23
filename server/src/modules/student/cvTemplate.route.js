@@ -8,11 +8,13 @@ import {
   updateTemplate,
   getAllTemplates,
   compileResumeWithAi,
+  downloadResumePdf,
 } from "./cvTemplate.controller.js";
 
 // Common/Student endpoints
 router.route("/").get(authenticateUser, getAllTemplates);
 router.route("/compile").post(authenticateUser, compileResumeWithAi);
+router.route("/download-pdf").get(authenticateUser, downloadResumePdf);
 
 // Admin endpoints
 router.route("/admin").post(authenticateUser, upload.single("thumbnail"), createTemplate);

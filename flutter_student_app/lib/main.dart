@@ -21,7 +21,9 @@ import 'screens/preparation/daily_challenge_screen.dart';
 import 'screens/preparation/performance_screen.dart';
 import 'screens/preparation/reading_material_screen.dart';
 import 'screens/preparation/previous_papers_screen.dart';
-
+import 'screens/preparation/take_test_screen.dart';
+import 'screens/resume_builder_screen.dart';
+import 'screens/resume_preview_screen.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(
@@ -106,6 +108,8 @@ class SpotCampusApp extends StatelessWidget {
         '/preparation/performance': (context) => const PerformanceScreen(),
         '/preparation/reading': (context) => const ReadingMaterialScreen(),
         '/preparation/previous-papers': (context) => const PreviousPapersScreen(),
+        '/resume': (context) => const ResumeBuilderScreen(),
+        '/resume-preview': (context) => const ResumePreviewScreen(),
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/job-detail') {
@@ -118,6 +122,12 @@ class SpotCampusApp extends StatelessWidget {
           final examId = settings.arguments as String;
           return MaterialPageRoute(
             builder: (context) => ExamScreen(examId: examId),
+          );
+        }
+        if (settings.name == '/preparation/take-test') {
+          return MaterialPageRoute(
+            builder: (context) => const TakeTestScreen(),
+            settings: settings,
           );
         }
         return null;
