@@ -3,12 +3,180 @@ import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
 import '../services/api_service.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  bool _isLoadingCv = true;
+  bool _hasCv = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkCvStatus();
+  }
+
+  Future<void> _checkCvStatus() async {
+    if (!mounted) return;
+    setState(() => _isLoadingCv = true);
+    try {
+      final api = context.read<ApiService>();
+      final resumeRes = await api.get('/student/resume/me');
+      if (resumeRes['resume'] != null && resumeRes['resume']['ai_compiled_html'] != null) {
+        final html = resumeRes['resume']['ai_compiled_html'] as String;
+        if (html.isNotEmpty) {
+          setState(() {
+            _hasCv = true;
+          });
+        } else {
+          setState(() {
+            _hasCv = false;
+          });
+        }
+      } else {
+        setState(() {
+          _hasCv = false;
+        });
+      }
+    } catch (_) {
+      // ignore
+    } finally {
+      if (mounted) {
+        setState(() => _isLoadingCv = false);
+      }
+    }
+  }
 
   List<String> _parseSkills(String? skillsStr) {
     if (skillsStr == null || skillsStr.trim().isEmpty) return [];
     return skillsStr.split(',').map((s) => s.trim()).where((s) => s.isNotEmpty).toList();
+  }
+
+  Widget _buildCvStatusBanner() {
+    if (_isLoadingCv) {
+      return Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.grey.shade200),
+        ),
+        child: const Center(
+          child: SizedBox(
+            width: 24,
+            height: 24,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF3730A3)),
+            ),
+          ),
+        ),
+      );
+    }
+
+    final Color bgColor = _hasCv ? const Color(0xFFECFDF5) : const Color(0xFFFFFBEB);
+    final Color borderColor = _hasCv ? const Color(0xFFA7F3D0) : const Color(0xFFFDE68A);
+    final Color iconColor = _hasCv ? const Color(0xFF059669) : const Color(0xFFD97706);
+    final IconData icon = _hasCv ? Icons.check_circle : Icons.error_outline;
+    final String title = _hasCv ? 'CV Generated & Saved to Profile' : 'CV Not Saved to Profile';
+    final String subtitle = _hasCv
+        ? 'Your generated CV is successfully saved in your profile and is ready for job applications.'
+        : 'You must generate and save your CV to your profile before applying for jobs.';
+    final String btnText = _hasCv ? 'Edit CV' : 'Create CV Now';
+    
+    final Color btnBg = _hasCv ? const Color(0xFFEEF2FF) : const Color(0xFF3730A3);
+    final Color btnTextColor = _hasCv ? const Color(0xFF3730A3) : Colors.white;
+    final BorderSide btnBorder = _hasCv 
+        ? const BorderSide(color: Color(0xFFC7D2FE), width: 1)
+        : BorderSide.none;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: borderColor, width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          )
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(icon, color: iconColor, size: 24),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                        color: Color(0xFF1F2937),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontSize: 12,
+                        height: 1.4,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Align(
+            alignment: Alignment.centerRight,
+            child: SizedBox(
+              height: 36,
+              child: OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  backgroundColor: btnBg,
+                  side: btnBorder,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                ),
+                onPressed: () {
+                  Navigator.pushNamed(context, '/resume').then((_) {
+                    _checkCvStatus();
+                  });
+                },
+                child: Text(
+                  btnText,
+                  style: TextStyle(
+                    color: btnTextColor,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -160,6 +328,9 @@ class ProfileScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
+
+            // CV Status Card
+            _buildCvStatusBanner(),
 
             // Subscription Card
             _ProfileCard(

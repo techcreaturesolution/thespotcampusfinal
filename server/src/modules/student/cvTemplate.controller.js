@@ -1,3 +1,4 @@
+
 import tbl_cv_template from "./cvTemplate.model.js";
 import tbl_resume from "./resume.model.js";
 import tbl_student from "./student.model.js";
@@ -427,7 +428,7 @@ export const downloadResumePdf = async (req, res) => {
       'Content-Length': pdfBuffer.length
     });
 
-    return res.end(pdfBuffer);
+    return res.send(pdfBuffer);
   } catch (error) {
     console.error("CV PDF generation error:", error);
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });

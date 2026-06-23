@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -6,6 +7,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../services/api_service.dart';
 import '../services/resume_service.dart';
+import '../services/auth_service.dart';
+import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 
 class ResumePreviewScreen extends StatefulWidget {
   const ResumePreviewScreen({super.key});
@@ -19,7 +22,7 @@ class _ResumePreviewScreenState extends State<ResumePreviewScreen> {
   late WebViewController _webViewController;
   bool _isLoading = true;
   String _compiledHtml = '';
-  String _compiledCss = '';
+  bool _isPdfProcessing = false;
 
   @override
   void initState() {
@@ -37,7 +40,6 @@ class _ResumePreviewScreenState extends State<ResumePreviewScreen> {
       final res = await _resumeService.compileResume();
       if (res['resume'] != null) {
         _compiledHtml = res['resume']['ai_compiled_html'] ?? '';
-        _compiledCss = res['resume']['ai_compiled_css'] ?? '';
         
         final srcDoc = '''
           <!DOCTYPE html>
@@ -62,7 +64,8 @@ class _ResumePreviewScreenState extends State<ResumePreviewScreen> {
           </html>
         ''';
         
-        _webViewController.loadHtmlString(srcDoc);
+        final String contentBase64 = base64Encode(utf8.encode(srcDoc));
+        _webViewController.loadRequest(Uri.parse('data:text/html;base64,$contentBase64'));
       }
     } catch (e) {
       if (mounted) {
@@ -77,46 +80,150 @@ class _ResumePreviewScreenState extends State<ResumePreviewScreen> {
     }
   }
 
-  Future<void> _downloadPdf() async {
-    try {
+  Future<String?> _preparePdfFile() async {
+    if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Generating high-quality PDF...')),
+        const SnackBar(
+          content: Text('Generating high-quality PDF...'),
+          duration: Duration(seconds: 2),
+        ),
       );
-      
+    }
+
+    setState(() => _isPdfProcessing = true);
+    try {
       final pdfBytes = await _resumeService.downloadPdf();
-      
       final directory = await getTemporaryDirectory();
-      final targetPath = '${directory.path}/My_Resume.pdf';
+
+      // Retrieve user's name to generate the filename
+      String filename = 'Resume.pdf';
+      try {
+        final auth = context.read<AuthService>();
+        final userName = auth.userName;
+        final sanitizedName = userName
+            .replaceAll(RegExp(r'[^\w\s\-]'), '')
+            .replaceAll(RegExp(r'[\s\-]+'), '_')
+            .trim();
+        
+        if (sanitizedName.isNotEmpty && sanitizedName.toLowerCase() != 'student') {
+          filename = 'Resume_$sanitizedName.pdf';
+        } else {
+          final dateStr = DateTime.now().toString().split(' ')[0].replaceAll('-', '_');
+          filename = 'Resume_$dateStr.pdf';
+        }
+      } catch (_) {
+        final dateStr = DateTime.now().toString().split(' ')[0].replaceAll('-', '_');
+        filename = 'Resume_$dateStr.pdf';
+      }
+
+      final targetPath = '${directory.path}/$filename';
       final file = File(targetPath);
       await file.writeAsBytes(pdfBytes);
       
       if (mounted) {
+        final double kbSize = pdfBytes.length / 1024;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('PDF Generated! Ready to share.')),
+          SnackBar(
+            content: Text('PDF generated successfully! (${kbSize.toStringAsFixed(1)} KB)'),
+            duration: const Duration(seconds: 2),
+            backgroundColor: Colors.green,
+          ),
         );
       }
       
-      await Share.shareXFiles([XFile(targetPath)], text: 'My Resume');
-      
+      return targetPath;
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error generating PDF: $e')),
+          SnackBar(content: Text('Error downloading PDF: $e')),
         );
+      }
+      return null;
+    } finally {
+      if (mounted) {
+        setState(() => _isPdfProcessing = false);
+      }
+    }
+  }
+
+  Future<void> _sharePdf() async {
+    final path = await _preparePdfFile();
+    if (path == null) return;
+
+    try {
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(path)],
+          text: 'My Resume',
+        ),
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error sharing PDF: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _savePdfToDevice() async {
+    final path = await _preparePdfFile();
+    if (path == null) return;
+
+    setState(() => _isPdfProcessing = true);
+    try {
+      final String suggestedName = path.split('/').last;
+
+      final params = SaveFileDialogParams(
+        sourceFilePath: path,
+        fileName: suggestedName,
+      );
+      final resultPath = await FlutterFileDialog.saveFile(params: params);
+      
+      if (mounted) {
+        if (resultPath != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('PDF saved successfully!'),
+              backgroundColor: Colors.green,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Save canceled')),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error saving PDF: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isPdfProcessing = false);
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final bool actionsDisabled = _isLoading || _isPdfProcessing;
     return Scaffold(
       appBar: AppBar(
         title: const Text('CV Preview'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.picture_as_pdf),
-            onPressed: _isLoading ? null : _downloadPdf,
-            tooltip: 'Download PDF',
+            icon: const Icon(Icons.share),
+            onPressed: actionsDisabled ? null : _sharePdf,
+            tooltip: 'Share PDF',
+          ),
+          IconButton(
+            icon: const Icon(Icons.download),
+            onPressed: actionsDisabled ? null : _savePdfToDevice,
+            tooltip: 'Save PDF to Device',
           ),
         ],
       ),

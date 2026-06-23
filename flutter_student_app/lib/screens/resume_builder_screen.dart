@@ -33,6 +33,7 @@ class _ResumeBuilderScreenState extends State<ResumeBuilderScreen> {
 
   bool _isGeneratingSummary = false;
   List<dynamic> _aiSummaries = [];
+  bool _isCompiling = false;
 
   // Controllers for list inputs
   final _skillCtrl = TextEditingController();
@@ -129,6 +130,95 @@ class _ResumeBuilderScreenState extends State<ResumeBuilderScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error saving: \$e')));
+      }
+    }
+  }
+
+  Future<void> _saveAndCompileResume() async {
+    setState(() => _isCompiling = true);
+    try {
+      final payload = Map<String, dynamic>.from(_resumeData);
+      if (payload['selected_template_id'] == null || payload['selected_template_id'].toString().isEmpty) {
+        payload.remove('selected_template_id');
+      }
+
+      // 1. Save Resume details first
+      final saveRes = await _resumeService.saveResume(payload);
+      if (saveRes['resume'] != null) {
+        setState(() {
+          final resData = saveRes['resume'];
+          _resumeData = {
+            'punch_line': resData['punch_line'] ?? '',
+            'education': resData['education'] ?? [],
+            'experience': resData['experience'] ?? [],
+            'projects': resData['projects'] ?? [],
+            'skills': resData['skills'] ?? [],
+            'certifications': resData['certifications'] ?? [],
+            'languages': resData['languages'] ?? [],
+            'chosen_summary': resData['chosen_summary'] ?? '',
+            'selected_template_id': resData['selected_template_id'] ?? '',
+            'font_family': resData['font_family'] ?? 'Inter',
+            'color_theme': resData['color_theme'] ?? '#3730a3',
+            'page_margin': resData['page_margin'] ?? 'medium',
+            'layout_columns': resData['layout_columns'] ?? 'two_column_left',
+          };
+        });
+      }
+
+      // 2. Compile CV
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Saving and compiling CV...'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+
+      final compileRes = await _resumeService.compileResume();
+      if (compileRes['resume'] != null) {
+        setState(() {
+          final resData = compileRes['resume'];
+          _resumeData = {
+            'punch_line': resData['punch_line'] ?? '',
+            'education': resData['education'] ?? [],
+            'experience': resData['experience'] ?? [],
+            'projects': resData['projects'] ?? [],
+            'skills': resData['skills'] ?? [],
+            'certifications': resData['certifications'] ?? [],
+            'languages': resData['languages'] ?? [],
+            'chosen_summary': resData['chosen_summary'] ?? '',
+            'selected_template_id': resData['selected_template_id'] ?? '',
+            'font_family': resData['font_family'] ?? 'Inter',
+            'color_theme': resData['color_theme'] ?? '#3730a3',
+            'page_margin': resData['page_margin'] ?? 'medium',
+            'layout_columns': resData['layout_columns'] ?? 'two_column_left',
+          };
+        });
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('✨ CV Compiled & Saved to Profile successfully!'),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Error compiling: ${e.toString().replaceAll('Exception: ', '')}"),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isCompiling = false);
       }
     }
   }
@@ -364,8 +454,17 @@ class _ResumeBuilderScreenState extends State<ResumeBuilderScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: _saveResume,
-                    child: const Text('Save Details'),
+                    onPressed: _isCompiling ? null : _saveAndCompileResume,
+                    child: _isCompiling
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.5,
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          )
+                        : const Text('Compile & Save to Profile'),
                   ),
                 ),
               ],

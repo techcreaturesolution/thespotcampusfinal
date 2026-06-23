@@ -77,7 +77,9 @@ class _JobListScreenState extends State<JobListScreen> {
       await api.post('/application/$jobId', {});
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Applied successfully!'), backgroundColor: Colors.green),
+        const SnackBar(
+            content: Text('Applied successfully!'),
+            backgroundColor: Colors.green),
       );
       _fetchJobsAndApplications();
     } catch (e) {
@@ -86,7 +88,8 @@ class _JobListScreenState extends State<JobListScreen> {
       if (errorStr.contains('subscription') || errorStr.contains('payment')) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('An active subscription plan is required to apply. Redirecting to plans...'),
+            content: Text(
+                'An active subscription plan is required to apply. Redirecting to plans...'),
             backgroundColor: Colors.orange,
           ),
         );
@@ -97,7 +100,10 @@ class _JobListScreenState extends State<JobListScreen> {
         });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed: ${e.toString().replaceAll('Exception: ', '')}'), backgroundColor: Colors.red),
+          SnackBar(
+              content:
+                  Text('Failed: ${e.toString().replaceAll('Exception: ', '')}'),
+              backgroundColor: Colors.red),
         );
       }
     }
@@ -172,10 +178,12 @@ class _JobListScreenState extends State<JobListScreen> {
                     TextField(
                       decoration: InputDecoration(
                         hintText: 'Search jobs, companies...',
-                        prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                        prefixIcon:
+                            const Icon(Icons.search, color: Colors.grey),
                         filled: true,
                         fillColor: Colors.white,
-                        contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                        contentPadding:
+                            const EdgeInsets.symmetric(vertical: 12),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide(color: Colors.grey.shade200),
@@ -211,19 +219,26 @@ class _JobListScreenState extends State<JobListScreen> {
                                 });
                               },
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 16),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 16),
                                 decoration: BoxDecoration(
-                                  color: isSelected ? const Color(0xFF2563EB) : Colors.white,
+                                  color: isSelected
+                                      ? const Color(0xFF2563EB)
+                                      : Colors.white,
                                   borderRadius: BorderRadius.circular(20),
                                   border: Border.all(
-                                    color: isSelected ? Colors.transparent : Colors.grey.shade200,
+                                    color: isSelected
+                                        ? Colors.transparent
+                                        : Colors.grey.shade200,
                                   ),
                                 ),
                                 child: Center(
                                   child: Text(
                                     category,
                                     style: TextStyle(
-                                      color: isSelected ? Colors.white : Colors.grey.shade700,
+                                      color: isSelected
+                                          ? Colors.white
+                                          : Colors.grey.shade700,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 13,
                                     ),
@@ -245,7 +260,8 @@ class _JobListScreenState extends State<JobListScreen> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.work_outline, size: 48, color: Colors.grey.shade400),
+                                Icon(Icons.work_outline,
+                                    size: 48, color: Colors.grey.shade400),
                                 const SizedBox(height: 12),
                                 Text(
                                   'No job openings found',
@@ -261,8 +277,11 @@ class _JobListScreenState extends State<JobListScreen> {
                             itemBuilder: (context, index) {
                               final job = _filteredJobs[index];
                               final companyVal = job['job_company_id'];
-                              final companyName = companyVal is Map ? (companyVal['company_name'] ?? 'Company') : 'Company';
-                              final city = job['job_location']?['city'] ?? 'India';
+                              final companyName = companyVal is Map
+                                  ? (companyVal['company_name'] ?? 'Company')
+                                  : 'Company';
+                              final city =
+                                  job['job_location']?['city'] ?? 'India';
                               final salary = job['job_salary'] ?? 'Competitive';
                               final hasApplied = _applications.any((app) {
                                 final jobIdVal = app['job_id'];
@@ -282,24 +301,29 @@ class _JobListScreenState extends State<JobListScreen> {
                                 child: InkWell(
                                   borderRadius: BorderRadius.circular(16),
                                   onTap: () async {
-                                    await Navigator.pushNamed(context, '/job-detail', arguments: job['_id']);
+                                    await Navigator.pushNamed(
+                                        context, '/job-detail',
+                                        arguments: job['_id']);
                                     _fetchJobsAndApplications();
                                   },
                                   child: Padding(
                                     padding: const EdgeInsets.all(16),
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         // Card Row 1: Logo & Title & Bookmark
                                         Row(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Container(
                                               width: 48,
                                               height: 48,
                                               decoration: BoxDecoration(
                                                 color: const Color(0xFFEFF6FF),
-                                                borderRadius: BorderRadius.circular(12),
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
                                               ),
                                               child: Center(
                                                 child: Text(
@@ -315,12 +339,15 @@ class _JobListScreenState extends State<JobListScreen> {
                                             const SizedBox(width: 12),
                                             Expanded(
                                               child: Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
                                                 children: [
                                                   Text(
-                                                    job['job_title'] ?? 'Opening',
+                                                    job['job_title'] ??
+                                                        'Opening',
                                                     style: const TextStyle(
-                                                      fontWeight: FontWeight.bold,
+                                                      fontWeight:
+                                                          FontWeight.bold,
                                                       fontSize: 15,
                                                       color: Color(0xFF111827),
                                                     ),
@@ -330,7 +357,8 @@ class _JobListScreenState extends State<JobListScreen> {
                                                     '$companyName • $city',
                                                     style: const TextStyle(
                                                       color: Color(0xFF2563EB),
-                                                      fontWeight: FontWeight.bold,
+                                                      fontWeight:
+                                                          FontWeight.bold,
                                                       fontSize: 13,
                                                     ),
                                                   ),
@@ -338,93 +366,111 @@ class _JobListScreenState extends State<JobListScreen> {
                                               ),
                                             ),
                                             Icon(
-                                              hasApplied ? Icons.bookmark : Icons.bookmark_border,
-                                              color: hasApplied ? const Color(0xFF2563EB) : Colors.grey.shade400,
+                                              hasApplied
+                                                  ? Icons.bookmark
+                                                  : Icons.bookmark_border,
+                                              color: hasApplied
+                                                  ? const Color(0xFF2563EB)
+                                                  : Colors.grey.shade400,
                                               size: 20,
                                             ),
                                           ],
                                         ),
-                                      const SizedBox(height: 12),
+                                        const SizedBox(height: 12),
 
-                                      // Card Row 2: Pills
-                                      Row(
-                                        children: [
-                                          _JobPill(
-                                            text: jobType,
-                                            color: const Color(0xFF3B82F6), // Blue
-                                          ),
-                                          const SizedBox(width: 8),
-                                          _JobPill(
-                                            text: workMode,
-                                            color: const Color(0xFF8B5CF6), // Purple
-                                          ),
-                                          const SizedBox(width: 8),
-                                          _JobPill(
-                                            text: exp,
-                                            color: const Color(0xFFF97316), // Orange
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 16),
+                                        // Card Row 2: Pills
+                                        Row(
+                                          children: [
+                                            _JobPill(
+                                              text: jobType,
+                                              color: const Color(
+                                                  0xFF3B82F6), // Blue
+                                            ),
+                                            const SizedBox(width: 8),
+                                            _JobPill(
+                                              text: workMode,
+                                              color: const Color(
+                                                  0xFF8B5CF6), // Purple
+                                            ),
+                                            const SizedBox(width: 8),
+                                            _JobPill(
+                                              text: exp,
+                                              color: const Color(
+                                                  0xFFF97316), // Orange
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 16),
 
-                                      // Card Row 3: Salary, Date & Apply
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                salary,
+                                        // Card Row 3: Salary, Date & Apply
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  salary,
+                                                  style: const TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 15,
+                                                    color: Color(0xFF111827),
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 2),
+                                                Text(
+                                                  'Posted 2 days ago',
+                                                  style: TextStyle(
+                                                    color: Colors.grey.shade500,
+                                                    fontSize: 11,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            ElevatedButton(
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: hasApplied
+                                                    ? Colors.grey.shade100
+                                                    : const Color(0xFF2563EB),
+                                                foregroundColor: hasApplied
+                                                    ? Colors.grey.shade600
+                                                    : Colors.white,
+                                                elevation: 0,
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 24,
+                                                        vertical: 10),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                ),
+                                              ),
+                                              onPressed: hasApplied
+                                                  ? null
+                                                  : () =>
+                                                      _applyForJob(job['_id']),
+                                              child: Text(
+                                                hasApplied
+                                                    ? 'Applied'
+                                                    : 'Apply Now',
                                                 style: const TextStyle(
+                                                  fontSize: 12,
                                                   fontWeight: FontWeight.bold,
-                                                  fontSize: 15,
-                                                  color: Color(0xFF111827),
                                                 ),
                                               ),
-                                              const SizedBox(height: 2),
-                                              Text(
-                                                'Posted 2 days ago',
-                                                style: TextStyle(
-                                                  color: Colors.grey.shade500,
-                                                  fontSize: 11,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          ElevatedButton(
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor: hasApplied ? Colors.grey.shade100 : const Color(0xFF2563EB),
-                                              foregroundColor: hasApplied ? Colors.grey.shade600 : Colors.white,
-                                              elevation: 0,
-                                              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(10),
-                                              ),
                                             ),
-                                            onPressed: hasApplied
-                                                ? null
-                                                : () => _applyForJob(job['_id']),
-                                            child: Text(
-                                              hasApplied ? 'Applied' : 'Apply Now',
-                                              style: const TextStyle(
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
-                              ),
-                            );
+                              );
                             },
                           ),
                     const SizedBox(height: 16),
-
-
                   ],
                 ),
               ),
