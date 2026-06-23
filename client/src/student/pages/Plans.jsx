@@ -127,6 +127,7 @@ const Plans = () => {
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {plans.map((plan, index) => {
             const isActive = currentSub && currentSub.plan_name === plan.plan_name;
+            const isUpgrade = currentSub && plan.price > (currentSub.amount || 0);
             return (
               <div
                 key={plan._id}
@@ -165,6 +166,22 @@ const Plans = () => {
                     <div className="flex items-start gap-2">
                       <FiCheck className="text-emerald-500 w-4 h-4 flex-shrink-0 mt-0.5" />
                       <span>Up to {plan.features?.max_rounds_per_job} active job applications</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      {plan.features?.cv_builder_enabled ? (
+                        <FiCheck className="text-emerald-500 w-4 h-4 flex-shrink-0 mt-0.5" />
+                      ) : (
+                        <FiX className="text-red-400 w-4 h-4 flex-shrink-0 mt-0.5" />
+                      )}
+                      <span>Professional CV Builder & Templates</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      {plan.features?.exam_preparation_enabled ? (
+                        <FiCheck className="text-emerald-500 w-4 h-4 flex-shrink-0 mt-0.5" />
+                      ) : (
+                        <FiX className="text-red-400 w-4 h-4 flex-shrink-0 mt-0.5" />
+                      )}
+                      <span>MCQ & Mock Exam Prep Hub</span>
                     </div>
                     <div className="flex items-start gap-2">
                       {plan.features?.video_interview_enabled ? (
@@ -211,7 +228,7 @@ const Plans = () => {
                       ? "Processing..."
                       : isActive
                       ? "Current Plan"
-                      : currentSub
+                      : isUpgrade
                       ? "Upgrade Plan"
                       : `Subscribe (₹${plan.price})`}
                   </button>

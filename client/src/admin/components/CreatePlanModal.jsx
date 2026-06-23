@@ -16,6 +16,8 @@ const CreatePlanModal = ({ isOpen, onClose, plan, onSubmit }) => {
       max_interviews_per_month: 50,
       advanced_analytics: false,
       priority_support: false,
+      cv_builder_enabled: true,
+      exam_preparation_enabled: true,
     },
   });
 
@@ -33,6 +35,8 @@ const CreatePlanModal = ({ isOpen, onClose, plan, onSubmit }) => {
           max_interviews_per_month: plan.features?.max_interviews_per_month ?? 50,
           advanced_analytics: plan.features?.advanced_analytics ?? false,
           priority_support: plan.features?.priority_support ?? false,
+          cv_builder_enabled: plan.features?.cv_builder_enabled ?? true,
+          exam_preparation_enabled: plan.features?.exam_preparation_enabled ?? true,
         },
       });
     } else {
@@ -48,6 +52,8 @@ const CreatePlanModal = ({ isOpen, onClose, plan, onSubmit }) => {
           max_interviews_per_month: 50,
           advanced_analytics: false,
           priority_support: false,
+          cv_builder_enabled: true,
+          exam_preparation_enabled: true,
         },
       });
     }
@@ -214,6 +220,34 @@ const CreatePlanModal = ({ isOpen, onClose, plan, onSubmit }) => {
                   className="rounded border-slate-300 text-indigo-650 focus:ring-indigo-500 w-4 h-4"
                 />
               </div>
+              {form.plan_for === "student" && (
+                <>
+                  <div className="flex items-center justify-between">
+                    <label htmlFor="cv_builder" className="text-xs text-slate-600 font-bold select-none cursor-pointer">
+                      Professional CV Builder & Templates
+                    </label>
+                    <input
+                      type="checkbox"
+                      id="cv_builder"
+                      checked={form.features.cv_builder_enabled}
+                      onChange={(e) => setForm({ ...form, features: { ...form.features, cv_builder_enabled: e.target.checked } })}
+                      className="rounded border-slate-300 text-indigo-650 focus:ring-indigo-500 w-4 h-4"
+                    />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <label htmlFor="exam_prep" className="text-xs text-slate-600 font-bold select-none cursor-pointer">
+                      MCQ & Mock Exam Prep Hub
+                    </label>
+                    <input
+                      type="checkbox"
+                      id="exam_prep"
+                      checked={form.features.exam_preparation_enabled}
+                      onChange={(e) => setForm({ ...form, features: { ...form.features, exam_preparation_enabled: e.target.checked } })}
+                      className="rounded border-slate-300 text-indigo-650 focus:ring-indigo-500 w-4 h-4"
+                    />
+                  </div>
+                </>
+              )}
             </div>
           </div>
 

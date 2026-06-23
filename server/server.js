@@ -1,6 +1,14 @@
 import "express-async-errors";
 import * as dotenv from "dotenv";
 dotenv.config();
+
+// Trim any whitespace or newlines from environment variables to prevent invalid HTTP header values on platforms like Render
+// if (process.env.OPENAI_API_KEY) {
+//   process.env.OPENAI_API_KEY = process.env.OPENAI_API_KEY.trim();
+// }
+// if (process.env.MONGO_URL) {
+//   process.env.MONGO_URL = process.env.MONGO_URL.trim();
+// }
 import dns from "dns";
 
 // Set DNS servers to Google's public DNS to bypass ISP/IPv6 DNS resolution bugs with MongoDB SRV records

@@ -194,6 +194,26 @@ const ManageRecruitmentPlans = () => {
                     : "Priority support"}
                 </span>
               </div>
+              {plan.plan_for === "student" && (
+                <>
+                  <div className="flex items-center gap-2">
+                    {plan.features?.cv_builder_enabled ? (
+                      <FiCheck className="w-4 h-4 text-green-500" />
+                    ) : (
+                      <FiX className="w-4 h-4 text-red-400" />
+                    )}
+                    <span>Professional CV Builder & Templates</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {plan.features?.exam_preparation_enabled ? (
+                      <FiCheck className="w-4 h-4 text-green-500" />
+                    ) : (
+                      <FiX className="w-4 h-4 text-red-400" />
+                    )}
+                    <span>MCQ & Mock Exam Prep Hub</span>
+                  </div>
+                </>
+              )}
             </div>
             <button onClick={() => toggleActive(plan)}
               className={`mt-4 w-full py-2 rounded-lg text-sm font-medium ${plan.is_active ? "bg-red-50 text-red-600 hover:bg-red-100" : "bg-green-50 text-green-600 hover:bg-green-100"}`}>
