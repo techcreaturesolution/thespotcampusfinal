@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../services/api_service.dart';
 
 class ReadingMaterialScreen extends StatefulWidget {
@@ -33,17 +32,7 @@ class _ReadingMaterialScreenState extends State<ReadingMaterialScreen> {
   }
 
   Future<void> _openPdf(Map<String, dynamic> pdf) async {
-    final url = pdf['file_url'];
-    if (url != null && url.isNotEmpty) {
-      final uri = Uri.parse(url);
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
-        try {
-          final api = Provider.of<ApiService>(context, listen: false);
-          await api.post('/preparation/pdfs/reading-progress', {'pdf_id': pdf['_id'], 'last_page': 1, 'total_pages': pdf['total_pages'] ?? 1});
-        } catch (_) {}
-      }
-    }
+    Navigator.pushNamed(context, '/preparation/pdf-viewer', arguments: {'pdf': pdf});
   }
 
   @override

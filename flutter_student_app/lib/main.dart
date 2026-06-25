@@ -22,6 +22,9 @@ import 'screens/preparation/performance_screen.dart';
 import 'screens/preparation/reading_material_screen.dart';
 import 'screens/preparation/previous_papers_screen.dart';
 import 'screens/preparation/take_test_screen.dart';
+import 'screens/preparation/test_result_screen.dart';
+import 'screens/preparation/practice_screen.dart';
+import 'screens/preparation/pdf_viewer_screen.dart';
 import 'screens/resume_builder_screen.dart';
 import 'screens/resume_preview_screen.dart';
 void main() {
@@ -127,6 +130,24 @@ class SpotCampusApp extends StatelessWidget {
         if (settings.name == '/preparation/take-test') {
           return MaterialPageRoute(
             builder: (context) => const TakeTestScreen(),
+            settings: settings,
+          );
+        }
+        if (settings.name == '/preparation/test-result') {
+          return MaterialPageRoute(
+            builder: (context) => const TestResultScreen(),
+            settings: settings,
+          );
+        }
+        if (settings.name == '/preparation/practice') {
+          return MaterialPageRoute(
+            builder: (context) => const PracticeScreen(),
+            settings: settings,
+          );
+        }
+        if (settings.name == '/preparation/pdf-viewer') {
+          return MaterialPageRoute(
+            builder: (context) => const PdfViewerScreen(),
             settings: settings,
           );
         }

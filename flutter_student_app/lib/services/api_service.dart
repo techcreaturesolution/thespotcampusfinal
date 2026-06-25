@@ -36,12 +36,14 @@ class ApiService {
     if (response.statusCode >= 200 && response.statusCode < 300) {
       return response.bodyBytes;
     } else {
+      String errorMessage = 'Download failed';
       try {
         final data = jsonDecode(response.body);
-        throw Exception(data['error'] ?? 'Download failed');
-      } catch (_) {
-        throw Exception('Download failed');
-      }
+        if (data['error'] != null) {
+          errorMessage = data['error'];
+        }
+      } catch (_) {}
+      throw Exception(errorMessage);
     }
   }
 

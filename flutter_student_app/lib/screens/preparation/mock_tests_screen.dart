@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../services/api_service.dart';
 
 class MockTestsScreen extends StatefulWidget {
   const MockTestsScreen({super.key});
@@ -11,153 +13,128 @@ class _MockTestsScreenState extends State<MockTestsScreen> {
   List<dynamic> _mockTests = [];
   bool _isLoading = true;
   String _filter = '';
+  String _search = '';
+  Set<String> _bookmarkedIds = {};
 
   @override
   void initState() {
     super.initState();
+    _fetchBookmarks();
     _fetchMockTests();
   }
 
-  // TODO: STATIC DATA – remove when API is ready
-  static const List<Map<String, dynamic>> _staticMockTests = [
-    {
-      '_id': 'mock1',
-      'title': 'TCS NQT Full Mock Test',
-      'test_type': 'company',
-      'total_questions': 50,
-      'duration_minutes': 60,
-      'negative_marking': true,
-      'difficulty': 'medium',
-    },
-    {
-      '_id': 'mock2',
-      'title': 'Infosys Aptitude Mock – Set 1',
-      'test_type': 'company',
-      'total_questions': 40,
-      'duration_minutes': 45,
-      'negative_marking': false,
-      'difficulty': 'easy',
-    },
-    {
-      '_id': 'mock3',
-      'title': 'Data Structures & Algorithms Test',
-      'test_type': 'subject',
-      'total_questions': 30,
-      'duration_minutes': 30,
-      'negative_marking': false,
-      'difficulty': 'hard',
-    },
-    {
-      '_id': 'mock4',
-      'title': 'Wipro WILP Mock Exam',
-      'test_type': 'company',
-      'total_questions': 60,
-      'duration_minutes': 75,
-      'negative_marking': true,
-      'difficulty': 'medium',
-    },
-    {
-      '_id': 'mock5',
-      'title': 'Verbal Reasoning – Mixed Test',
-      'test_type': 'mixed',
-      'total_questions': 25,
-      'duration_minutes': 20,
-      'negative_marking': false,
-      'difficulty': 'easy',
-    },
-    {
-      '_id': 'mock6',
-      'title': 'Quantitative Aptitude Sprint',
-      'test_type': 'topic',
-      'total_questions': 20,
-      'duration_minutes': 25,
-      'negative_marking': true,
-      'difficulty': 'medium',
-    },
-  ];
+  Future<void> _fetchBookmarks() async {
+    try {
+      final api = Provider.of<ApiService>(context, listen: false);
+      final data = await api.get('/preparation/bookmarks?item_type=mock_test');
+      if (data['bookmarks'] != null) {
+        if (mounted) {
+          setState(() {
+            _bookmarkedIds = Set<String>.from(data['bookmarks'].map((bm) => bm['item_id']));
+          });
+        }
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _handleBookmark(String id) async {
+    try {
+      final api = Provider.of<ApiService>(context, listen: false);
+      final data = await api.post('/preparation/bookmarks/toggle', {
+        'item_type': 'mock_test',
+        'item_id': id,
+      });
+      if (mounted) {
+        setState(() {
+          if (data['bookmarked'] == true) {
+            _bookmarkedIds.add(id);
+          } else {
+            _bookmarkedIds.remove(id);
+          }
+        });
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(data['msg'] ?? 'Bookmark toggled')));
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to toggle bookmark')));
+      }
+    }
+  }
 
   Future<void> _fetchMockTests() async {
-    // TODO: Uncomment API call and remove static data below when backend is ready
-    // try {
-    //   final api = Provider.of<ApiService>(context, listen: false);
-    //   final params = _filter.isNotEmpty ? '?test_type=$_filter' : '';
-    //   final data = await api.get('/preparation/mock-tests/active$params');
-    //   setState(() { _mockTests = data['mockTests'] ?? []; _isLoading = false; });
-    // } catch (e) {
-    //   setState(() => _isLoading = false);
-    // }
-
-    await Future.delayed(const Duration(milliseconds: 300)); // simulate loading
-    final filtered = _filter.isEmpty
-        ? _staticMockTests
-        : _staticMockTests.where((t) => t['test_type'] == _filter).toList();
-    setState(() { _mockTests = filtered; _isLoading = false; });
+    setState(() => _isLoading = true);
+    try {
+      final api = Provider.of<ApiService>(context, listen: false);
+      final params = _filter.isNotEmpty ? '?test_type=$_filter' : '';
+      final data = await api.get('/preparation/mock-tests/active$params');
+      if (mounted) {
+        setState(() {
+          _mockTests = data['mockTests'] ?? [];
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
   }
-
-
-  // TODO: Static dummy questions for take-test UI preview – replace with API call when ready
-  static const List<Map<String, dynamic>> _staticQuestions = [
-    {
-      'question_text': 'A train travels 360 km at a uniform speed. If the speed had been 5 km/h more, it would have taken 1 hour less. Find the speed of the train.',
-      'options': [{'text': '40 km/h'}, {'text': '45 km/h'}, {'text': '36 km/h'}, {'text': '30 km/h'}],
-      'correct_option_index': 0,
-      'explanation': 'Using speed–distance–time relation: 360/s - 360/(s+5) = 1 → s = 40 km/h.',
-    },
-    {
-      'question_text': 'Which data structure is used to implement recursion?',
-      'options': [{'text': 'Queue'}, {'text': 'Stack'}, {'text': 'Array'}, {'text': 'Linked List'}],
-      'correct_option_index': 1,
-      'explanation': 'Function call stack is used internally by the OS/compiler to manage recursion.',
-    },
-    {
-      'question_text': 'Find the odd one out: 2, 5, 10, 17, 26, 37, 50, 64',
-      'options': [{'text': '37'}, {'text': '50'}, {'text': '64'}, {'text': '26'}],
-      'correct_option_index': 2,
-      'explanation': 'The series is n²+1: 5, 10, 17, 26, 37, 50, 65. So 64 should be 65.',
-    },
-    {
-      'question_text': 'What is the time complexity of binary search?',
-      'options': [{'text': 'O(n)'}, {'text': 'O(n²)'}, {'text': 'O(log n)'}, {'text': 'O(n log n)'}],
-      'correct_option_index': 2,
-      'explanation': 'Binary search halves the search space at each step, giving O(log n) complexity.',
-    },
-    {
-      'question_text': 'What does SQL stand for?',
-      'options': [{'text': 'Structured Query Language'}, {'text': 'Simple Query Language'}, {'text': 'Standard Question Language'}, {'text': 'Sequential Query Logic'}],
-      'correct_option_index': 0,
-      'explanation': 'SQL stands for Structured Query Language, used to manage relational databases.',
-    },
-  ];
 
   Future<void> _startTest(Map<String, dynamic> test) async {
-    // TODO: Replace with real API call when backend is ready:
-    // final api = Provider.of<ApiService>(context, listen: false);
-    // final data = await api.post('/preparation/mock-tests/${test['_id']}/start', {});
-    // Navigator.pushNamed(context, '/preparation/take-test', arguments: {
-    //   'attempt': data['attempt'],
-    //   'questions': data['questions'],
-    //   'mockTestId': test['_id'],
-    //   'mockTestTitle': test['title'],
-    //   'durationMinutes': test['duration_minutes'],
-    // });
+    try {
+      // Show loading dialog
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (ctx) => const Center(child: CircularProgressIndicator()),
+      );
 
-    if (!mounted) return;
-    Navigator.pushNamed(context, '/preparation/take-test', arguments: {
-      'questions': _staticQuestions,
-      'mockTestTitle': test['title'] ?? 'Mock Test',
-      'durationMinutes': test['duration_minutes'] ?? 30,
-    });
+      final api = Provider.of<ApiService>(context, listen: false);
+      final data = await api.post('/preparation/mock-tests/${test['_id']}/start', {});
+      
+      if (!mounted) return;
+      Navigator.pop(context); // Close dialog
+
+      Navigator.pushNamed(context, '/preparation/take-test', arguments: {
+        'attempt': data['attempt'],
+        'questions': data['questions'],
+        'mockTestId': test['_id'],
+        'mockTestTitle': test['title'],
+        'durationMinutes': test['duration_minutes'],
+        'remainingSeconds': data['remaining_seconds'],
+      });
+    } catch (e) {
+      if (!mounted) return;
+      Navigator.pop(context); // Close dialog
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to start test')));
+    }
   }
-
 
   @override
   Widget build(BuildContext context) {
+    final filteredTests = _mockTests.where((test) {
+      final title = (test['title'] ?? '').toString().toLowerCase();
+      return title.contains(_search.toLowerCase());
+    }).toList();
+
     return Scaffold(
       appBar: AppBar(title: const Text('Mock Tests')),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : Column(
               children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: 'Search mock tests...',
+                      prefixIcon: const Icon(Icons.search),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
+                    ),
+                    onChanged: (val) => setState(() => _search = val),
+                  ),
+                ),
                 SizedBox(
                   height: 44,
                   child: ListView(
@@ -176,11 +153,13 @@ class _MockTestsScreenState extends State<MockTestsScreen> {
                   ),
                 ),
                 Expanded(
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: _mockTests.length,
-                    itemBuilder: (ctx, i) => _buildTestCard(_mockTests[i]),
-                  ),
+                  child: filteredTests.isEmpty
+                      ? const Center(child: Text('No mock tests found.'))
+                      : ListView.builder(
+                          padding: const EdgeInsets.all(16),
+                          itemCount: filteredTests.length,
+                          itemBuilder: (ctx, i) => _buildTestCard(filteredTests[i]),
+                        ),
                 ),
               ],
             ),
@@ -188,6 +167,7 @@ class _MockTestsScreenState extends State<MockTestsScreen> {
   }
 
   Widget _buildTestCard(Map<String, dynamic> test) {
+    final isBookmarked = _bookmarkedIds.contains(test['_id']);
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: Padding(
@@ -220,6 +200,13 @@ class _MockTestsScreenState extends State<MockTestsScreen> {
                   const SizedBox(width: 12),
                   Text('-ve', style: TextStyle(fontSize: 11, color: Colors.red.shade600)),
                 ],
+                const Spacer(),
+                IconButton(
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  icon: Icon(isBookmarked ? Icons.bookmark : Icons.bookmark_border, color: isBookmarked ? Colors.blue : Colors.grey, size: 20),
+                  onPressed: () => _handleBookmark(test['_id']),
+                ),
               ],
             ),
             const SizedBox(height: 12),

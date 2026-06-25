@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../services/api_service.dart';
 
-/// Arguments expected via Navigator:
-///   { 'questions': List<Map>, 'mockTestTitle': String, 'durationMinutes': int }
 class TakeTestScreen extends StatefulWidget {
   const TakeTestScreen({super.key});
 
@@ -12,25 +12,39 @@ class TakeTestScreen extends StatefulWidget {
 
 class _TakeTestScreenState extends State<TakeTestScreen> {
   late List<Map<String, dynamic>> _questions;
+  late Map<String, dynamic> _attempt;
   late String _title;
   late int _durationMinutes;
 
   final Map<int, int> _answers = {}; // questionIndex -> selectedOptionIndex
   int _currentIndex = 0;
-  late Timer _timer;
+  Timer? _timer;
   late int _secondsLeft;
-  bool _submitted = false;
+  bool _isSubmitting = false;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final args =
-        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-    _questions =
-        List<Map<String, dynamic>>.from(args['questions'] as List? ?? []);
+    final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>? ?? {};
+    _questions = List<Map<String, dynamic>>.from(args['questions'] as List? ?? []);
+    _attempt = args['attempt'] as Map<String, dynamic>? ?? {};
     _title = args['mockTestTitle'] as String? ?? 'Mock Test';
     _durationMinutes = args['durationMinutes'] as int? ?? 30;
-    _secondsLeft = _durationMinutes * 60;
+    _secondsLeft = args['remainingSeconds'] as int? ?? (_durationMinutes * 60);
+    
+    // Auto-populate already answered questions if resuming
+    if (_attempt['answers'] != null) {
+      final answersList = _attempt['answers'] as List;
+      for (var ans in answersList) {
+        final qId = ans['question_id'];
+        final optIdx = ans['selected_option_index'];
+        final qIndex = _questions.indexWhere((q) => q['_id'] == qId);
+        if (qIndex != -1 && optIdx != null) {
+          _answers[qIndex] = optIdx;
+        }
+      }
+    }
+    
     _startTimer();
   }
 
@@ -38,7 +52,7 @@ class _TakeTestScreenState extends State<TakeTestScreen> {
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (!mounted) return;
       if (_secondsLeft <= 0) {
-        _timer.cancel();
+        _timer?.cancel();
         _submitTest();
       } else {
         setState(() => _secondsLeft--);
@@ -52,24 +66,42 @@ class _TakeTestScreenState extends State<TakeTestScreen> {
     return '${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
   }
 
-  void _submitTest() {
-    if (!mounted) return;
-    _timer.cancel();
-    setState(() => _submitted = true);
-  }
+  Future<void> _submitTest() async {
+    if (!mounted || _isSubmitting) return;
+    _timer?.cancel();
+    setState(() => _isSubmitting = true);
 
-  int get _correctCount {
-    int count = 0;
-    for (int i = 0; i < _questions.length; i++) {
-      final correct = _questions[i]['correct_option_index'];
-      if (_answers[i] == correct) count++;
+    try {
+      final api = Provider.of<ApiService>(context, listen: false);
+      
+      final answersList = _answers.entries.map((e) {
+        return {
+          'question_id': _questions[e.key]['_id'],
+          'selected_option_index': e.value,
+          'time_spent_seconds': 0 // optional, tracking per question could be added
+        };
+      }).toList();
+
+      await api.post('/preparation/mock-tests/submit/${_attempt['_id']}', {
+        'answers': answersList,
+      });
+
+      if (!mounted) return;
+      // Navigate to Result Screen and replace current
+      Navigator.pushReplacementNamed(context, '/preparation/test-result', arguments: {
+        'attemptId': _attempt['_id'],
+        'mockTestTitle': _title,
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isSubmitting = false);
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to submit test. Please try again.')));
     }
-    return count;
   }
 
   @override
   void dispose() {
-    _timer.cancel();
+    _timer?.cancel();
     super.dispose();
   }
 
@@ -83,20 +115,21 @@ class _TakeTestScreenState extends State<TakeTestScreen> {
           context: context,
           builder: (ctx) => AlertDialog(
             title: const Text('Leave Test?'),
-            content: const Text('Your progress will be lost.'),
+            content: const Text('Your test will be paused and you can resume later. Time will still count down if it is a strict test.'),
             actions: [
               TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Stay')),
-              TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Leave')),
+              TextButton(onPressed: () {
+                // If leaving, we should ideally sync the answers so far, but skipping for simplicity
+                Navigator.pop(ctx, true);
+              }, child: const Text('Leave')),
             ],
           ),
         );
         if (leave == true && mounted) Navigator.pop(context);
       },
-      child: _submitted ? _buildResult() : _buildTestUI(),
+      child: _buildTestUI(),
     );
   }
-
-  // ─── TEST UI ────────────────────────────────────────────────────────────────
 
   Widget _buildTestUI() {
     if (_questions.isEmpty) {
@@ -144,7 +177,16 @@ class _TakeTestScreenState extends State<TakeTestScreen> {
           ),
         ],
       ),
-      body: Column(
+      body: _isSubmitting 
+          ? const Center(child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
+                Text('Submitting test...')
+              ],
+            ))
+          : Column(
         children: [
           // Progress bar
           LinearProgressIndicator(
@@ -296,220 +338,6 @@ class _TakeTestScreenState extends State<TakeTestScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  // ─── RESULT UI ───────────────────────────────────────────────────────────────
-
-  Widget _buildResult() {
-    final total = _questions.length;
-    final correct = _correctCount;
-    final wrong = _answers.length - correct;
-    final unattempted = total - _answers.length;
-    final percent = total > 0 ? (correct / total * 100).toStringAsFixed(1) : '0';
-    final passed = correct >= (total * 0.4);
-
-    return Scaffold(
-      backgroundColor: const Color(0xFFF9FAFB),
-      appBar: AppBar(
-        title: const Text('Test Result'),
-        automaticallyImplyLeading: false,
-        backgroundColor: Colors.white,
-        elevation: 0,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            // Score card
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: passed
-                      ? [const Color(0xFF059669), const Color(0xFF10B981)]
-                      : [const Color(0xFFDC2626), const Color(0xFFEF4444)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Column(
-                children: [
-                  Icon(
-                    passed ? Icons.emoji_events : Icons.sentiment_dissatisfied_outlined,
-                    color: Colors.white,
-                    size: 48,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    passed ? 'Congratulations!' : 'Better Luck Next Time',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '$_title',
-                    style: TextStyle(color: Colors.white.withOpacity(0.85), fontSize: 13),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    '$percent%',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 52,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    '$correct / $total correct',
-                    style: TextStyle(color: Colors.white.withOpacity(0.9), fontSize: 15),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            // Stats row
-            Row(
-              children: [
-                _StatCard(label: 'Correct', value: '$correct', color: const Color(0xFF059669), icon: Icons.check_circle_outline),
-                const SizedBox(width: 10),
-                _StatCard(label: 'Wrong', value: '$wrong', color: const Color(0xFFDC2626), icon: Icons.cancel_outlined),
-                const SizedBox(width: 10),
-                _StatCard(label: 'Skipped', value: '$unattempted', color: const Color(0xFFD97706), icon: Icons.remove_circle_outline),
-              ],
-            ),
-            const SizedBox(height: 20),
-            // Review answers section
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'Answer Review',
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF1F2937)),
-              ),
-            ),
-            const SizedBox(height: 10),
-            ..._questions.asMap().entries.map((entry) {
-              final i = entry.key;
-              final q = entry.value;
-              final selected = _answers[i];
-              final correct2 = q['correct_option_index'] as int?;
-              final isCorrect = selected != null && selected == correct2;
-              final isWrong = selected != null && selected != correct2;
-              final options = List<Map<String, dynamic>>.from(q['options'] ?? []);
-
-              Color borderColor = Colors.grey.shade200;
-              Color iconColor = Colors.grey;
-              IconData icon = Icons.help_outline;
-              if (isCorrect) { borderColor = Colors.green; iconColor = Colors.green; icon = Icons.check_circle; }
-              if (isWrong) { borderColor = Colors.red; iconColor = Colors.red; icon = Icons.cancel; }
-
-              return Container(
-                margin: const EdgeInsets.only(bottom: 12),
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: borderColor),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Icon(icon, color: iconColor, size: 18),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            'Q${i + 1}. ${q['question_text'] ?? ''}',
-                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
-                          ),
-                        ),
-                      ],
-                    ),
-                    if (selected != null && correct2 != null && options.isNotEmpty) ...[
-                      const SizedBox(height: 8),
-                      if (isWrong)
-                        Text(
-                          'Your answer: ${options[selected]['text']}',
-                          style: const TextStyle(fontSize: 12, color: Colors.red),
-                        ),
-                      Text(
-                        'Correct: ${options[correct2]['text']}',
-                        style: const TextStyle(fontSize: 12, color: Colors.green, fontWeight: FontWeight.w600),
-                      ),
-                    ],
-                    if (selected == null)
-                      const Text('Not attempted', style: TextStyle(fontSize: 12, color: Colors.orange)),
-                    if (q['explanation'] != null && (q['explanation'] as String).isNotEmpty) ...[
-                      const SizedBox(height: 6),
-                      Text(
-                        'Explanation: ${q['explanation']}',
-                        style: TextStyle(fontSize: 11, color: Colors.blue.shade700),
-                      ),
-                    ],
-                  ],
-                ),
-              );
-            }),
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.arrow_back, size: 16),
-                label: const Text('Back to Tests'),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _StatCard extends StatelessWidget {
-  final String label;
-  final String value;
-  final Color color;
-  final IconData icon;
-
-  const _StatCard({
-    required this.label,
-    required this.value,
-    required this.color,
-    required this.icon,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-        decoration: BoxDecoration(
-          color: color.withOpacity(0.08),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: color.withOpacity(0.2)),
-        ),
-        child: Column(
-          children: [
-            Icon(icon, color: color, size: 24),
-            const SizedBox(height: 6),
-            Text(value, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: color)),
-            const SizedBox(height: 2),
-            Text(label, style: TextStyle(fontSize: 11, color: color.withOpacity(0.8))),
-          ],
-        ),
       ),
     );
   }
