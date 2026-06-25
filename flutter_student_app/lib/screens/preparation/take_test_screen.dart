@@ -219,15 +219,22 @@ class _TakeTestScreenState extends State<TakeTestScreen> {
                   // Question card
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.grey.shade200),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: Colors.indigo.shade50),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.03),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        )
+                      ]
                     ),
                     child: Text(
                       q['question_text'] ?? '',
-                      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500, height: 1.5),
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, height: 1.6, color: Color(0xFF1E293B)),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -237,25 +244,29 @@ class _TakeTestScreenState extends State<TakeTestScreen> {
                     return GestureDetector(
                       onTap: () => setState(() => _answers[_currentIndex] = idx),
                       child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 150),
-                        margin: const EdgeInsets.only(bottom: 10),
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                        duration: const Duration(milliseconds: 200),
+                        margin: const EdgeInsets.only(bottom: 12),
+                        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
                         decoration: BoxDecoration(
                           color: isSelected ? const Color(0xFFEFF6FF) : Colors.white,
                           border: Border.all(
-                            color: isSelected ? const Color(0xFF2563EB) : Colors.grey.shade300,
-                            width: isSelected ? 2 : 1,
+                            color: isSelected ? const Color(0xFF3B82F6) : Colors.grey.shade200,
+                            width: isSelected ? 2 : 1.5,
                           ),
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: isSelected ? [
+                            BoxShadow(color: const Color(0xFF3B82F6).withOpacity(0.1), blurRadius: 8, offset: const Offset(0, 4))
+                          ] : [],
                         ),
                         child: Row(
                           children: [
                             AnimatedContainer(
-                              duration: const Duration(milliseconds: 150),
-                              width: 28,
-                              height: 28,
+                              duration: const Duration(milliseconds: 200),
+                              width: 32,
+                              height: 32,
                               decoration: BoxDecoration(
-                                color: isSelected ? const Color(0xFF2563EB) : Colors.grey.shade100,
+                                color: isSelected ? const Color(0xFF3B82F6) : Colors.grey.shade50,
+                                border: Border.all(color: isSelected ? Colors.transparent : Colors.grey.shade300),
                                 shape: BoxShape.circle,
                               ),
                               child: Center(
@@ -263,23 +274,25 @@ class _TakeTestScreenState extends State<TakeTestScreen> {
                                   String.fromCharCode(65 + idx),
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
-                                    fontSize: 13,
-                                    color: isSelected ? Colors.white : Colors.grey.shade700,
+                                    fontSize: 14,
+                                    color: isSelected ? Colors.white : Colors.grey.shade600,
                                   ),
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 12),
+                            const SizedBox(width: 14),
                             Expanded(
                               child: Text(
                                 options[idx]['text'] ?? '',
                                 style: TextStyle(
-                                  fontSize: 14,
-                                  color: isSelected ? const Color(0xFF1D4ED8) : Colors.black87,
-                                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                                  fontSize: 15,
+                                  color: isSelected ? const Color(0xFF1E3A8A) : const Color(0xFF334155),
+                                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                                 ),
                               ),
                             ),
+                            if (isSelected)
+                              const Icon(Icons.check_circle, color: Color(0xFF3B82F6), size: 20),
                           ],
                         ),
                       ),

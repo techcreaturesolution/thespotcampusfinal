@@ -6,7 +6,7 @@ import { createMockTest, getAllMockTests, updateMockTest, deleteMockTest, getAct
 import { getTodayChallenge, submitDailyChallenge, createDailyChallenge } from "./dailychallenge/dailychallenge.controller.js";
 import { toggleBookmark, getBookmarks, checkBookmark } from "./bookmark/bookmark.controller.js";
 import { createPdfMaterial, getAllPdfMaterials, updatePdfMaterial, deletePdfMaterial, getActivePdfs, updateReadingProgress } from "./pdfmaterial/pdfmaterial.controller.js";
-import { getStudentProgress, getSubjectAnalysis, getProgressGraphs, getRecentActivity } from "./progress/progress.controller.js";
+import { getStudentProgress, getSubjectAnalysis, getProgressGraphs, getRecentActivity, updatePracticeProgress } from "./progress/progress.controller.js";
 import upload from "../../middleware/multerMiddleware.js";
 
 const router = Router();
@@ -68,5 +68,6 @@ router.get("/progress", getStudentProgress);
 router.get("/progress/subjects", getSubjectAnalysis);
 router.get("/progress/graphs", getProgressGraphs);
 router.get("/progress/activity", getRecentActivity);
+router.post("/progress/practice/update", updatePracticeProgress);
 
 export default router;

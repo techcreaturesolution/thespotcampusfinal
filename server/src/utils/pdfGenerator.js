@@ -1,9 +1,11 @@
-import puppeteer from 'puppeteer';
 import { join } from 'path';
 
-// Force Puppeteer to look for the Chrome binary in the local cache dir we installed to
-process.env.PUPPETEER_CACHE_DIR = join(process.cwd(), '.cache', 'puppeteer');
 export const generatePdfFromHtml = async (htmlContent) => {
+  // Force Puppeteer to look for the Chrome binary in the local cache dir we installed to
+  // This MUST be set BEFORE importing puppeteer, which is why we use dynamic import
+  process.env.PUPPETEER_CACHE_DIR = join(process.cwd(), '.cache', 'puppeteer');
+  const { default: puppeteer } = await import('puppeteer');
+  
   let browser;
   try {
     browser = await puppeteer.launch({

@@ -192,8 +192,21 @@ class _PracticeScreenState extends State<PracticeScreen> {
                     } else if (isSelected) { borderColor = Colors.indigo; bgColor = Colors.indigo.shade50; }
 
                     return GestureDetector(
-                      onTap: _showAnswer ? null : () {
+                      onTap: _showAnswer ? null : () async {
                         setState(() { _userAnswer = idx; _showAnswer = true; });
+                        try {
+                          final api = Provider.of<ApiService>(context, listen: false);
+                          await api.post('/preparation/progress/practice/update', {
+                            'subject_id': _subject['_id'],
+                            'is_correct': isCorrect,
+                          });
+                        } catch (e) {
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Could not update progress: ${e.toString()}')),
+                            );
+                          }
+                        }
                       },
                       child: Container(
                         margin: const EdgeInsets.only(bottom: 10),
