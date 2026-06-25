@@ -1,5 +1,8 @@
 import puppeteer from 'puppeteer';
+import { join } from 'path';
 
+// Force Puppeteer to look for the Chrome binary in the local cache dir we installed to
+process.env.PUPPETEER_CACHE_DIR = join(process.cwd(), '.cache', 'puppeteer');
 export const generatePdfFromHtml = async (htmlContent) => {
   let browser;
   try {
