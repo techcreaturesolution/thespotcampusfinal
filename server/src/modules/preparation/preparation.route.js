@@ -1,11 +1,12 @@
+
 import { Router } from "express";
-import { createSubject, getAllSubjects, updateSubject, deleteSubject, getActiveSubjects } from "./subject.controller.js";
-import { createQuestion, bulkUploadQuestions, getAllQuestions, updateQuestion, deleteQuestion, getPracticeQuestions, getPreviousYearQuestions } from "./question.controller.js";
-import { createMockTest, getAllMockTests, updateMockTest, deleteMockTest, getActiveMockTests, startMockTest, submitMockTest, getTestResult, getMyAttempts } from "./mocktest.controller.js";
-import { getTodayChallenge, submitDailyChallenge, createDailyChallenge } from "./dailychallenge.controller.js";
-import { toggleBookmark, getBookmarks, checkBookmark } from "./bookmark.controller.js";
-import { createPdfMaterial, getAllPdfMaterials, updatePdfMaterial, deletePdfMaterial, getActivePdfs, updateReadingProgress } from "./pdfmaterial.controller.js";
-import { getStudentProgress, getSubjectAnalysis, getProgressGraphs, getRecentActivity } from "./progress.controller.js";
+import { createSubject, getAllSubjects, updateSubject, deleteSubject, getActiveSubjects, getCategories, createCategory, deleteCategory } from "./subject/subject.controller.js";
+import { createQuestion, bulkUploadQuestions, importQuestions, getAllQuestions, updateQuestion, deleteQuestion, getPracticeQuestions, getPreviousYearQuestions, bulkDeleteQuestions, getPreviousYearCategories, getPreviousYearSubjects } from "./question/question.controller.js";
+import { createMockTest, getAllMockTests, updateMockTest, deleteMockTest, getActiveMockTests, startMockTest, submitMockTest, getTestResult, getMyAttempts } from "./mocktest/mocktest.controller.js";
+import { getTodayChallenge, submitDailyChallenge, createDailyChallenge } from "./dailychallenge/dailychallenge.controller.js";
+import { toggleBookmark, getBookmarks, checkBookmark } from "./bookmark/bookmark.controller.js";
+import { createPdfMaterial, getAllPdfMaterials, updatePdfMaterial, deletePdfMaterial, getActivePdfs, updateReadingProgress } from "./pdfmaterial/pdfmaterial.controller.js";
+import { getStudentProgress, getSubjectAnalysis, getProgressGraphs, getRecentActivity } from "./progress/progress.controller.js";
 import upload from "../../middleware/multerMiddleware.js";
 
 const router = Router();
@@ -16,13 +17,20 @@ router.get("/subjects", getAllSubjects);
 router.post("/subjects", createSubject);
 router.patch("/subjects/:id", updateSubject);
 router.delete("/subjects/:id", deleteSubject);
+router.get("/subjects/categories", getCategories);
+router.post("/subjects/categories", createCategory);
+router.delete("/subjects/categories/:id", deleteCategory);
 
 // =========== QUESTIONS ===========
 router.get("/questions", getAllQuestions);
 router.get("/questions/practice/:subjectId", getPracticeQuestions);
 router.get("/questions/previous-year", getPreviousYearQuestions);
+router.get("/questions/previous-year/categories", getPreviousYearCategories);
+router.get("/questions/previous-year/subjects", getPreviousYearSubjects);
 router.post("/questions", createQuestion);
 router.post("/questions/bulk", bulkUploadQuestions);
+router.post("/questions/bulk-delete", bulkDeleteQuestions);
+router.post("/questions/import", upload.single("file"), importQuestions);
 router.patch("/questions/:id", updateQuestion);
 router.delete("/questions/:id", deleteQuestion);
 

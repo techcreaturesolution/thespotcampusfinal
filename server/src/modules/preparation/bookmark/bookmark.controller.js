@@ -2,18 +2,19 @@ import Bookmark from "./bookmark.model.js";
 import Question from "../question/question.model.js";
 import MockTest from "../mocktest/mocktest.model.js";
 import PdfMaterial from "../pdfmaterial/pdfmaterial.model.js";
+import Subject from "../subject/subject.model.js";
 import { StatusCodes } from "http-status-codes";
 
-// Toggle bookmark
 export const toggleBookmark = async (req, res) => {
-  const { item_type, item_id } = req.body;
+  const { item_type, item_id, notes } = req.body;
   const studentId = req.user.userId;
-  const existing = await Bookmark.findOne({ student_id: studentId, item_id });
+  const queryNotes = notes || "";
+  const existing = await Bookmark.findOne({ student_id: studentId, item_id, notes: queryNotes });
   if (existing) {
     await Bookmark.findByIdAndDelete(existing._id);
     return res.status(StatusCodes.OK).json({ bookmarked: false, msg: "Bookmark removed" });
   }
-  await Bookmark.create({ student_id: studentId, item_type, item_id });
+  await Bookmark.create({ student_id: studentId, item_type, item_id, notes: queryNotes });
   res.status(StatusCodes.OK).json({ bookmarked: true, msg: "Bookmarked" });
 };
 
@@ -34,6 +35,10 @@ export const getBookmarks = async (req, res) => {
       item = await MockTest.findById(bm.item_id).lean();
     } else if (bm.item_type === "pdf") {
       item = await PdfMaterial.findById(bm.item_id).lean();
+    } else if (bm.item_type === "subject") {
+      item = await Subject.findById(bm.item_id).lean();
+    } else if (bm.item_type === "previous_year") {
+      item = await Subject.findById(bm.item_id).lean();
     }
     result.push({ ...bm, item });
   }

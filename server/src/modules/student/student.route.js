@@ -1,7 +1,12 @@
 import { Router } from "express";
 const router = Router();
-import upload from "../../middleware/multerMiddleware.js";
 import { authenticateUser } from "../../middleware/authMiddleware.js";
+import { 
+  uploadProfileImage, 
+  uploadResume, 
+  validateUploadedFile 
+} from "../../middleware/fileUploadMiddleware.js";
+import { studentValidation } from "../../middleware/validationMiddleware.js";
 
 import {
   getAllStudents,
@@ -19,20 +24,23 @@ import {
 } from "./resume.controller.js";
 
 // Student list & register
-router.route("/").get(getAllStudents).post(upload.single("student_image"), createStudent);
-router.patch("/:id/verify", verifyStudent);
+router.route("/")
+  .get(getAllStudents)
+  .post(uploadProfileImage, validateUploadedFile, studentValidation, createStudent);
 
-// Student Resume/CV builder endpoints
+router.patch("/:id/verify", authenticateUser, verifyStudent);
+
+// Student Resume/CV builder endpoints  
 router.route("/resume/me")
   .get(authenticateUser, getResume)
-  .post(authenticateUser, saveResume);
+  .post(authenticateUser, uploadResume, validateUploadedFile, saveResume);
 router.post("/resume/ai-summaries", authenticateUser, generateAiSummaries);
 
 // Student CRUD by ID
 router
   .route("/:id")
   .get(getStudent)
-  .patch(upload.single("student_image"), updateStudent)
-  .delete(deleteStudent);
+  .patch(authenticateUser, uploadProfileImage, validateUploadedFile, updateStudent)
+  .delete(authenticateUser, deleteStudent);
 
 export default router;

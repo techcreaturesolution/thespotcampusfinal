@@ -5,11 +5,13 @@ import customFetch from "../../../utils/customFetch";
 import Loading from "../../../common/components/Loading";
 import PageHeader from "../../../common/components/PageHeader";
 import CreateSubjectModal from "../../components/CreateSubjectModal";
+import CreateCategoryModal from "../../components/CreateCategoryModal";
 
 const ManageSubjects = () => {
   const [subjects, setSubjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [editing, setEditing] = useState(null);
   const [search, setSearch] = useState("");
 
@@ -61,12 +63,20 @@ const ManageSubjects = () => {
         subtitle="Create and manage preparation subjects"
         badge={`${subjects.length} subjects`}
         action={
-          <button
-            onClick={() => { setShowForm(true); setEditing(null); }}
-            className="vibrant-btn text-white font-extrabold py-2.5 px-5 rounded-full transition-all duration-200 active:scale-95 inline-flex items-center gap-2 text-xs shadow-md"
-          >
-            <FiPlus className="w-4 h-4" /> Add Subject
-          </button>
+          <div className="flex flex-wrap gap-2.5">
+            <button
+              onClick={() => setShowCategoryModal(true)}
+              className="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-extrabold py-2.5 px-5 rounded-full transition-all duration-200 active:scale-95 inline-flex items-center gap-2 text-xs shadow-sm hover:shadow-md"
+            >
+              <FiPlus className="w-4 h-4" /> Add Category
+            </button>
+            <button
+              onClick={() => { setShowForm(true); setEditing(null); }}
+              className="vibrant-btn text-white font-extrabold py-2.5 px-5 rounded-full transition-all duration-200 active:scale-95 inline-flex items-center gap-2 text-xs shadow-md"
+            >
+              <FiPlus className="w-4 h-4" /> Add Subject
+            </button>
+          </div>
         }
       />
 
@@ -156,6 +166,15 @@ const ManageSubjects = () => {
         onClose={() => { setShowForm(false); setEditing(null); }}
         subject={editing}
         onSubmit={handleSubmit}
+        nextSortOrder={subjects.length > 0 ? Math.max(...subjects.map(s => s.sort_order || 0)) + 1 : 1}
+      />
+
+      <CreateCategoryModal
+        isOpen={showCategoryModal}
+        onClose={() => setShowCategoryModal(false)}
+        onCategoryCreated={() => {
+          // Categories will automatically fetch fresh list when CreateSubjectModal opens
+        }}
       />
     </div>
   );

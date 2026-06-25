@@ -9,6 +9,14 @@ export const getTodayChallenge = async (req, res) => {
   const today = new Date().toISOString().split("T")[0];
   let challenge = await DailyChallenge.findOne({ date: today }).populate("questions");
 
+  if (challenge) {
+    challenge.questions = challenge.questions.filter(Boolean);
+    if (challenge.questions.length === 0) {
+      await DailyChallenge.deleteOne({ _id: challenge._id });
+      challenge = null;
+    }
+  }
+
   if (!challenge) {
     // Auto-generate daily challenge with mixed questions
     const questions = await Question.aggregate([

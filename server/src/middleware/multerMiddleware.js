@@ -20,15 +20,29 @@ const upload = multer({
   storage,
   limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
-    const allowedTypes = /jpeg|jpg|png|gif|pdf|xlsx|xls/;
-    const extname = allowedTypes.test(
+    const allowedExts = /jpeg|jpg|png|gif|pdf|xlsx|xls|csv/;
+    const extname = allowedExts.test(
       path.extname(file.originalname).toLowerCase()
     );
-    const mimetype = allowedTypes.test(file.mimetype);
+    
+    const allowedMimeTypes = [
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/gif",
+      "application/pdf",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "application/vnd.ms-excel",
+      "text/csv",
+      "application/csv",
+      "application/octet-stream"
+    ];
+    const mimetype = allowedMimeTypes.includes(file.mimetype) || file.mimetype.startsWith("image/");
+    
     if (extname && mimetype) {
       cb(null, true);
     } else {
-      cb(new Error("Only images, PDFs and Excel files are allowed"));
+      cb(new Error("Only images, PDFs, CSV, and Excel files are allowed"));
     }
   },
 });

@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { FiX } from "react-icons/fi";
+import customFetch from "../../utils/customFetch";
 
 const CreateQuestionModal = ({ isOpen, onClose, question, subjects = [], onSubmit }) => {
   if (!isOpen) return null;
 
+  const [categories, setCategories] = useState([]);
   const [form, setForm] = useState({
     subject_id: "",
+    category: "",
     question_text: "",
     options: [
       { text: "", is_correct: true },
@@ -23,9 +26,24 @@ const CreateQuestionModal = ({ isOpen, onClose, question, subjects = [], onSubmi
   });
 
   useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const { data } = await customFetch.get("/preparation/subjects/categories");
+        setCategories(data.categories.map((c) => c.name));
+      } catch {
+        setCategories(["aptitude", "reasoning", "english", "programming", "technical", "general"]);
+      }
+    };
+    if (isOpen) {
+      fetchCategories();
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
     if (question) {
       setForm({
         subject_id: question.subject_id?._id || question.subject_id || "",
+        category: question.category || "",
         question_text: question.question_text || "",
         options: question.options && question.options.length > 0
           ? question.options.map(opt => ({ ...opt }))
@@ -46,6 +64,7 @@ const CreateQuestionModal = ({ isOpen, onClose, question, subjects = [], onSubmi
     } else {
       setForm({
         subject_id: "",
+        category: "",
         question_text: "",
         options: [
           { text: "", is_correct: true },
@@ -62,7 +81,17 @@ const CreateQuestionModal = ({ isOpen, onClose, question, subjects = [], onSubmi
         tags: "",
       });
     }
-  }, [question]);
+  }, [question, categories]);
+
+  const handleSubjectChange = (e) => {
+    const subId = e.target.value;
+    const selectedSub = subjects.find((s) => s._id === subId);
+    setForm((prev) => ({
+      ...prev,
+      subject_id: subId,
+      category: selectedSub ? selectedSub.category : prev.category,
+    }));
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -97,7 +126,7 @@ const CreateQuestionModal = ({ isOpen, onClose, question, subjects = [], onSubmi
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1.5 block">
                 Select Subject
@@ -105,7 +134,7 @@ const CreateQuestionModal = ({ isOpen, onClose, question, subjects = [], onSubmi
               <select
                 className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#3730a3]/20 focus:border-[#3730a3] transition duration-200 bg-white"
                 value={form.subject_id}
-                onChange={(e) => setForm({ ...form, subject_id: e.target.value })}
+                onChange={handleSubjectChange}
                 required
               >
                 <option value="">Select Subject</option>
@@ -114,6 +143,30 @@ const CreateQuestionModal = ({ isOpen, onClose, question, subjects = [], onSubmi
                     {s.name}
                   </option>
                 ))}
+              </select>
+            </div>
+            <div>
+              <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1.5 block">
+                Category
+              </label>
+              <select
+                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#3730a3]/20 focus:border-[#3730a3] transition duration-200 bg-white"
+                value={form.category}
+                onChange={(e) => setForm({ ...form, category: e.target.value })}
+                required
+              >
+                <option value="">Select Category</option>
+                {(() => {
+                  const opts = [...categories];
+                  if (form.category && !opts.includes(form.category)) {
+                    opts.push(form.category);
+                  }
+                  return opts.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                    </option>
+                  ));
+                })()}
               </select>
             </div>
             <div>

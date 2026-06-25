@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { FiBook, FiChevronRight, FiCheckCircle } from "react-icons/fi";
+import { FiBook, FiChevronRight, FiCheckCircle, FiBookmark } from "react-icons/fi";
 import customFetch from "../../../utils/customFetch";
 import Loading from "../../../common/components/Loading";
 import PageHeader from "../../../common/components/PageHeader";
@@ -10,20 +10,54 @@ const SubjectPractice = () => {
   const navigate = useNavigate();
   const [subjects, setSubjects] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [bookmarkedIds, setBookmarkedIds] = useState(new Set());
 
   useEffect(() => {
-    const fetchSubjects = async () => {
-      try {
-        const { data } = await customFetch.get("/preparation/subjects/active");
-        setSubjects(data.subjects);
-      } catch {
-        toast.error("Failed to load subjects");
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchSubjects();
+    fetchBookmarks();
   }, []);
+
+  const fetchSubjects = async () => {
+    try {
+      const { data } = await customFetch.get("/preparation/subjects/active");
+      setSubjects(data.subjects);
+    } catch {
+      toast.error("Failed to load subjects");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchBookmarks = async () => {
+    try {
+      const { data } = await customFetch.get("/preparation/bookmarks?item_type=subject");
+      setBookmarkedIds(new Set(data.bookmarks.map(bm => bm.item_id)));
+    } catch (err) {
+      console.error("Failed to load bookmarks", err);
+    }
+  };
+
+  const handleBookmark = async (e, id) => {
+    e.stopPropagation();
+    try {
+      const { data } = await customFetch.post("/preparation/bookmarks/toggle", {
+        item_type: "subject",
+        item_id: id,
+      });
+      setBookmarkedIds(prev => {
+        const next = new Set(prev);
+        if (data.bookmarked) {
+          next.add(id);
+        } else {
+          next.delete(id);
+        }
+        return next;
+      });
+      toast.success(data.msg || "Bookmark toggled successfully");
+    } catch {
+      toast.error("Failed to toggle bookmark");
+    }
+  };
 
   const handleSubjectClick = (subject) => {
     navigate(`/dashboard/student/preparation/practice/${subject._id}`, { state: { subject } });
@@ -60,8 +94,21 @@ const SubjectPractice = () => {
                     </p>
                   </div>
                 </div>
-                <div className="w-7 h-7 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-colors">
-                  <FiChevronRight className="w-4 h-4" />
+                <div className="flex gap-1.5 items-center">
+                  <button
+                    onClick={(e) => handleBookmark(e, s._id)}
+                    title={bookmarkedIds.has(s._id) ? "Remove Bookmark" : "Bookmark Subject"}
+                    className={`w-7 h-7 rounded-full border flex items-center justify-center transition-all ${
+                      bookmarkedIds.has(s._id)
+                        ? "bg-blue-50 border-blue-200 text-blue-600"
+                        : "bg-slate-50 border-transparent text-slate-400 hover:bg-slate-100 hover:text-slate-650"
+                    }`}
+                  >
+                    <FiBookmark className={`w-3.5 h-3.5 ${bookmarkedIds.has(s._id) ? "fill-current" : "fill-none"}`} />
+                  </button>
+                  <div className="w-7 h-7 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-colors">
+                    <FiChevronRight className="w-4 h-4" />
+                  </div>
                 </div>
               </div>
             </div>

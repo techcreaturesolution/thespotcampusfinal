@@ -35,6 +35,8 @@ yarn-error.log*
 # Uploads
 backend/uploads/*
 !backend/uploads/.gitkeep
+server/uploads/*
+!server/uploads/.gitkeep
 
 # Flutter
 flutter_student_app/.dart_tool/

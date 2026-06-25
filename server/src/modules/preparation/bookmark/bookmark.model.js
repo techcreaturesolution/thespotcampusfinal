@@ -9,7 +9,7 @@ const BookmarkSchema = new mongoose.Schema(
     },
     item_type: {
       type: String,
-      enum: ["question", "mock_test", "pdf"],
+      enum: ["question", "mock_test", "pdf", "subject", "previous_year"],
       required: true,
     },
     item_id: {
@@ -25,7 +25,7 @@ const BookmarkSchema = new mongoose.Schema(
 );
 
 BookmarkSchema.index({ student_id: 1, item_type: 1 });
-BookmarkSchema.index({ student_id: 1, item_id: 1 }, {
+BookmarkSchema.index({ student_id: 1, item_id: 1, notes: 1 }, {
   unique: true,
 });
 

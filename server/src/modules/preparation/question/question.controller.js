@@ -31,15 +31,22 @@ export const getAllQuestions = async (req, res) => {
   if (is_previous_year === "true") filter.is_previous_year = true;
   if (search) filter.question_text = { $regex: search, $options: "i" };
   const skip = (Number(page) - 1) * Number(limit);
-  const [questions, total] = await Promise.all([
+  const [questions, total, companies] = await Promise.all([
     Question.find(filter)
       .populate("subject_id", "name")
-      .sort({ createdAt: -1 })
+      .sort({ subject_id: 1, createdAt: -1 })
       .skip(skip)
       .limit(Number(limit)),
     Question.countDocuments(filter),
+    Question.distinct("company_name", { company_name: { $ne: "" } }),
   ]);
-  res.status(StatusCodes.OK).json({ questions, total, page: Number(page), totalPages: Math.ceil(total / Number(limit)) });
+  res.status(StatusCodes.OK).json({
+    questions,
+    total,
+    companies: companies.filter(Boolean),
+    page: Number(page),
+    totalPages: Math.ceil(total / Number(limit)),
+  });
 };
 
 // Admin: Update question
@@ -72,17 +79,44 @@ export const getPracticeQuestions = async (req, res) => {
 
 // Student: Get previous year questions
 export const getPreviousYearQuestions = async (req, res) => {
-  const { company_name, year, difficulty, page = 1, limit = 20 } = req.query;
+  const { company_name, year, difficulty, subject_id, category, page = 1, limit = 20 } = req.query;
   const filter = { is_previous_year: true, is_active: true };
   if (company_name) filter.company_name = { $regex: company_name, $options: "i" };
   if (year) filter.year = Number(year);
   if (difficulty) filter.difficulty = difficulty;
+  if (subject_id) filter.subject_id = subject_id;
+  if (category) filter.category = category;
+  
   const skip = (Number(page) - 1) * Number(limit);
-  const [questions, total] = await Promise.all([
+  const [questions, total, companies, years] = await Promise.all([
     Question.find(filter).sort({ company_name: 1, year: -1 }).skip(skip).limit(Number(limit)),
     Question.countDocuments(filter),
+    Question.distinct("company_name", { is_previous_year: true, is_active: true, company_name: { $ne: "" } }),
+    Question.distinct("year", { is_previous_year: true, is_active: true, year: { $ne: null } }),
   ]);
   res.status(StatusCodes.OK).json({ questions, total, companies, years, page: Number(page), totalPages: Math.ceil(total / Number(limit)) });
+};
+
+// Student: Get previous year categories
+export const getPreviousYearCategories = async (req, res) => {
+  const { year } = req.query;
+  const filter = { is_previous_year: true, is_active: true };
+  if (year) filter.year = Number(year);
+  
+  const categories = await Question.distinct("category", filter);
+  res.status(StatusCodes.OK).json({ categories: categories.filter(Boolean) });
+};
+
+// Student: Get previous year subjects
+export const getPreviousYearSubjects = async (req, res) => {
+  const { year, category } = req.query;
+  const filter = { is_previous_year: true, is_active: true };
+  if (year) filter.year = Number(year);
+  if (category) filter.category = category;
+  
+  const subjectIds = await Question.distinct("subject_id", filter);
+  const subjects = await Subject.find({ _id: { $in: subjectIds } }).select("name category");
+  res.status(StatusCodes.OK).json({ subjects });
 };
 
 // Admin: Import questions from CSV/Excel
@@ -94,7 +128,18 @@ export const importQuestions = async (req, res) => {
     }
 
     filePath = req.file.path;
-    const { subject_id: bodySubjectId } = req.body;
+    const { subject_id: bodySubjectId, subject_ids: bodySubjectIdsRaw } = req.body;
+
+    let bodySubjectIds = [];
+    if (bodySubjectIdsRaw) {
+      if (Array.isArray(bodySubjectIdsRaw)) {
+        bodySubjectIds = bodySubjectIdsRaw;
+      } else {
+        bodySubjectIds = String(bodySubjectIdsRaw).split(",").map(id => id.trim()).filter(Boolean);
+      }
+    } else if (bodySubjectId) {
+      bodySubjectIds = [bodySubjectId];
+    }
 
     // Fetch all active subjects and companies for lookup
     const [allSubjects, allCompanies] = await Promise.all([
@@ -116,13 +161,25 @@ export const importQuestions = async (req, res) => {
     }
 
     const getField = (row, aliases) => {
+      // First, look for an exact match
       for (const alias of aliases) {
         if (row[alias] !== undefined && row[alias] !== "") return row[alias];
+      }
+      
+      // Fallback: look for keys that start with or are matches to a longer alias to avoid missing optional/renamed headers
+      const rowKeys = Object.keys(row);
+      for (const alias of aliases) {
+        if (alias.length > 2) {
+          const matchedKey = rowKeys.find(key => key.startsWith(alias) || alias.startsWith(key));
+          if (matchedKey && row[matchedKey] !== undefined && row[matchedKey] !== "") {
+            return row[matchedKey];
+          }
+        }
       }
       return null;
     };
 
-    const selectedSubject = allSubjects.find(s => String(s._id) === String(bodySubjectId));
+    const selectedSubjects = allSubjects.filter(s => bodySubjectIds.includes(String(s._id)));
 
     const questions = [];
     const errors = [];
@@ -146,7 +203,7 @@ export const importQuestions = async (req, res) => {
         const difficulty = getField(row, ["difficulty", "level", "difficultylevel", "diff"]) || "medium";
         const explanation = getField(row, ["explanation", "explain", "solution", "reason"]) || "";
         const companyName = getField(row, ["company", "companyname", "companyname"]) || "";
-        const year = getField(row, ["year", "yr"]);
+        const year = getField(row, ["year", "yr", "whichyearpaper", "paperyear", "yearpaper", "companyyear", "pyqyear"]);
         const isPreviousYearVal = getField(row, ["ispreviousyear", "previousyear", "pyq", "ispyq"]);
         const tagsVal = getField(row, ["tags", "tag"]);
         const excelSubjectName = getField(row, ["subject", "subjectname", "sub"]);
@@ -165,30 +222,65 @@ export const importQuestions = async (req, res) => {
           continue;
         }
 
-        // Determine subject_id
-        let subject_id = bodySubjectId;
-        let resolvedSubject = selectedSubject;
+        // Determine subject_ids and validate subject & category
+        let targetSubjectIds = [];
+        let resolvedSubjectsList = [];
+
         if (excelSubjectName) {
-          const matchedSubject = allSubjects.find(s => s.name.toLowerCase() === excelSubjectName.toLowerCase());
-          if (selectedSubject && matchedSubject && String(selectedSubject._id) !== String(matchedSubject._id)) {
-            errors.push({ row: i + 2, error: `Subject mismatch: Excel says '${excelSubjectName}' but you selected '${selectedSubject.name}'` });
-            continue;
-          }
-          if (!subject_id && matchedSubject) {
-            subject_id = matchedSubject._id;
-            resolvedSubject = matchedSubject;
-          } else if (!subject_id && !matchedSubject) {
+          const matchedByName = allSubjects.find(s => s.name.toLowerCase() === excelSubjectName.toLowerCase());
+          
+          if (!matchedByName) {
             errors.push({ row: i + 2, error: `Subject '${excelSubjectName}' not found in database` });
             continue;
           }
+
+          // Verify category if specified in Excel row
+          if (category && matchedByName.category.toLowerCase() !== String(category).trim().toLowerCase()) {
+            errors.push({ 
+              row: i + 2, 
+              error: `Subject '${excelSubjectName}' exists in database but under category '${matchedByName.category}', not '${category}'` 
+            });
+            continue;
+          }
+
+          // Verify if it mismatches with UI selected subjects
+          if (bodySubjectIds.length > 0 && !bodySubjectIds.includes(String(matchedByName._id))) {
+            errors.push({ 
+              row: i + 2, 
+              error: `Subject mismatch: Excel says '${excelSubjectName}' but it is not in your selected default subjects` 
+            });
+            continue;
+          }
+
+          targetSubjectIds = [matchedByName._id];
+          resolvedSubjectsList = [matchedByName];
+        } else {
+          // If no subject name is specified in Excel, verify that Excel category (if present) matches UI selected subjects
+          if (bodySubjectIds.length === 0) {
+            errors.push({ row: i + 2, error: "Subject is required but not selected or specified in file" });
+            continue;
+          }
+
+          if (category) {
+            const catLower = String(category).trim().toLowerCase();
+            const invalidSel = selectedSubjects.find(s => s.category.toLowerCase() !== catLower);
+            if (invalidSel) {
+              errors.push({ 
+                row: i + 2, 
+                error: `Category mismatch: Excel says category is '${category}' but selected subject '${invalidSel.name}' is under '${invalidSel.category}'` 
+              });
+              continue;
+            }
+          }
+
+          targetSubjectIds = bodySubjectIds;
+          resolvedSubjectsList = selectedSubjects;
         }
 
-        if (!subject_id) {
+        if (targetSubjectIds.length === 0) {
           errors.push({ row: i + 2, error: "Subject is required but not selected or specified in file" });
           continue;
         }
-
-        const finalCategory = category ? String(category).trim().toLowerCase() : (resolvedSubject ? resolvedSubject.category : "");
 
         // Parse correct answer
         let correct_option_index = -1;
@@ -261,20 +353,25 @@ export const importQuestions = async (req, res) => {
           { text: String(optionD), is_correct: correct_option_index === 3 },
         ];
 
-        questions.push({
-          subject_id,
-          category: finalCategory,
-          company_id,
-          company_name: String(companyName),
-          year: finalYear,
-          question_text: String(questionText),
-          options,
-          correct_option_index,
-          explanation: String(explanation),
-          difficulty: diffLower,
-          tags,
-          is_previous_year,
-          is_active: true
+        targetSubjectIds.forEach(subId => {
+          const resolvedSub = resolvedSubjectsList.find(s => String(s._id) === String(subId));
+          const finalCategory = category ? String(category).trim().toLowerCase() : (resolvedSub ? resolvedSub.category : "");
+
+          questions.push({
+            subject_id: subId,
+            category: finalCategory,
+            company_id,
+            company_name: String(companyName),
+            year: finalYear,
+            question_text: String(questionText),
+            options,
+            correct_option_index,
+            explanation: String(explanation),
+            difficulty: diffLower,
+            tags,
+            is_previous_year,
+            is_active: true
+          });
         });
       } catch (err) {
         errors.push({ row: i + 2, error: err.message });
@@ -315,4 +412,14 @@ export const importQuestions = async (req, res) => {
     }
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: error.message });
   }
+};
+
+// Admin: Bulk delete questions
+export const bulkDeleteQuestions = async (req, res) => {
+  const { ids } = req.body;
+  if (!ids || !Array.isArray(ids) || ids.length === 0) {
+    return res.status(StatusCodes.BAD_REQUEST).json({ msg: "No question IDs provided" });
+  }
+  const result = await Question.deleteMany({ _id: { $in: ids } });
+  res.status(StatusCodes.OK).json({ msg: `${result.deletedCount} questions deleted`, count: result.deletedCount });
 };

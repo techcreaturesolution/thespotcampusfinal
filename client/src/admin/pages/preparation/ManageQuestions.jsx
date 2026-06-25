@@ -1,23 +1,28 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { FiPlus, FiEdit, FiTrash2, FiSearch, FiHelpCircle } from "react-icons/fi";
+import { FiPlus, FiEdit, FiTrash2, FiSearch, FiHelpCircle, FiUpload } from "react-icons/fi";
 import customFetch from "../../../utils/customFetch";
 import Loading from "../../../common/components/Loading";
 import PageHeader from "../../../common/components/PageHeader";
 import CreateQuestionModal from "../../components/CreateQuestionModal";
+import BulkUploadModal from "../../components/BulkUploadModal";
 
 const ManageQuestions = () => {
   const [questions, setQuestions] = useState([]);
   const [subjects, setSubjects] = useState([]);
+  const [companies, setCompanies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [showBulkModal, setShowBulkModal] = useState(false);
   const [editing, setEditing] = useState(null);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
-  const [filters, setFilters] = useState({ subject_id: "", difficulty: "", search: "", is_previous_year: "" });
+  const [filters, setFilters] = useState({ subject_id: "", difficulty: "", company_name: "", search: "", is_previous_year: "" });
+  const [selectedIds, setSelectedIds] = useState([]);
 
   useEffect(() => { fetchSubjects(); }, []);
   useEffect(() => { fetchQuestions(); }, [page, filters]);
+  useEffect(() => { setSelectedIds([]); }, [questions]);
 
   const fetchSubjects = async () => {
     try { const { data } = await customFetch.get("/preparation/subjects"); setSubjects(data.subjects); } catch {}
@@ -27,7 +32,9 @@ const ManageQuestions = () => {
     try {
       const params = new URLSearchParams({ page, limit: 15, ...Object.fromEntries(Object.entries(filters).filter(([, v]) => v)) });
       const { data } = await customFetch.get(`/preparation/questions?${params}`);
-      setQuestions(data.questions); setTotal(data.total);
+      setQuestions(data.questions);
+      setTotal(data.total);
+      setCompanies(data.companies || []);
     } catch { toast.error("Failed to load questions"); }
     finally { setLoading(false); }
   };
@@ -59,6 +66,33 @@ const ManageQuestions = () => {
     try { await customFetch.delete(`/preparation/questions/${id}`); toast.success("Deleted"); fetchQuestions(); } catch { toast.error("Failed"); }
   };
 
+  const handleSelectAll = (e) => {
+    if (e.target.checked) {
+      setSelectedIds(questions.map(q => q._id));
+    } else {
+      setSelectedIds([]);
+    }
+  };
+
+  const handleSelectRow = (id) => {
+    setSelectedIds(prev =>
+      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+    );
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.length === 0) return;
+    if (!confirm(`Are you sure you want to delete the selected ${selectedIds.length} questions?`)) return;
+    try {
+      await customFetch.post("/preparation/questions/bulk-delete", { ids: selectedIds });
+      toast.success("Selected questions deleted successfully");
+      setSelectedIds([]);
+      fetchQuestions();
+    } catch {
+      toast.error("Failed to delete questions");
+    }
+  };
+
   const totalPages = Math.ceil(total / 15);
 
   if (loading) return <Loading />;
@@ -70,12 +104,28 @@ const ManageQuestions = () => {
         title="Manage Questions"
         subtitle="Create and manage preparation question bank"
         action={
-          <button
-            onClick={() => { setShowForm(true); setEditing(null); }}
-            className="vibrant-btn text-white font-extrabold py-2.5 px-5 rounded-full transition-all duration-200 active:scale-95 inline-flex items-center gap-2 text-xs shadow-md"
-          >
-            <FiPlus className="w-4 h-4" /> Add Question
-          </button>
+          <div className="flex flex-wrap gap-2.5">
+            {selectedIds.length > 0 && (
+              <button
+                onClick={handleBulkDelete}
+                className="bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-600 font-extrabold py-2.5 px-5 rounded-full transition-all duration-200 active:scale-95 inline-flex items-center gap-2 text-xs shadow-sm hover:shadow-md animate-fade-in"
+              >
+                <FiTrash2 className="w-4 h-4" /> Delete Selected ({selectedIds.length})
+              </button>
+            )}
+            <button
+              onClick={() => setShowBulkModal(true)}
+              className="bg-white hover:bg-slate-55 border border-slate-200 text-slate-700 font-extrabold py-2.5 px-5 rounded-full transition-all duration-200 active:scale-95 inline-flex items-center gap-2 text-xs shadow-sm hover:shadow-md"
+            >
+              <FiUpload className="w-4 h-4" /> Bulk Import
+            </button>
+            <button
+              onClick={() => { setShowForm(true); setEditing(null); }}
+              className="vibrant-btn text-white font-extrabold py-2.5 px-5 rounded-full transition-all duration-200 active:scale-95 inline-flex items-center gap-2 text-xs shadow-md"
+            >
+              <FiPlus className="w-4 h-4" /> Add Question
+            </button>
+          </div>
         }
       />
 
@@ -100,6 +150,14 @@ const ManageQuestions = () => {
           <option value="medium">Medium</option>
           <option value="hard">Hard</option>
         </select>
+        <select
+          value={filters.company_name}
+          onChange={(e) => { setFilters({ ...filters, company_name: e.target.value }); setPage(1); }}
+          className="bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-full px-4 py-2 text-xs font-bold text-slate-700 outline-none transition-colors cursor-pointer"
+        >
+          <option value="">All Companies</option>
+          {companies.map(c => <option key={c} value={c}>{c}</option>)}
+        </select>
 
         <div className="relative flex-1 min-w-[200px]">
           <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -120,6 +178,14 @@ const ManageQuestions = () => {
           <table className="w-full text-xs text-left">
             <thead className="bg-slate-50/50 border-b border-slate-100 text-[10px] font-black text-slate-500 uppercase tracking-wider">
               <tr>
+                <th className="px-6 py-4 w-12 text-center">
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.length === questions.length && questions.length > 0}
+                    onChange={handleSelectAll}
+                    className="rounded border-slate-355 text-indigo-650 focus:ring-indigo-500 w-4 h-4 cursor-pointer"
+                  />
+                </th>
                 <th className="px-6 py-4">Question Text</th>
                 <th className="px-6 py-4">Subject</th>
                 <th className="px-6 py-4 text-center">Difficulty</th>
@@ -129,7 +195,15 @@ const ManageQuestions = () => {
             </thead>
             <tbody className="divide-y divide-slate-100">
               {questions.map(q => (
-                <tr key={q._id} className="hover:bg-slate-50/50 transition duration-150">
+                <tr key={q._id} className={`hover:bg-slate-50/50 transition duration-150 ${selectedIds.includes(q._id) ? "bg-indigo-50/20" : ""}`}>
+                  <td className="px-6 py-4 w-12 text-center">
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.includes(q._id)}
+                      onChange={() => handleSelectRow(q._id)}
+                      className="rounded border-slate-355 text-indigo-650 focus:ring-indigo-500 w-4 h-4 cursor-pointer"
+                    />
+                  </td>
                   <td className="px-6 py-4 max-w-[320px] truncate font-semibold text-slate-800">
                     {q.question_text}
                   </td>
@@ -216,6 +290,16 @@ const ManageQuestions = () => {
         question={editing}
         subjects={subjects}
         onSubmit={handleSubmit}
+      />
+
+      <BulkUploadModal
+        isOpen={showBulkModal}
+        onClose={() => setShowBulkModal(false)}
+        subjects={subjects}
+        onUploadSuccess={() => {
+          setPage(1);
+          fetchQuestions();
+        }}
       />
     </div>
   );

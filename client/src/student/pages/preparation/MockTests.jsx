@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { FiClock, FiTarget, FiPlay, FiSearch } from "react-icons/fi";
+import { FiClock, FiTarget, FiPlay, FiSearch, FiBookmark } from "react-icons/fi";
 import customFetch from "../../../utils/customFetch";
 import Loading from "../../../common/components/Loading";
 import PageHeader from "../../../common/components/PageHeader";
@@ -12,8 +12,12 @@ const MockTests = () => {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("");
   const [search, setSearch] = useState("");
+  const [bookmarkedIds, setBookmarkedIds] = useState(new Set());
 
-  useEffect(() => { fetchMockTests(); }, [filter]);
+  useEffect(() => {
+    fetchMockTests();
+    fetchBookmarks();
+  }, [filter]);
 
   const fetchMockTests = async () => {
     try {
@@ -22,6 +26,36 @@ const MockTests = () => {
       setMockTests(data.mockTests);
     } catch { toast.error("Failed to load mock tests"); }
     finally { setLoading(false); }
+  };
+
+  const fetchBookmarks = async () => {
+    try {
+      const { data } = await customFetch.get("/preparation/bookmarks?item_type=mock_test");
+      setBookmarkedIds(new Set(data.bookmarks.map(bm => bm.item_id)));
+    } catch (err) {
+      console.error("Failed to load bookmarks", err);
+    }
+  };
+
+  const handleBookmark = async (id) => {
+    try {
+      const { data } = await customFetch.post("/preparation/bookmarks/toggle", {
+        item_type: "mock_test",
+        item_id: id,
+      });
+      setBookmarkedIds(prev => {
+        const next = new Set(prev);
+        if (data.bookmarked) {
+          next.add(id);
+        } else {
+          next.delete(id);
+        }
+        return next;
+      });
+      toast.success(data.msg || "Bookmark toggled successfully");
+    } catch {
+      toast.error("Failed to toggle bookmark");
+    }
   };
 
   const handleStart = async (id) => {
@@ -138,12 +172,25 @@ const MockTests = () => {
                 )}
               </div>
               
-              <button
-                onClick={() => handleStart(mt._id)}
-                className="w-full flex items-center justify-center gap-2 vibrant-btn text-white font-extrabold py-2.5 px-5 rounded-full transition-all duration-200 active:scale-95 text-xs shadow-md"
-              >
-                <FiPlay className="w-4 h-4" /> Start Test
-              </button>
+              <div className="flex gap-2 items-center">
+                <button
+                  onClick={() => handleStart(mt._id)}
+                  className="flex-1 flex items-center justify-center gap-2 vibrant-btn text-white font-extrabold py-2.5 px-5 rounded-full transition-all duration-200 active:scale-95 text-xs shadow-md"
+                >
+                  <FiPlay className="w-4 h-4" /> Start Test
+                </button>
+                <button
+                  onClick={() => handleBookmark(mt._id)}
+                  title={bookmarkedIds.has(mt._id) ? "Remove Bookmark" : "Bookmark Test"}
+                  className={`w-9 h-9 rounded-full border transition-colors flex items-center justify-center shadow-sm flex-shrink-0 active:scale-95 ${
+                    bookmarkedIds.has(mt._id)
+                      ? "bg-blue-50 border-blue-200 text-blue-600 hover:bg-blue-100 hover:border-blue-300"
+                      : "bg-white border-slate-200 text-slate-400 hover:bg-slate-50 hover:border-slate-300"
+                  }`}
+                >
+                  <FiBookmark className={`w-4 h-4 ${bookmarkedIds.has(mt._id) ? "fill-current" : "fill-none"}`} />
+                </button>
+              </div>
             </div>
           </div>
         ))}

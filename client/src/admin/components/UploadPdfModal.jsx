@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { FiX, FiUploadCloud } from "react-icons/fi";
 import { toast } from "react-toastify";
-
-const CATEGORIES = ["aptitude", "reasoning", "programming", "interview_preparation", "company_specific", "general"];
+import customFetch from "../../utils/customFetch";
 
 const UploadPdfModal = ({ isOpen, onClose, pdf, subjects = [], onSubmit }) => {
   if (!isOpen) return null;
 
+  const [categories, setCategories] = useState([]);
   const [form, setForm] = useState({
     title: "",
     description: "",
-    category: "programming",
+    category: "",
     subject_id: "",
     tags: "",
     total_pages: 0,
@@ -19,11 +19,25 @@ const UploadPdfModal = ({ isOpen, onClose, pdf, subjects = [], onSubmit }) => {
   const [file, setFile] = useState(null);
 
   useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const { data } = await customFetch.get("/preparation/subjects/categories");
+        setCategories(data.categories.map((c) => c.name));
+      } catch (err) {
+        console.error("Failed to load categories", err);
+      }
+    };
+    if (isOpen) {
+      fetchCategories();
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
     if (pdf) {
       setForm({
         title: pdf.title || "",
         description: pdf.description || "",
-        category: pdf.category || "programming",
+        category: pdf.category || (categories[0] || ""),
         subject_id: pdf.subject_id?._id || pdf.subject_id || "",
         tags: Array.isArray(pdf.tags) ? pdf.tags.join(", ") : pdf.tags || "",
         total_pages: pdf.total_pages || 0,
@@ -34,7 +48,7 @@ const UploadPdfModal = ({ isOpen, onClose, pdf, subjects = [], onSubmit }) => {
       setForm({
         title: "",
         description: "",
-        category: "programming",
+        category: categories[0] || "",
         subject_id: "",
         tags: "",
         total_pages: 0,
@@ -42,7 +56,7 @@ const UploadPdfModal = ({ isOpen, onClose, pdf, subjects = [], onSubmit }) => {
       });
       setFile(null);
     }
-  }, [pdf]);
+  }, [pdf, categories]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -95,7 +109,7 @@ const UploadPdfModal = ({ isOpen, onClose, pdf, subjects = [], onSubmit }) => {
                 onChange={(e) => setForm({ ...form, category: e.target.value })}
                 required
               >
-                {CATEGORIES.map((c) => (
+                {categories.map((c) => (
                   <option key={c} value={c}>
                     {c.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase())}
                   </option>

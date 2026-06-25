@@ -1,18 +1,32 @@
 import React, { useState, useEffect } from "react";
 import { FiX } from "react-icons/fi";
+import customFetch from "../../utils/customFetch";
 
-const CATEGORIES = ["aptitude", "reasoning", "english", "programming", "technical", "general"];
-
-const CreateSubjectModal = ({ isOpen, onClose, subject, onSubmit }) => {
+const CreateSubjectModal = ({ isOpen, onClose, subject, onSubmit, nextSortOrder = 1 }) => {
   if (!isOpen) return null;
 
+  const [categories, setCategories] = useState([]);
   const [form, setForm] = useState({
     name: "",
     description: "",
     category: "technical",
     icon: "",
-    sort_order: 0,
+    sort_order: nextSortOrder,
   });
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const { data } = await customFetch.get("/preparation/subjects/categories");
+        setCategories(data.categories.map((c) => c.name));
+      } catch {
+        setCategories(["aptitude", "reasoning", "english", "programming", "technical", "general"]);
+      }
+    };
+    if (isOpen) {
+      fetchCategories();
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     if (subject) {
@@ -27,12 +41,12 @@ const CreateSubjectModal = ({ isOpen, onClose, subject, onSubmit }) => {
       setForm({
         name: "",
         description: "",
-        category: "technical",
+        category: categories.includes("technical") ? "technical" : categories[0] || "",
         icon: "",
-        sort_order: 0,
+        sort_order: nextSortOrder,
       });
     }
-  }, [subject]);
+  }, [subject, categories, nextSortOrder]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -81,7 +95,7 @@ const CreateSubjectModal = ({ isOpen, onClose, subject, onSubmit }) => {
               onChange={(e) => setForm({ ...form, category: e.target.value })}
               required
             >
-              {CATEGORIES.map((c) => (
+              {categories.map((c) => (
                 <option key={c} value={c}>
                   {c.charAt(0).toUpperCase() + c.slice(1)}
                 </option>

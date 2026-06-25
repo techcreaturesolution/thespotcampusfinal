@@ -5,8 +5,24 @@ import { StatusCodes } from "http-status-codes";
 
 // Admin: Create subject
 export const createSubject = async (req, res) => {
+  if (!req.body.sort_order || req.body.sort_order === 0) {
+    const maxSubject = await Subject.findOne({}).sort({ sort_order: -1 });
+    req.body.sort_order = maxSubject ? (maxSubject.sort_order || 0) + 1 : 1;
+  }
   const subject = await Subject.create(req.body);
-  res.status(StatusCodes.CREATED).json({ subject });
+
+  // Re-index remaining subjects sequentially
+  const all = await Subject.find({}).sort({ sort_order: 1, name: 1 });
+  for (let i = 0; i < all.length; i++) {
+    const sub = all[i];
+    const newSortOrder = i + 1;
+    if (sub.sort_order !== newSortOrder) {
+      await Subject.findByIdAndUpdate(sub._id, { sort_order: newSortOrder });
+    }
+  }
+
+  const updatedSubject = await Subject.findById(subject._id);
+  res.status(StatusCodes.CREATED).json({ subject: updatedSubject });
 };
 
 // Admin: Get all subjects
@@ -27,7 +43,19 @@ export const InstrumentPatchSubject = async (req, res) => {
 export const updateSubject = async (req, res) => {
   const subject = await Subject.findByIdAndUpdate(req.params.id, req.body, { new: true });
   if (!subject) return res.status(StatusCodes.NOT_FOUND).json({ msg: "Subject not found" });
-  res.status(StatusCodes.OK).json({ subject });
+
+  // Re-index remaining subjects sequentially
+  const all = await Subject.find({}).sort({ sort_order: 1, name: 1 });
+  for (let i = 0; i < all.length; i++) {
+    const sub = all[i];
+    const newSortOrder = i + 1;
+    if (sub.sort_order !== newSortOrder) {
+      await Subject.findByIdAndUpdate(sub._id, { sort_order: newSortOrder });
+    }
+  }
+
+  const updatedSubject = await Subject.findById(subject._id);
+  res.status(StatusCodes.OK).json({ subject: updatedSubject });
 };
 
 // Admin: Delete subject
@@ -35,7 +63,18 @@ export const deleteSubject = async (req, res) => {
   const subject = await Subject.findByIdAndDelete(req.params.id);
   if (!subject) return res.status(StatusCodes.NOT_FOUND).json({ msg: "Subject not found" });
   await Question.deleteMany({ subject_id: req.params.id });
-  res.status(StatusCodes.OK).json({ msg: "Subject deleted" });
+
+  // Re-index remaining subjects sequentially
+  const remainingSubjects = await Subject.find({}).sort({ sort_order: 1, name: 1 });
+  for (let i = 0; i < remainingSubjects.length; i++) {
+    const sub = remainingSubjects[i];
+    const newSortOrder = i + 1;
+    if (sub.sort_order !== newSortOrder) {
+      await Subject.findByIdAndUpdate(sub._id, { sort_order: newSortOrder });
+    }
+  }
+
+  res.status(StatusCodes.OK).json({ msg: "Subject deleted and sorting updated" });
 };
 
 // Public: Get active subjects with question count
@@ -73,4 +112,19 @@ export const createCategory = async (req, res) => {
   }
   const category = await SubjectCategory.create({ name: normalizedName });
   res.status(StatusCodes.CREATED).json({ category });
+};
+
+// Admin: Delete subject category
+export const deleteCategory = async (req, res) => {
+  const category = await SubjectCategory.findById(req.params.id);
+  if (!category) return res.status(StatusCodes.NOT_FOUND).json({ msg: "Category not found" });
+  
+  // Check if in use
+  const inUseCount = await Subject.countDocuments({ category: category.name });
+  if (inUseCount > 0) {
+    return res.status(StatusCodes.BAD_REQUEST).json({ msg: `Cannot delete category because it is in use by ${inUseCount} subjects` });
+  }
+  
+  await SubjectCategory.findByIdAndDelete(req.params.id);
+  res.status(StatusCodes.OK).json({ msg: "Category deleted successfully" });
 };

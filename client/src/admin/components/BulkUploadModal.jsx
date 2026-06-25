@@ -7,7 +7,7 @@ import customFetch from "../../utils/customFetch";
 const BulkUploadModal = ({ isOpen, onClose, subjects = [], onUploadSuccess }) => {
   if (!isOpen) return null;
 
-  const [subjectId, setSubjectId] = useState("");
+  const [selectedSubjectIds, setSelectedSubjectIds] = useState([]);
   const [file, setFile] = useState(null);
   const [dragOver, setDragOver] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -61,11 +61,11 @@ const BulkUploadModal = ({ isOpen, onClose, subjects = [], onUploadSuccess }) =>
         "Option D": "9",
         "Answer": "B",
         "Difficulty": "easy",
-        "Explanation": "In Python, * is the multiplication operator. 2 * 3 equals 6.",
-        "Company Name": "Google",
-        "Year": 2024,
-        "Is Previous Year": "Yes",
-        "Tags": "python, operators, basics",
+        "Explanation (Optional)": "In Python, * is the multiplication operator. 2 * 3 equals 6.",
+        "Company Name (Optional)": "Google",
+        "Year (Optional)": 2024,
+        "Previous Year": "Yes",
+        "Tags (Comma Separated, Optional)": "python, operators, basics",
         "Subject": "Python",
         "Category": "programming"
       },
@@ -77,11 +77,11 @@ const BulkUploadModal = ({ isOpen, onClose, subjects = [], onUploadSuccess }) =>
         "Option D": "Binary Tree",
         "Answer": "B",
         "Difficulty": "medium",
-        "Explanation": "A Queue is a linear structure which follows FIFO order for operations.",
-        "Company Name": "Amazon",
-        "Year": 2023,
-        "Is Previous Year": "No",
-        "Tags": "data structures, queue, fifo",
+        "Explanation (Optional)": "A Queue is a linear structure which follows FIFO order for operations.",
+        "Company Name (Optional)": "Amazon",
+        "Year (Optional)": 2023,
+        "Previous Year": "No",
+        "Tags (Comma Separated, Optional)": "data structures, queue, fifo",
         "Subject": "Data Structures",
         "Category": "technical"
       }
@@ -122,8 +122,8 @@ const BulkUploadModal = ({ isOpen, onClose, subjects = [], onUploadSuccess }) =>
 
     const formData = new FormData();
     formData.append("file", file);
-    if (subjectId) {
-      formData.append("subject_id", subjectId);
+    if (selectedSubjectIds.length > 0) {
+      formData.append("subject_ids", selectedSubjectIds.join(","));
     }
 
     setUploading(true);
@@ -145,7 +145,7 @@ const BulkUploadModal = ({ isOpen, onClose, subjects = [], onUploadSuccess }) =>
 
   const handleClose = () => {
     setFile(null);
-    setSubjectId("");
+    setSelectedSubjectIds([]);
     setResults(null);
     onClose();
   };
@@ -241,22 +241,35 @@ const BulkUploadModal = ({ isOpen, onClose, subjects = [], onUploadSuccess }) =>
           <form onSubmit={handleUpload} className="space-y-5">
             <div>
               <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1.5 block">
-                Select Default Subject
+                Select Default Subjects
               </label>
-              <select
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#3730a3]/20 focus:border-[#3730a3] transition duration-200 bg-white"
-                value={subjectId}
-                onChange={(e) => setSubjectId(e.target.value)}
-              >
-                <option value="">Select Subject (Fallback from file if not chosen)</option>
-                {subjects.map((s) => (
-                  <option key={s._id} value={s._id}>
-                    {s.name}
-                  </option>
-                ))}
-              </select>
-              <span className="text-[10px] text-slate-400 mt-1 block">
-                Note: If a subject is specified in the Excel sheet row, we will validate it matches this selection, or use it directly if no subject is selected here.
+              <div className="border border-slate-200 rounded-2xl p-4 max-h-[160px] overflow-y-auto bg-white space-y-2">
+                {subjects.map((s) => {
+                  const isChecked = selectedSubjectIds.includes(s._id);
+                  return (
+                    <label key={s._id} className="flex items-center gap-2.5 text-xs font-semibold text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded-lg transition-colors">
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={() => {
+                          setSelectedSubjectIds(prev =>
+                            prev.includes(s._id) ? prev.filter(id => id !== s._id) : [...prev, s._id]
+                          );
+                        }}
+                        className="rounded border-slate-300 text-[#3730a3] focus:ring-[#3730a3] w-4 h-4 cursor-pointer"
+                      />
+                      <span>
+                        {s.name}{" "}
+                        <span className="text-[9px] text-slate-450 uppercase font-black bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 ml-1">
+                          {s.category}
+                        </span>
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+              <span className="text-[10px] text-slate-400 mt-1.5 block">
+                Note: If you select multiple subjects, questions without a subject column in the Excel file will be imported to all selected subjects. If a subject is specified in the Excel row, it takes precedence.
               </span>
             </div>
 
@@ -333,7 +346,7 @@ const BulkUploadModal = ({ isOpen, onClose, subjects = [], onUploadSuccess }) =>
                   Make sure your file has the correct headers: <code className="bg-indigo-50 px-1 py-0.5 rounded font-mono font-bold text-slate-800 text-[10px]">Question</code>, <code className="bg-indigo-50 px-1 py-0.5 rounded font-mono font-bold text-slate-800 text-[10px]">Option A</code>, <code className="bg-indigo-50 px-1 py-0.5 rounded font-mono font-bold text-slate-800 text-[10px]">Option B</code>, <code className="bg-indigo-50 px-1 py-0.5 rounded font-mono font-bold text-slate-800 text-[10px]">Option C</code>, <code className="bg-indigo-50 px-1 py-0.5 rounded font-mono font-bold text-slate-800 text-[10px]">Option D</code>, and <code className="bg-indigo-50 px-1 py-0.5 rounded font-mono font-bold text-slate-800 text-[10px]">Answer</code>.
                 </p>
                 <p className="text-[11px] text-slate-500 leading-relaxed">
-                  Optional columns: <code className="bg-slate-100 px-1 py-0.5 rounded text-[10px] font-bold">Difficulty</code> (easy, medium, hard), <code className="bg-slate-100 px-1 py-0.5 rounded text-[10px] font-bold">Explanation</code>, <code className="bg-slate-100 px-1 py-0.5 rounded text-[10px] font-bold">Company Name</code>, <code className="bg-slate-100 px-1 py-0.5 rounded text-[10px] font-bold">Year</code>, <code className="bg-slate-100 px-1 py-0.5 rounded text-[10px] font-bold">Is Previous Year</code> (Yes/No), <code className="bg-slate-100 px-1 py-0.5 rounded text-[10px] font-bold">Tags</code> (comma separated), <code className="bg-slate-100 px-1 py-0.5 rounded text-[10px] font-bold">Subject</code>, <code className="bg-slate-100 px-1 py-0.5 rounded text-[10px] font-bold">Category</code>.
+                  Optional columns: <code className="bg-slate-100 px-1 py-0.5 rounded text-[10px] font-bold">Difficulty</code> (easy, medium, hard), <code className="bg-slate-100 px-1 py-0.5 rounded text-[10px] font-bold">Explanation (Optional)</code>, <code className="bg-slate-100 px-1 py-0.5 rounded text-[10px] font-bold">Company Name (Optional)</code>, <code className="bg-slate-100 px-1 py-0.5 rounded text-[10px] font-bold">Year (Optional)</code>, <code className="bg-slate-100 px-1 py-0.5 rounded text-[10px] font-bold">Previous Year</code>, <code className="bg-slate-100 px-1 py-0.5 rounded text-[10px] font-bold">Tags (Comma Separated, Optional)</code>, <code className="bg-slate-100 px-1 py-0.5 rounded text-[10px] font-bold">Subject</code>, <code className="bg-slate-100 px-1 py-0.5 rounded text-[10px] font-bold">Category</code>.
                 </p>
               </div>
             </div>

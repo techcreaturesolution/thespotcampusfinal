@@ -25,16 +25,6 @@ const RecruitmentPlanSchema = new mongoose.Schema(
       default: "INR",
     },
     features: {
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-      max_rounds_per_job: { type: Number, default: 5 },
-      video_interview_enabled: { type: Boolean, default: true },
-      max_interviews_per_month: { type: Number, default: 50 },
-      advanced_analytics: { type: Boolean, default: false },
-      priority_support: { type: Boolean, default: false },
-=======
->>>>>>> Stashed changes
       max_rounds_per_job: {
         type: Number,
         default: 5,
@@ -55,8 +45,6 @@ const RecruitmentPlanSchema = new mongoose.Schema(
         type: Boolean,
         default: false,
       },
-<<<<<<< Updated upstream
-=======
       cv_builder_enabled: {
         type: Boolean,
         default: true,
@@ -65,7 +53,6 @@ const RecruitmentPlanSchema = new mongoose.Schema(
         type: Boolean,
         default: true,
       },
->>>>>>> Stashed changes
     },
     is_active: {
       type: Boolean,
@@ -74,10 +61,6 @@ const RecruitmentPlanSchema = new mongoose.Schema(
     validity_days: {
       type: Number,
       default: 30,
-<<<<<<< Updated upstream
-=======
->>>>>>> Stashed changes
->>>>>>> Stashed changes
     },
   },
   { timestamps: true },
