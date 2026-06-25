@@ -21,6 +21,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   List<dynamic> _jobs = [];
   List<dynamic> _applications = [];
   List<dynamic> _interviews = [];
+  List<Map<String, dynamic>> _prepAnalytics = [
+    {'label': 'Loading...', 'value': 0.0, 'color': const Color(0xFF4F46E5)},
+    {'label': 'Loading...', 'value': 0.0, 'color': const Color(0xFF2563EB)},
+  ];
   bool _isLoading = true;
 
   // ── Animation controllers ──────────────────────────────────────────────────
@@ -45,6 +49,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     _fetchDashboardData();
+    _fetchPrepAnalytics();
     _progressAnimController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1600),
@@ -80,6 +85,52 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       });
     } catch (e) {
       setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _fetchPrepAnalytics() async {
+    try {
+      final api = Provider.of<ApiService>(context, listen: false);
+      final data = await api.get('/preparation/progress/subjects');
+      if (mounted && data['subject_progress'] != null) {
+        final List sp = data['subject_progress'];
+        final colors = [
+          const Color(0xFF4F46E5),
+          const Color(0xFF2563EB),
+          const Color(0xFF7C3AED),
+          const Color(0xFF10B981)
+        ];
+        
+        if (sp.isEmpty) {
+          setState(() {
+            _prepAnalytics = [
+              {'label': 'No Subjects', 'value': 0.0, 'color': const Color(0xFF4F46E5)},
+            ];
+          });
+          return;
+        }
+
+        final List<Map<String, dynamic>> loaded = [];
+        for (int i = 0; i < sp.length && i < 4; i++) {
+          loaded.add({
+            'label': sp[i]['subject_name'] ?? 'Subject',
+            'value': (sp[i]['accuracy'] ?? 0) / 100.0,
+            'color': colors[i % colors.length],
+          });
+        }
+        setState(() {
+          _prepAnalytics = loaded;
+        });
+      }
+    } catch (e) {
+      // Ignored, defaults will show
+      if (mounted) {
+        setState(() {
+          _prepAnalytics = [
+            {'label': 'Error loading', 'value': 0.0, 'color': const Color(0xFFEF4444)},
+          ];
+        });
+      }
     }
   }
 
@@ -711,13 +762,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   // ── 5. PREPARATION ANALYTICS ───────────────────────────────────────────────
   Widget _buildPrepAnalytics() {
-    // TODO: Replace placeholder values with real analytics API when available
-    const analytics = <Map<String, dynamic>>[
-      {'label': 'Reasoning', 'value': 0.82, 'color': Color(0xFF4F46E5)},
-      {'label': 'Maths', 'value': 0.67, 'color': Color(0xFF2563EB)},
-      {'label': 'English', 'value': 0.74, 'color': Color(0xFF7C3AED)},
-      {'label': 'GK', 'value': 0.91, 'color': Color(0xFF10B981)},
-    ];
+    final analytics = _prepAnalytics;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 22, 16, 0),
