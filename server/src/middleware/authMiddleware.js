@@ -57,11 +57,12 @@ export const enhancedAuthenticateUser = (req, res, next) => {
     
     next();
   } catch (error) {
-    // Clear invalid cookies
+    const isSecure = req.secure || req.headers["x-forwarded-proto"] === "https" || process.env.NODE_ENV === "production";
+    
     res.clearCookie('token', {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+      secure: isSecure,
+      sameSite: isSecure ? 'none' : 'lax'
     });
     
     if (req.session) {

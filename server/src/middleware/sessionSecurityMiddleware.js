@@ -181,11 +181,12 @@ export const sessionTimeoutCheck = (req, res, next) => {
         if (err) console.error('Session destruction error:', err);
       });
       
+      const isSecure = req.secure || req.headers["x-forwarded-proto"] === "https" || process.env.NODE_ENV === "production";
       // Clear JWT cookie as well
       res.clearCookie('token', {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+        secure: isSecure,
+        sameSite: isSecure ? 'none' : 'lax'
       });
       
       return res.status(401).json({
@@ -231,11 +232,12 @@ export const enhancedAuthenticateUser = (req, res, next) => {
     
     next();
   } catch (error) {
+    const isSecure = req.secure || req.headers["x-forwarded-proto"] === "https" || process.env.NODE_ENV === "production";
     // Clear invalid cookies
     res.clearCookie('token', {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+      secure: isSecure,
+      sameSite: isSecure ? 'none' : 'lax'
     });
     
     if (req.session) {
@@ -355,11 +357,12 @@ export const sessionSecurityHeaders = (req, res, next) => {
 
 // Logout security middleware
 export const secureLogout = (req, res, next) => {
+  const isSecure = req.secure || req.headers["x-forwarded-proto"] === "https" || process.env.NODE_ENV === "production";
   // Clear all authentication data
   res.clearCookie('token', {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    secure: isSecure,
+    sameSite: isSecure ? 'none' : 'lax',
     path: '/'
   });
   

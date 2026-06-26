@@ -219,11 +219,12 @@ export const refreshToken = (req, res) => {
     // Create refresh token (optional, for future use)
     const refreshToken = createRefreshToken(tokenPayload);
     
-    // Set new token in cookie
+    const isSecure = req.secure || req.headers["x-forwarded-proto"] === "https" || process.env.NODE_ENV === "production";
+
     res.cookie('token', newToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      secure: isSecure,
+      sameSite: isSecure ? 'none' : 'lax',
       maxAge: 24 * 60 * 60 * 1000 // 24 hours
     });
     

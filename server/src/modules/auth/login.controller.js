@@ -108,11 +108,13 @@ export const login = async (req, res) => {
     const token = createJWT({ userId: user._id, role: detectedRole });
     const oneDay = 1000 * 60 * 60 * 24;
 
+    const isSecure = req.secure || req.headers["x-forwarded-proto"] === "https" || process.env.NODE_ENV === "production";
+
     res.cookie("token", token, {
       httpOnly: true,
       expires: new Date(Date.now() + oneDay),
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      secure: isSecure,
+      sameSite: isSecure ? "none" : "lax",
     });
 
     res.status(StatusCodes.OK).json({ msg: "Login successful", user, role: detectedRole });
@@ -124,11 +126,13 @@ export const login = async (req, res) => {
 };
 
 export const logout = (req, res) => {
+  const isSecure = req.secure || req.headers["x-forwarded-proto"] === "https" || process.env.NODE_ENV === "production";
+  
   res.cookie("token", "logout", {
     httpOnly: true,
     expires: new Date(Date.now()),
-    secure: process.env.NODE_ENV === "production",
-    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    secure: isSecure,
+    sameSite: isSecure ? "none" : "lax",
   });
   res.status(StatusCodes.OK).json({ msg: "User logged out" });
 };
