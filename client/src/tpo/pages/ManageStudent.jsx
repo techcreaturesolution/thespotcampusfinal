@@ -111,7 +111,7 @@ const ManageStudent = () => {
             key: "college",
             label: "Affiliated College",
             render: (s) => (
-              <div className="flex flex-col text-xs font-semibold text-slate-505 max-w-[220px] truncate text-left" title={s.college_id?.college_name}>
+              <div className="flex flex-col text-xs font-semibold text-slate-500 max-w-[220px] truncate text-left" title={s.college_id?.college_name}>
                 <span className="font-bold text-slate-700 truncate">{s.college_id?.college_name || "—"}</span>
                 {s.college_id?.college_code && (
                   <span className="text-[10px] text-slate-400 mt-0.5">Code: {s.college_id.college_code}</span>
@@ -123,7 +123,7 @@ const ManageStudent = () => {
             key: "branch",
             label: "Academic Stream",
             render: (s) => (
-              <div className="flex flex-col text-xs font-semibold text-slate-505 text-left">
+              <div className="flex flex-col text-xs font-semibold text-slate-500 text-left">
                 <span className="font-bold text-slate-700">{s.branch_id?.branch_name || "—"}</span>
                 {s.degree_id?.degree_code && (
                   <span className="text-[10px] text-slate-400 mt-0.5 uppercase tracking-wide">{s.degree_id.degree_code} Specialization</span>

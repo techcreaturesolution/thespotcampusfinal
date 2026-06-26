@@ -124,7 +124,7 @@ const ManageJob = () => {
                     </div>
 
                     {/* Metadata indicators */}
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs font-semibold text-slate-505">
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs font-semibold text-slate-500">
                       <p className="text-slate-800 font-extrabold">{job.job_position}</p>
                       {job.job_salary && (
                         <span className="flex items-center gap-1"><FiDollarSign className="w-3.5 h-3.5 text-slate-400" />Salary: {job.job_salary}</span>

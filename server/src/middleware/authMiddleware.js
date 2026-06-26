@@ -62,7 +62,8 @@ export const enhancedAuthenticateUser = (req, res, next) => {
     res.clearCookie('token', {
       httpOnly: true,
       secure: isSecure,
-      sameSite: isSecure ? 'none' : 'lax'
+      sameSite: isSecure ? 'none' : 'lax',
+      partitioned: isSecure
     });
     
     if (req.session) {

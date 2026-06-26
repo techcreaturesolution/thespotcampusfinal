@@ -47,6 +47,7 @@ export const login = async (req, res) => {
       expires: new Date(Date.now() + oneDay),
       secure: isSecure,
       sameSite: isSecure ? "none" : "lax",
+      partitioned: isSecure,
     });
 
     res.status(StatusCodes.OK).json({ msg: "Admin logged in", admin });
@@ -65,6 +66,7 @@ export const logout = (req, res) => {
     expires: new Date(Date.now()),
     secure: isSecure,
     sameSite: isSecure ? "none" : "lax",
+    partitioned: isSecure,
   });
   res.status(StatusCodes.OK).json({ msg: "Admin logged out" });
 };

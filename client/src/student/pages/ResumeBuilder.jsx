@@ -1226,7 +1226,7 @@ const ResumeBuilder = () => {
                 <div className="space-y-5 text-left">
                   {/* Skills Tags */}
                   <div className="space-y-2">
-                    <label className="text-[10px] font-extrabold text-slate-505 uppercase tracking-wide block">Skills List</label>
+                    <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wide block">Skills List</label>
                     <div className="flex gap-2">
                       <input
                         type="text"
@@ -1265,7 +1265,7 @@ const ResumeBuilder = () => {
 
                   {/* Certifications Tags */}
                   <div className="space-y-2">
-                    <label className="text-[10px] font-extrabold text-slate-505 uppercase tracking-wide block">Certifications</label>
+                    <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wide block">Certifications</label>
                     <div className="flex gap-2">
                       <input
                         type="text"

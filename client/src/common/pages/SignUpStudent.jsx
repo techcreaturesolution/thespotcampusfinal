@@ -74,7 +74,7 @@ const SignUpStudent = () => {
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
   return (
-    <div className="min-h-screen bg-[#f8f9ff] text-[#0b1c30] flex items-center justify-center p-4 sm:p-6 lg:p-8 relative overflow-hidden selection:bg-[#3730a3] selection:text-white">
+    <main className="min-h-screen bg-[#f8f9ff] text-[#0b1c30] flex items-center justify-center p-4 sm:p-6 lg:p-8 relative overflow-hidden selection:bg-[#3730a3] selection:text-white">
       {/* Soft Ambient Background Glows */}
       <div className="absolute top-10 left-10 w-96 h-96 bg-blue-400/10 blur-[100px] rounded-full pointer-events-none -z-10" />
       <div className="absolute bottom-10 right-10 w-[450px] h-[450px] bg-indigo-400/10 blur-[120px] rounded-full pointer-events-none -z-10" />
@@ -97,7 +97,7 @@ const SignUpStudent = () => {
           <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">
             {fromAdmin ? "Add New " : ""}<span className="text-gradient font-black">Student</span>{fromAdmin ? "" : " Registration"}
           </h1>
-          <p className="text-slate-400 mt-1.5 font-semibold text-xs sm:text-sm">
+          <p className="text-slate-600 mt-1.5 font-semibold text-xs sm:text-sm">
             {fromAdmin ? "Enter student details below to register them on the platform" : "Create your student profile to start applying"}
           </p>
         </div>
@@ -106,21 +106,22 @@ const SignUpStudent = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {/* Full Name */}
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Full Name</label>
-              <input type="text" name="student_name" className="w-full px-4 py-3 bg-[#f8f9ff]/70 border border-slate-200 focus:border-[#3730a3] focus:bg-white outline-none rounded-xl text-sm transition-all duration-200 focus:ring-4 focus:ring-indigo-500/5" value={formData.student_name} onChange={handleChange} required />
+              <label htmlFor="student_name" className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Full Name</label>
+              <input id="student_name" type="text" name="student_name" className="w-full px-4 py-3 bg-[#f8f9ff]/70 border border-slate-200 focus:border-[#3730a3] focus:bg-white outline-none rounded-xl text-sm transition-all duration-200 focus:ring-4 focus:ring-indigo-500/5" value={formData.student_name} onChange={handleChange} required />
             </div>
 
             {/* Email Address */}
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Email Address</label>
-              <input type="email" name="student_email" className="w-full px-4 py-3 bg-[#f8f9ff]/70 border border-slate-200 focus:border-[#3730a3] focus:bg-white outline-none rounded-xl text-sm transition-all duration-200 focus:ring-4 focus:ring-indigo-500/5" value={formData.student_email} onChange={handleChange} required />
+              <label htmlFor="student_email" className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Email Address</label>
+              <input id="student_email" type="email" name="student_email" className="w-full px-4 py-3 bg-[#f8f9ff]/70 border border-slate-200 focus:border-[#3730a3] focus:bg-white outline-none rounded-xl text-sm transition-all duration-200 focus:ring-4 focus:ring-indigo-500/5" value={formData.student_email} onChange={handleChange} required />
             </div>
 
             {/* Password */}
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Password</label>
+              <label htmlFor="student_password" className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Password</label>
               <div className="relative">
                 <input
+                  id="student_password"
                   type={showPassword ? "text" : "password"}
                   name="student_password"
                   className="w-full px-4 py-3 bg-[#f8f9ff]/70 border border-slate-200 focus:border-[#3730a3] focus:bg-white outline-none rounded-xl text-sm transition-all duration-200 pl-4 pr-10 focus:ring-4 focus:ring-indigo-500/5"
@@ -130,7 +131,8 @@ const SignUpStudent = () => {
                 />
                 <button
                   type="button"
-                  className="absolute right-3 top-3.5 text-slate-400 hover:text-[#3730a3] focus:outline-none transition duration-150"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  className="absolute right-1 top-1 w-10 h-10 flex items-center justify-center text-slate-500 hover:text-[#3730a3] focus:outline-none transition duration-150"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
@@ -140,25 +142,25 @@ const SignUpStudent = () => {
 
             {/* Contact Number */}
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Contact Number</label>
-              <input type="tel" name="student_contact" className="w-full px-4 py-3 bg-[#f8f9ff]/70 border border-slate-200 focus:border-[#3730a3] focus:bg-white outline-none rounded-xl text-sm transition-all duration-200 focus:ring-4 focus:ring-indigo-500/5" value={formData.student_contact} onChange={handleChange} required />
+              <label htmlFor="student_contact" className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Contact Number</label>
+              <input id="student_contact" type="tel" name="student_contact" className="w-full px-4 py-3 bg-[#f8f9ff]/70 border border-slate-200 focus:border-[#3730a3] focus:bg-white outline-none rounded-xl text-sm transition-all duration-200 focus:ring-4 focus:ring-indigo-500/5" value={formData.student_contact} onChange={handleChange} required />
             </div>
 
             {/* Enrollment Number */}
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Enrollment Number</label>
-              <input type="text" name="student_enrollment" className="w-full px-4 py-3 bg-[#f8f9ff]/70 border border-slate-200 focus:border-[#3730a3] focus:bg-white outline-none rounded-xl text-sm transition-all duration-200 focus:ring-4 focus:ring-indigo-500/5" value={formData.student_enrollment} onChange={handleChange} required />
+              <label htmlFor="student_enrollment" className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Enrollment Number</label>
+              <input id="student_enrollment" type="text" name="student_enrollment" className="w-full px-4 py-3 bg-[#f8f9ff]/70 border border-slate-200 focus:border-[#3730a3] focus:bg-white outline-none rounded-xl text-sm transition-all duration-200 focus:ring-4 focus:ring-indigo-500/5" value={formData.student_enrollment} onChange={handleChange} required />
             </div>
 
             {/* University */}
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">University</label>
+              <label htmlFor="university_id" className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">University</label>
               <div className="relative">
-                <select name="university_id" className="w-full px-4 py-3 bg-[#f8f9ff]/70 border border-slate-200 focus:border-[#3730a3] focus:bg-white outline-none rounded-xl text-sm transition-all duration-200 focus:ring-4 focus:ring-indigo-500/5 bg-white appearance-none" value={formData.university_id} onChange={handleChange} required>
+                <select id="university_id" name="university_id" className="w-full px-4 py-3 bg-[#f8f9ff]/70 border border-slate-200 focus:border-[#3730a3] focus:bg-white outline-none rounded-xl text-sm transition-all duration-200 focus:ring-4 focus:ring-indigo-500/5 bg-white appearance-none" value={formData.university_id} onChange={handleChange} required>
                   <option value="">Select University</option>
                   {universities.map((u) => <option key={u._id} value={u._id}>{u.university_name}</option>)}
                 </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400">
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
                   <svg className="fill-current h-4 w-4" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
                 </div>
               </div>
@@ -166,13 +168,13 @@ const SignUpStudent = () => {
 
             {/* College */}
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">College</label>
+              <label htmlFor="college_id" className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">College</label>
               <div className="relative">
-                <select name="college_id" className="w-full px-4 py-3 bg-[#f8f9ff]/70 border border-slate-200 focus:border-[#3730a3] focus:bg-white outline-none rounded-xl text-sm transition-all duration-200 focus:ring-4 focus:ring-indigo-500/5 bg-white appearance-none disabled:opacity-60" value={formData.college_id} onChange={handleChange} disabled={!formData.university_id} required>
+                <select id="college_id" name="college_id" className="w-full px-4 py-3 bg-[#f8f9ff]/70 border border-slate-200 focus:border-[#3730a3] focus:bg-white outline-none rounded-xl text-sm transition-all duration-200 focus:ring-4 focus:ring-indigo-500/5 bg-white appearance-none disabled:opacity-60" value={formData.college_id} onChange={handleChange} disabled={!formData.university_id} required>
                   <option value="">Select College</option>
                   {colleges.map((c) => <option key={c._id} value={c._id}>{c.college_name}</option>)}
                 </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400">
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
                   <svg className="fill-current h-4 w-4" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
                 </div>
               </div>
@@ -180,13 +182,13 @@ const SignUpStudent = () => {
 
             {/* Degree */}
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Degree</label>
+              <label htmlFor="degree_id" className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Degree</label>
               <div className="relative">
-                <select name="degree_id" className="w-full px-4 py-3 bg-[#f8f9ff]/70 border border-slate-200 focus:border-[#3730a3] focus:bg-white outline-none rounded-xl text-sm transition-all duration-200 focus:ring-4 focus:ring-indigo-500/5 bg-white appearance-none disabled:opacity-60" value={formData.degree_id} onChange={handleChange} disabled={!formData.college_id} required>
+                <select id="degree_id" name="degree_id" className="w-full px-4 py-3 bg-[#f8f9ff]/70 border border-slate-200 focus:border-[#3730a3] focus:bg-white outline-none rounded-xl text-sm transition-all duration-200 focus:ring-4 focus:ring-indigo-500/5 bg-white appearance-none disabled:opacity-60" value={formData.degree_id} onChange={handleChange} disabled={!formData.college_id} required>
                   <option value="">Select Degree</option>
                   {degrees.map((d) => <option key={d._id} value={d._id}>{d.degree_name}</option>)}
                 </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400">
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
                   <svg className="fill-current h-4 w-4" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
                 </div>
               </div>
@@ -194,13 +196,13 @@ const SignUpStudent = () => {
 
             {/* Branch */}
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Branch</label>
+              <label htmlFor="branch_id" className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Branch</label>
               <div className="relative">
-                <select name="branch_id" className="w-full px-4 py-3 bg-[#f8f9ff]/70 border border-slate-200 focus:border-[#3730a3] focus:bg-white outline-none rounded-xl text-sm transition-all duration-200 focus:ring-4 focus:ring-indigo-500/5 bg-white appearance-none disabled:opacity-60" value={formData.branch_id} onChange={handleChange} disabled={!formData.degree_id} required>
+                <select id="branch_id" name="branch_id" className="w-full px-4 py-3 bg-[#f8f9ff]/70 border border-slate-200 focus:border-[#3730a3] focus:bg-white outline-none rounded-xl text-sm transition-all duration-200 focus:ring-4 focus:ring-indigo-500/5 bg-white appearance-none disabled:opacity-60" value={formData.branch_id} onChange={handleChange} disabled={!formData.degree_id} required>
                   <option value="">Select Branch</option>
                   {branches.map((b) => <option key={b._id} value={b._id}>{b.branch_name}</option>)}
                 </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400">
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
                   <svg className="fill-current h-4 w-4" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
                 </div>
               </div>
@@ -208,14 +210,14 @@ const SignUpStudent = () => {
 
             {/* Current Semester */}
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Current Semester</label>
-              <input type="text" name="student_current_sem" className="w-full px-4 py-3 bg-[#f8f9ff]/70 border border-slate-200 focus:border-[#3730a3] focus:bg-white outline-none rounded-xl text-sm transition-all duration-200 focus:ring-4 focus:ring-indigo-500/5" value={formData.student_current_sem} onChange={handleChange} required />
+              <label htmlFor="student_current_sem" className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Current Semester</label>
+              <input id="student_current_sem" type="text" name="student_current_sem" className="w-full px-4 py-3 bg-[#f8f9ff]/70 border border-slate-200 focus:border-[#3730a3] focus:bg-white outline-none rounded-xl text-sm transition-all duration-200 focus:ring-4 focus:ring-indigo-500/5" value={formData.student_current_sem} onChange={handleChange} required />
             </div>
 
             {/* Skills */}
             <div className="md:col-span-2">
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Skills</label>
-              <input type="text" name="student_skills" className="w-full px-4 py-3 bg-[#f8f9ff]/70 border border-slate-200 focus:border-[#3730a3] focus:bg-white outline-none rounded-xl text-sm transition-all duration-200 focus:ring-4 focus:ring-indigo-500/5" placeholder="e.g. React, Node.js, Python, Flutter" value={formData.student_skills} onChange={handleChange} />
+              <label htmlFor="student_skills" className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Skills</label>
+              <input id="student_skills" type="text" name="student_skills" className="w-full px-4 py-3 bg-[#f8f9ff]/70 border border-slate-200 focus:border-[#3730a3] focus:bg-white outline-none rounded-xl text-sm transition-all duration-200 focus:ring-4 focus:ring-indigo-500/5" placeholder="e.g. React, Node.js, Python, Flutter" value={formData.student_skills} onChange={handleChange} />
             </div>
           </div>
 
@@ -235,7 +237,7 @@ const SignUpStudent = () => {
           </p>
         )}
       </div>
-    </div>
+    </main>
   );
 };
 

@@ -18,7 +18,8 @@ const sessionConfig = {
     secure: process.env.NODE_ENV === 'production', // HTTPS only in production
     httpOnly: true, // Prevent XSS access to cookies
     maxAge: parseInt(process.env.SESSION_TIMEOUT) || 24 * 60 * 60 * 1000, // 24 hours default
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax' // CSRF protection / cross-origin support
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // CSRF protection / cross-origin support
+    partitioned: process.env.NODE_ENV === 'production'
   },
   store: MongoStore.create({
     mongoUrl: process.env.MONGO_URL,
@@ -186,7 +187,8 @@ export const sessionTimeoutCheck = (req, res, next) => {
       res.clearCookie('token', {
         httpOnly: true,
         secure: isSecure,
-        sameSite: isSecure ? 'none' : 'lax'
+        sameSite: isSecure ? 'none' : 'lax',
+        partitioned: isSecure
       });
       
       return res.status(401).json({
@@ -237,7 +239,8 @@ export const enhancedAuthenticateUser = (req, res, next) => {
     res.clearCookie('token', {
       httpOnly: true,
       secure: isSecure,
-      sameSite: isSecure ? 'none' : 'lax'
+      sameSite: isSecure ? 'none' : 'lax',
+      partitioned: isSecure
     });
     
     if (req.session) {
@@ -363,7 +366,8 @@ export const secureLogout = (req, res, next) => {
     httpOnly: true,
     secure: isSecure,
     sameSite: isSecure ? 'none' : 'lax',
-    path: '/'
+    path: '/',
+    partitioned: isSecure
   });
   
   // Destroy session

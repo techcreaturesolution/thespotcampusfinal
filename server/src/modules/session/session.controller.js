@@ -225,7 +225,8 @@ export const refreshToken = (req, res) => {
       httpOnly: true,
       secure: isSecure,
       sameSite: isSecure ? 'none' : 'lax',
-      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      partitioned: isSecure
     });
     
     // Update session with new token info
