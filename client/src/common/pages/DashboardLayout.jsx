@@ -221,8 +221,8 @@ const DashboardLayout = () => {
           {!isCollapsed ? (
             <img src="/logo_TSC.webp" alt="The Spot Campus" width="143" height="44" className="h-11 object-contain transition-all duration-300" />
           ) : (
-            <div className="w-[28px] h-[28px] overflow-hidden flex items-center justify-start rounded-lg flex-shrink-0" title="The Spot Campus">
-              <img src="/logo_TSC.webp" alt="The Spot Campus" width="91" height="28" className="h-[28px] max-w-none" style={{ objectPosition: "left center", objectFit: "cover", width: "auto" }} />
+            <div className="w-[32px] h-[32px] flex items-center justify-center rounded-lg flex-shrink-0" title="The Spot Campus">
+              <img src="/logo_TCS2.webp" alt="The Spot Campus" className="w-8 h-8 object-contain" />
             </div>
           )}
           <button

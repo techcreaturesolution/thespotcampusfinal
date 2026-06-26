@@ -1393,8 +1393,8 @@ const ResumeBuilder = () => {
                                   toast.success(`Applied ${tones[index]} summary!`);
                                 }}
                                 className={`w-full text-left p-3 rounded-xl border text-xs transition-all flex flex-col gap-1 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 ${isSelected
-                                    ? "border-[#3730a3] bg-indigo-50/50 text-[#3730a3] ring-1 ring-[#3730a3]/20"
-                                    : "border-slate-200 bg-white hover:border-slate-350 text-slate-700 hover:bg-slate-50/50"
+                                  ? "border-[#3730a3] bg-indigo-50/50 text-[#3730a3] ring-1 ring-[#3730a3]/20"
+                                  : "border-slate-200 bg-white hover:border-slate-350 text-slate-700 hover:bg-slate-50/50"
                                   }`}
                               >
                                 <span className={`text-[9px] font-black uppercase tracking-wider ${isSelected ? "text-[#3730a3]" : "text-slate-400"}`}>
@@ -1473,8 +1473,8 @@ const ResumeBuilder = () => {
                       type="button"
                       onClick={() => changeTemplate(t._id)}
                       className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all text-center flex items-center justify-between gap-1 truncate ${resumeData.selected_template_id === t._id
-                          ? "border-[#3730a3] bg-indigo-50/50 text-[#3730a3]"
-                          : "border-slate-200 bg-white hover:border-slate-350 text-slate-700"
+                        ? "border-[#3730a3] bg-indigo-50/50 text-[#3730a3]"
+                        : "border-slate-200 bg-white hover:border-slate-350 text-slate-700"
                         }`}
                     >
                       <span className="truncate">{t.name}</span>
@@ -1494,8 +1494,8 @@ const ResumeBuilder = () => {
                       type="button"
                       onClick={() => setResumeData({ ...resumeData, font_family: font })}
                       className={`py-2.5 px-4 rounded-xl border text-xs font-bold transition-all text-center ${resumeData.font_family === font
-                          ? "border-[#3730a3] bg-indigo-50/50 text-[#3730a3]"
-                          : "border-slate-200 bg-white hover:border-slate-350 text-slate-700"
+                        ? "border-[#3730a3] bg-indigo-50/50 text-[#3730a3]"
+                        : "border-slate-200 bg-white hover:border-slate-350 text-slate-700"
                         }`}
                     >
                       {font}
@@ -1521,8 +1521,8 @@ const ResumeBuilder = () => {
                       onClick={() => setResumeData({ ...resumeData, color_theme: color.value })}
                       style={{ backgroundColor: color.value }}
                       className={`w-7 h-7 rounded-full border-2 transition-all relative ${resumeData.color_theme === color.value
-                          ? "border-slate-900 ring-2 ring-indigo-500/20 scale-110"
-                          : "border-transparent hover:scale-105"
+                        ? "border-slate-900 ring-2 ring-indigo-500/20 scale-110"
+                        : "border-transparent hover:scale-105"
                         }`}
                       title={color.name}
                     >
@@ -1559,8 +1559,8 @@ const ResumeBuilder = () => {
                       type="button"
                       onClick={() => setResumeData({ ...resumeData, layout_columns: mode.id })}
                       className={`py-2.5 px-2.5 rounded-xl border text-[11px] font-bold transition-all text-center truncate ${resumeData.layout_columns === mode.id
-                          ? "border-[#3730a3] bg-indigo-50/50 text-[#3730a3]"
-                          : "border-slate-200 bg-white hover:border-slate-350 text-slate-700"
+                        ? "border-[#3730a3] bg-indigo-50/50 text-[#3730a3]"
+                        : "border-slate-200 bg-white hover:border-slate-350 text-slate-700"
                         }`}
                     >
                       {mode.label}
@@ -1579,8 +1579,8 @@ const ResumeBuilder = () => {
                       type="button"
                       onClick={() => setResumeData({ ...resumeData, page_margin: margin })}
                       className={`py-2.5 px-3 rounded-xl border text-xs font-bold transition-all text-center capitalize ${resumeData.page_margin === margin
-                          ? "border-[#3730a3] bg-indigo-50/50 text-[#3730a3]"
-                          : "border-slate-200 bg-white hover:border-slate-350 text-slate-700"
+                        ? "border-[#3730a3] bg-indigo-50/50 text-[#3730a3]"
+                        : "border-slate-200 bg-white hover:border-slate-350 text-slate-700"
                         }`}
                     >
                       {margin}

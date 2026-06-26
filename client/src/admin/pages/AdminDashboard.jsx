@@ -131,7 +131,7 @@ const AdminDashboard = ({ user }) => {
                 className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${
                   activeTab === "jobs"
                     ? "bg-white text-[#3730a3] shadow-xs"
-                    : "text-slate-500 hover:text-slate-850"
+                    : "text-slate-700 hover:text-slate-850"
                 }`}
               >
                 Jobs
@@ -142,7 +142,7 @@ const AdminDashboard = ({ user }) => {
                 className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${
                   activeTab === "apps"
                     ? "bg-white text-[#3730a3] shadow-xs"
-                    : "text-slate-500 hover:text-slate-850"
+                    : "text-slate-700 hover:text-slate-850"
                 }`}
               >
                 Applications
@@ -164,9 +164,9 @@ const AdminDashboard = ({ user }) => {
                         {job.job_company_id?.company_name?.substring(0, 2) || "CO"}
                       </div>
                       <div className="text-left">
-                        <h4 className="text-xs font-extrabold text-slate-850 leading-tight">
+                        <p className="text-xs font-extrabold text-slate-850 leading-tight">
                           {job.job_title}
-                        </h4>
+                        </p>
                         <p className="text-[10px] font-bold text-slate-450 mt-0.5">
                           {job.job_company_id?.company_name || "Unknown Company"}
                         </p>
@@ -197,9 +197,9 @@ const AdminDashboard = ({ user }) => {
                         {app.student_id?.student_name?.substring(0, 2) || "ST"}
                       </div>
                       <div className="text-left">
-                        <h4 className="text-xs font-extrabold text-slate-850 leading-tight">
+                        <p className="text-xs font-extrabold text-slate-850 leading-tight">
                           {app.student_id?.student_name || "Unknown Student"}
-                        </h4>
+                        </p>
                         <p className="text-[10px] font-bold text-slate-450 mt-0.5">
                           Applied for {app.job_id?.job_title || "Unknown Job"}
                         </p>

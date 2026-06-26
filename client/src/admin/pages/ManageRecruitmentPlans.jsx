@@ -239,7 +239,7 @@ const ManageRecruitmentPlans = () => {
               className={`px-4 py-1.5 text-xs font-bold rounded-md transition-all ${
                 activeSubTab === "company"
                   ? "bg-white text-[#3730a3] shadow-xs"
-                  : "text-slate-500 hover:text-slate-800"
+                  : "text-slate-700 hover:text-slate-800"
               }`}
             >
               Company Subscriptions ({subscriptions.length})
@@ -250,7 +250,7 @@ const ManageRecruitmentPlans = () => {
               className={`px-4 py-1.5 text-xs font-bold rounded-md transition-all ${
                 activeSubTab === "student"
                   ? "bg-white text-[#3730a3] shadow-xs"
-                  : "text-slate-500 hover:text-slate-800"
+                  : "text-slate-700 hover:text-slate-800"
               }`}
             >
               Student Payments ({studentPayments.length})

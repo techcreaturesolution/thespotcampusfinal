@@ -46,20 +46,58 @@ class _ResumePreviewScreenState extends State<ResumePreviewScreen> {
           <html>
             <head>
               <meta charset="utf-8">
-              <meta name="viewport" content="width=794">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
               <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
               <style>
-                body { 
+                html, body { 
                   margin: 0; 
                   padding: 0; 
-                  background: white; 
-                  -webkit-print-color-adjust: exact; 
-                  print-color-adjust: exact; 
+                  background: #f1f5f9; 
+                  width: 100%;
+                  min-height: 100%;
+                  overflow-x: hidden;
+                }
+                #cv-wrapper {
+                  width: 100vw;
+                  position: relative;
+                  overflow: hidden;
+                }
+                #cv-container {
+                  width: 794px;
+                  background: white;
+                  box-sizing: border-box;
+                  transform-origin: top left;
+                  position: absolute;
+                  top: 0;
+                  left: 0;
+                  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
                 }
               </style>
             </head>
             <body>
-              $_compiledHtml
+              <div id="cv-wrapper">
+                <div id="cv-container">
+                  $_compiledHtml
+                </div>
+              </div>
+              
+              <script>
+                function adjustScale() {
+                  const wrapper = document.getElementById('cv-wrapper');
+                  const container = document.getElementById('cv-container');
+                  if (wrapper && container) {
+                    const scale = window.innerWidth / 794;
+                    container.style.transform = 'scale(' + scale + ')';
+                    wrapper.style.height = (container.offsetHeight * scale) + 'px';
+                  }
+                }
+                
+                window.addEventListener('load', adjustScale);
+                window.addEventListener('resize', adjustScale);
+                // Run immediately and periodically to ensure correct scaling
+                setTimeout(adjustScale, 100);
+                setTimeout(adjustScale, 500);
+              </script>
             </body>
           </html>
         ''';

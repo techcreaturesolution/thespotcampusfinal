@@ -87,7 +87,8 @@ class _ResumeBuilderScreenState extends State<ResumeBuilderScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error loading data: \$e')));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Error loading data: \$e')));
       }
     } finally {
       if (mounted) {
@@ -99,7 +100,8 @@ class _ResumeBuilderScreenState extends State<ResumeBuilderScreen> {
   Future<void> _saveResume() async {
     try {
       final payload = Map<String, dynamic>.from(_resumeData);
-      if (payload['selected_template_id'] == null || payload['selected_template_id'].toString().isEmpty) {
+      if (payload['selected_template_id'] == null ||
+          payload['selected_template_id'].toString().isEmpty) {
         payload.remove('selected_template_id');
       }
 
@@ -124,12 +126,14 @@ class _ResumeBuilderScreenState extends State<ResumeBuilderScreen> {
           };
         });
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('CV Details saved successfully!')));
+          ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('CV Details saved successfully!')));
         }
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error saving: \$e')));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Error saving: \$e')));
       }
     }
   }
@@ -138,7 +142,8 @@ class _ResumeBuilderScreenState extends State<ResumeBuilderScreen> {
     setState(() => _isCompiling = true);
     try {
       final payload = Map<String, dynamic>.from(_resumeData);
-      if (payload['selected_template_id'] == null || payload['selected_template_id'].toString().isEmpty) {
+      if (payload['selected_template_id'] == null ||
+          payload['selected_template_id'].toString().isEmpty) {
         payload.remove('selected_template_id');
       }
 
@@ -210,7 +215,8 @@ class _ResumeBuilderScreenState extends State<ResumeBuilderScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Error compiling: ${e.toString().replaceAll('Exception: ', '')}"),
+            content: Text(
+                "Error compiling: ${e.toString().replaceAll('Exception: ', '')}"),
             backgroundColor: Colors.red,
             behavior: SnackBarBehavior.floating,
           ),
@@ -225,7 +231,8 @@ class _ResumeBuilderScreenState extends State<ResumeBuilderScreen> {
 
   Future<void> _generateAiSummaries() async {
     if ((_resumeData['skills'] as List).isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please add some skills first!')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please add some skills first!')));
       return;
     }
     setState(() => _isGeneratingSummary = true);
@@ -240,11 +247,13 @@ class _ResumeBuilderScreenState extends State<ResumeBuilderScreen> {
         _aiSummaries = res['summaries'] ?? [];
       });
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('AI Summaries generated!')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('AI Summaries generated!')));
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error generating summaries: \$e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error generating summaries: \$e')));
       }
     } finally {
       if (mounted) {
@@ -262,7 +271,8 @@ class _ResumeBuilderScreenState extends State<ResumeBuilderScreen> {
 
   // List Adders
   void _addSkill() {
-    if (_skillCtrl.text.trim().isNotEmpty && (_resumeData['skills'] as List).length < 5) {
+    if (_skillCtrl.text.trim().isNotEmpty &&
+        (_resumeData['skills'] as List).length < 5) {
       setState(() {
         (_resumeData['skills'] as List).add(_skillCtrl.text.trim());
         _skillCtrl.clear();
@@ -271,7 +281,8 @@ class _ResumeBuilderScreenState extends State<ResumeBuilderScreen> {
   }
 
   void _addCert() {
-    if (_certCtrl.text.trim().isNotEmpty && (_resumeData['certifications'] as List).length < 3) {
+    if (_certCtrl.text.trim().isNotEmpty &&
+        (_resumeData['certifications'] as List).length < 3) {
       setState(() {
         (_resumeData['certifications'] as List).add(_certCtrl.text.trim());
         _certCtrl.clear();
@@ -280,7 +291,8 @@ class _ResumeBuilderScreenState extends State<ResumeBuilderScreen> {
   }
 
   void _addLang() {
-    if (_langCtrl.text.trim().isNotEmpty && (_resumeData['languages'] as List).length < 3) {
+    if (_langCtrl.text.trim().isNotEmpty &&
+        (_resumeData['languages'] as List).length < 3) {
       setState(() {
         (_resumeData['languages'] as List).add(_langCtrl.text.trim());
         _langCtrl.clear();
@@ -296,7 +308,8 @@ class _ResumeBuilderScreenState extends State<ResumeBuilderScreen> {
           _eduInput.clear();
         });
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Max 2 education entries allowed!')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Max 2 education entries allowed!')));
       }
     }
   }
@@ -309,7 +322,8 @@ class _ResumeBuilderScreenState extends State<ResumeBuilderScreen> {
           _expInput.clear();
         });
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Max 2 experience entries allowed!')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Max 2 experience entries allowed!')));
       }
     }
   }
@@ -320,7 +334,11 @@ class _ResumeBuilderScreenState extends State<ResumeBuilderScreen> {
         setState(() {
           Map<String, dynamic> proj = Map.from(_projInput);
           if (proj['technologies'] != null && proj['technologies'] is String) {
-            proj['technologies'] = (proj['technologies'] as String).split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+            proj['technologies'] = (proj['technologies'] as String)
+                .split(',')
+                .map((e) => e.trim())
+                .where((e) => e.isNotEmpty)
+                .toList();
           } else {
             proj['technologies'] = [];
           }
@@ -328,7 +346,8 @@ class _ResumeBuilderScreenState extends State<ResumeBuilderScreen> {
           _projInput.clear();
         });
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Max 2 project entries allowed!')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Max 2 project entries allowed!')));
       }
     }
   }
@@ -350,9 +369,13 @@ class _ResumeBuilderScreenState extends State<ResumeBuilderScreen> {
               children: [
                 const Icon(Icons.lock, size: 64, color: Colors.indigo),
                 const SizedBox(height: 16),
-                const Text('Premium Feature', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                const Text('Premium Feature',
+                    style:
+                        TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
-                const Text('Unlock the Premium CV Builder by upgrading your membership.', textAlign: TextAlign.center),
+                const Text(
+                    'Unlock the Premium CV Builder by upgrading your membership.',
+                    textAlign: TextAlign.center),
                 const SizedBox(height: 24),
                 ElevatedButton(
                   onPressed: () => Navigator.pushNamed(context, '/plans'),
@@ -365,11 +388,13 @@ class _ResumeBuilderScreenState extends State<ResumeBuilderScreen> {
       );
     }
 
-    if (_resumeData['selected_template_id'] == null || _resumeData['selected_template_id'].toString().isEmpty) {
+    if (_resumeData['selected_template_id'] == null ||
+        _resumeData['selected_template_id'].toString().isEmpty) {
       return Scaffold(
         appBar: AppBar(title: const Text('Select Template')),
-        body: _templates.isEmpty 
-            ? const Center(child: Text("No templates available. Contact admin."))
+        body: _templates.isEmpty
+            ? const Center(
+                child: Text("No templates available. Contact admin."))
             : GridView.builder(
                 padding: const EdgeInsets.all(16),
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -389,12 +414,15 @@ class _ResumeBuilderScreenState extends State<ResumeBuilderScreen> {
                         children: [
                           Expanded(
                             child: t['thumbnail'] != null
-                                ? Image.network(t['thumbnail'], fit: BoxFit.cover, width: double.infinity)
-                                : const Icon(Icons.file_copy, size: 64, color: Colors.grey),
+                                ? Image.network(t['thumbnail'],
+                                    fit: BoxFit.cover, width: double.infinity)
+                                : const Icon(Icons.file_copy,
+                                    size: 64, color: Colors.grey),
                           ),
                           Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child: Text(t['name'] ?? 'Template', maxLines: 1, overflow: TextOverflow.ellipsis),
+                            child: Text(t['name'] ?? 'Template',
+                                maxLines: 1, overflow: TextOverflow.ellipsis),
                           ),
                         ],
                       ),
@@ -439,15 +467,16 @@ class _ResumeBuilderScreenState extends State<ResumeBuilderScreen> {
           ),
           Container(
             padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, -2))]
-            ),
+            decoration: BoxDecoration(color: Colors.white, boxShadow: [
+              BoxShadow(
+                  color: Colors.black12, blurRadius: 4, offset: Offset(0, -2))
+            ]),
             child: Row(
               children: [
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: () => setState(() => _resumeData['selected_template_id'] = ''),
+                    onPressed: () => setState(
+                        () => _resumeData['selected_template_id'] = ''),
                     child: const Text('Change Template'),
                   ),
                 ),
@@ -461,7 +490,8 @@ class _ResumeBuilderScreenState extends State<ResumeBuilderScreen> {
                             height: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2.5,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
                             ),
                           )
                         : const Text('Compile & Save to Profile'),
@@ -477,13 +507,16 @@ class _ResumeBuilderScreenState extends State<ResumeBuilderScreen> {
 
   Widget _buildProfileSection() {
     return ExpansionTile(
-      title: const Text('Profile Details', style: TextStyle(fontWeight: FontWeight.bold)),
+      title: const Text('Profile Details',
+          style: TextStyle(fontWeight: FontWeight.bold)),
       leading: const Icon(Icons.person),
       childrenPadding: const EdgeInsets.all(16),
       children: [
         TextFormField(
           initialValue: _resumeData['punch_line'] ?? '',
-          decoration: const InputDecoration(labelText: 'Punch line / Job Title', hintText: 'e.g. Software Engineer'),
+          decoration: const InputDecoration(
+              labelText: 'Punch line / Job Title',
+              hintText: 'e.g. Software Engineer'),
           onChanged: (v) => _resumeData['punch_line'] = v,
         ),
       ],
@@ -493,7 +526,8 @@ class _ResumeBuilderScreenState extends State<ResumeBuilderScreen> {
   Widget _buildEducationSection() {
     final eduList = _resumeData['education'] as List;
     return ExpansionTile(
-      title: const Text('Education', style: TextStyle(fontWeight: FontWeight.bold)),
+      title: const Text('Education',
+          style: TextStyle(fontWeight: FontWeight.bold)),
       leading: const Icon(Icons.school),
       childrenPadding: const EdgeInsets.all(16),
       children: [
@@ -505,7 +539,8 @@ class _ResumeBuilderScreenState extends State<ResumeBuilderScreen> {
               margin: const EdgeInsets.only(bottom: 8),
               child: ListTile(
                 title: Text(item['institution'] ?? ''),
-                subtitle: Text("\${item['degree']} in \${item['fieldOfStudy']} (\${item['startYear']}-\${item['endYear']})"),
+                subtitle: Text(
+                    "\${item['degree']} in \${item['fieldOfStudy']} (\${item['startYear']}-\${item['endYear']})"),
                 trailing: IconButton(
                   icon: const Icon(Icons.delete, color: Colors.red),
                   onPressed: () => setState(() => eduList.removeAt(idx)),
@@ -515,29 +550,52 @@ class _ResumeBuilderScreenState extends State<ResumeBuilderScreen> {
           }),
         if (eduList.length < 2) ...[
           const Divider(),
-          const Text('Add Education', style: TextStyle(fontWeight: FontWeight.bold)),
+          const Text('Add Education',
+              style: TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           Row(
             children: [
-              Expanded(child: TextField(decoration: const InputDecoration(labelText: 'Degree'), onChanged: (v) => _eduInput['degree'] = v)),
+              Expanded(
+                  child: TextField(
+                      decoration: const InputDecoration(labelText: 'Degree'),
+                      onChanged: (v) => _eduInput['degree'] = v)),
               const SizedBox(width: 8),
-              Expanded(child: TextField(decoration: const InputDecoration(labelText: 'Field of Study'), onChanged: (v) => _eduInput['fieldOfStudy'] = v)),
+              Expanded(
+                  child: TextField(
+                      decoration:
+                          const InputDecoration(labelText: 'Field of Study'),
+                      onChanged: (v) => _eduInput['fieldOfStudy'] = v)),
             ],
           ),
           const SizedBox(height: 8),
-          TextField(decoration: const InputDecoration(labelText: 'Institution'), onChanged: (v) => _eduInput['institution'] = v),
+          TextField(
+              decoration: const InputDecoration(labelText: 'Institution'),
+              onChanged: (v) => _eduInput['institution'] = v),
           const SizedBox(height: 8),
           Row(
             children: [
-              Expanded(child: TextField(decoration: const InputDecoration(labelText: 'Start Year'), onChanged: (v) => _eduInput['startYear'] = v)),
+              Expanded(
+                  child: TextField(
+                      decoration:
+                          const InputDecoration(labelText: 'Start Year'),
+                      onChanged: (v) => _eduInput['startYear'] = v)),
               const SizedBox(width: 8),
-              Expanded(child: TextField(decoration: const InputDecoration(labelText: 'End Year'), onChanged: (v) => _eduInput['endYear'] = v)),
+              Expanded(
+                  child: TextField(
+                      decoration: const InputDecoration(labelText: 'End Year'),
+                      onChanged: (v) => _eduInput['endYear'] = v)),
               const SizedBox(width: 8),
-              Expanded(child: TextField(decoration: const InputDecoration(labelText: 'Score'), onChanged: (v) => _eduInput['score'] = v)),
+              Expanded(
+                  child: TextField(
+                      decoration: const InputDecoration(labelText: 'Score'),
+                      onChanged: (v) => _eduInput['score'] = v)),
             ],
           ),
           const SizedBox(height: 12),
-          ElevatedButton.icon(onPressed: _addEducation, icon: const Icon(Icons.add), label: const Text('Add Education')),
+          ElevatedButton.icon(
+              onPressed: _addEducation,
+              icon: const Icon(Icons.add),
+              label: const Text('Add Education')),
         ]
       ],
     );
@@ -546,7 +604,8 @@ class _ResumeBuilderScreenState extends State<ResumeBuilderScreen> {
   Widget _buildExperienceSection() {
     final expList = _resumeData['experience'] as List;
     return ExpansionTile(
-      title: const Text('Work Experience', style: TextStyle(fontWeight: FontWeight.bold)),
+      title: const Text('Work Experience',
+          style: TextStyle(fontWeight: FontWeight.bold)),
       leading: const Icon(Icons.work),
       childrenPadding: const EdgeInsets.all(16),
       children: [
@@ -558,7 +617,8 @@ class _ResumeBuilderScreenState extends State<ResumeBuilderScreen> {
               margin: const EdgeInsets.only(bottom: 8),
               child: ListTile(
                 title: Text(item['company'] ?? ''),
-                subtitle: Text("\${item['role']} (\${item['startDate']} - \${item['endDate']})"),
+                subtitle: Text(
+                    "\${item['role']} (\${item['startDate']} - \${item['endDate']})"),
                 trailing: IconButton(
                   icon: const Icon(Icons.delete, color: Colors.red),
                   onPressed: () => setState(() => expList.removeAt(idx)),
@@ -568,27 +628,47 @@ class _ResumeBuilderScreenState extends State<ResumeBuilderScreen> {
           }),
         if (expList.length < 2) ...[
           const Divider(),
-          const Text('Add Experience', style: TextStyle(fontWeight: FontWeight.bold)),
+          const Text('Add Experience',
+              style: TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           Row(
             children: [
-              Expanded(child: TextField(decoration: const InputDecoration(labelText: 'Company'), onChanged: (v) => _expInput['company'] = v)),
+              Expanded(
+                  child: TextField(
+                      decoration: const InputDecoration(labelText: 'Company'),
+                      onChanged: (v) => _expInput['company'] = v)),
               const SizedBox(width: 8),
-              Expanded(child: TextField(decoration: const InputDecoration(labelText: 'Role'), onChanged: (v) => _expInput['role'] = v)),
+              Expanded(
+                  child: TextField(
+                      decoration: const InputDecoration(labelText: 'Role'),
+                      onChanged: (v) => _expInput['role'] = v)),
             ],
           ),
           const SizedBox(height: 8),
           Row(
             children: [
-              Expanded(child: TextField(decoration: const InputDecoration(labelText: 'Start Date'), onChanged: (v) => _expInput['startDate'] = v)),
+              Expanded(
+                  child: TextField(
+                      decoration:
+                          const InputDecoration(labelText: 'Start Date'),
+                      onChanged: (v) => _expInput['startDate'] = v)),
               const SizedBox(width: 8),
-              Expanded(child: TextField(decoration: const InputDecoration(labelText: 'End Date'), onChanged: (v) => _expInput['endDate'] = v)),
+              Expanded(
+                  child: TextField(
+                      decoration: const InputDecoration(labelText: 'End Date'),
+                      onChanged: (v) => _expInput['endDate'] = v)),
             ],
           ),
           const SizedBox(height: 8),
-          TextField(decoration: const InputDecoration(labelText: 'Description'), maxLines: 2, onChanged: (v) => _expInput['description'] = v),
+          TextField(
+              decoration: const InputDecoration(labelText: 'Description'),
+              maxLines: 2,
+              onChanged: (v) => _expInput['description'] = v),
           const SizedBox(height: 12),
-          ElevatedButton.icon(onPressed: _addExperience, icon: const Icon(Icons.add), label: const Text('Add Experience')),
+          ElevatedButton.icon(
+              onPressed: _addExperience,
+              icon: const Icon(Icons.add),
+              label: const Text('Add Experience')),
         ]
       ],
     );
@@ -597,7 +677,8 @@ class _ResumeBuilderScreenState extends State<ResumeBuilderScreen> {
   Widget _buildProjectsSection() {
     final projList = _resumeData['projects'] as List;
     return ExpansionTile(
-      title: const Text('Projects', style: TextStyle(fontWeight: FontWeight.bold)),
+      title:
+          const Text('Projects', style: TextStyle(fontWeight: FontWeight.bold)),
       leading: const Icon(Icons.code),
       childrenPadding: const EdgeInsets.all(16),
       children: [
@@ -609,7 +690,8 @@ class _ResumeBuilderScreenState extends State<ResumeBuilderScreen> {
               margin: const EdgeInsets.only(bottom: 8),
               child: ListTile(
                 title: Text(item['title'] ?? ''),
-                subtitle: Text(item['description'] ?? '', maxLines: 2, overflow: TextOverflow.ellipsis),
+                subtitle: Text(item['description'] ?? '',
+                    maxLines: 2, overflow: TextOverflow.ellipsis),
                 trailing: IconButton(
                   icon: const Icon(Icons.delete, color: Colors.red),
                   onPressed: () => setState(() => projList.removeAt(idx)),
@@ -619,21 +701,37 @@ class _ResumeBuilderScreenState extends State<ResumeBuilderScreen> {
           }),
         if (projList.length < 2) ...[
           const Divider(),
-          const Text('Add Project', style: TextStyle(fontWeight: FontWeight.bold)),
+          const Text('Add Project',
+              style: TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           Row(
             children: [
-              Expanded(child: TextField(decoration: const InputDecoration(labelText: 'Title'), onChanged: (v) => _projInput['title'] = v)),
+              Expanded(
+                  child: TextField(
+                      decoration: const InputDecoration(labelText: 'Title'),
+                      onChanged: (v) => _projInput['title'] = v)),
               const SizedBox(width: 8),
-              Expanded(child: TextField(decoration: const InputDecoration(labelText: 'Tech (comma separated)'), onChanged: (v) => _projInput['technologies'] = v)),
+              Expanded(
+                  child: TextField(
+                      decoration: const InputDecoration(
+                          labelText: 'Tech (comma separated)'),
+                      onChanged: (v) => _projInput['technologies'] = v)),
             ],
           ),
           const SizedBox(height: 8),
-          TextField(decoration: const InputDecoration(labelText: 'Link / URL'), onChanged: (v) => _projInput['link'] = v),
+          TextField(
+              decoration: const InputDecoration(labelText: 'Link / URL'),
+              onChanged: (v) => _projInput['link'] = v),
           const SizedBox(height: 8),
-          TextField(decoration: const InputDecoration(labelText: 'Description'), maxLines: 2, onChanged: (v) => _projInput['description'] = v),
+          TextField(
+              decoration: const InputDecoration(labelText: 'Description'),
+              maxLines: 2,
+              onChanged: (v) => _projInput['description'] = v),
           const SizedBox(height: 12),
-          ElevatedButton.icon(onPressed: _addProject, icon: const Icon(Icons.add), label: const Text('Add Project')),
+          ElevatedButton.icon(
+              onPressed: _addProject,
+              icon: const Icon(Icons.add),
+              label: const Text('Add Project')),
         ]
       ],
     );
@@ -645,58 +743,91 @@ class _ResumeBuilderScreenState extends State<ResumeBuilderScreen> {
     final langList = _resumeData['languages'] as List;
 
     return ExpansionTile(
-      title: const Text('Skills, Certs & Languages', style: TextStyle(fontWeight: FontWeight.bold)),
+      title: const Text('Skills, Certs & Languages',
+          style: TextStyle(fontWeight: FontWeight.bold)),
       leading: const Icon(Icons.stars),
       childrenPadding: const EdgeInsets.all(16),
       children: [
         // Skills
-        const Text('Skills (Max 5)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+        const Text('Skills (Max 5)',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
         Row(
           children: [
-            Expanded(child: TextField(controller: _skillCtrl, decoration: const InputDecoration(labelText: 'Add Skill'), onSubmitted: (_) => _addSkill())),
-            IconButton(icon: const Icon(Icons.add_circle), onPressed: _addSkill, color: Colors.indigo),
+            Expanded(
+                child: TextField(
+                    controller: _skillCtrl,
+                    decoration: const InputDecoration(labelText: 'Add Skill'),
+                    onSubmitted: (_) => _addSkill())),
+            IconButton(
+                icon: const Icon(Icons.add_circle),
+                onPressed: _addSkill,
+                color: Colors.indigo),
           ],
         ),
         Wrap(
           spacing: 8,
-          children: skillList.map((s) => Chip(
-            label: Text(s.toString()),
-            onDeleted: () => setState(() => skillList.remove(s)),
-          )).toList(),
+          children: skillList
+              .map((s) => Chip(
+                    label: Text(s.toString()),
+                    onDeleted: () => setState(() => skillList.remove(s)),
+                  ))
+              .toList(),
         ),
         const SizedBox(height: 16),
 
         // Certs
-        const Text('Certifications (Max 3)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+        const Text('Certifications (Max 3)',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
         Row(
           children: [
-            Expanded(child: TextField(controller: _certCtrl, decoration: const InputDecoration(labelText: 'Add Certification'), onSubmitted: (_) => _addCert())),
-            IconButton(icon: const Icon(Icons.add_circle), onPressed: _addCert, color: Colors.indigo),
+            Expanded(
+                child: TextField(
+                    controller: _certCtrl,
+                    decoration:
+                        const InputDecoration(labelText: 'Add Certification'),
+                    onSubmitted: (_) => _addCert())),
+            IconButton(
+                icon: const Icon(Icons.add_circle),
+                onPressed: _addCert,
+                color: Colors.indigo),
           ],
         ),
         Wrap(
           spacing: 8,
-          children: certList.map((c) => Chip(
-            label: Text(c.toString()),
-            onDeleted: () => setState(() => certList.remove(c)),
-          )).toList(),
+          children: certList
+              .map((c) => Chip(
+                    label: Text(c.toString()),
+                    onDeleted: () => setState(() => certList.remove(c)),
+                  ))
+              .toList(),
         ),
         const SizedBox(height: 16),
 
         // Langs
-        const Text('Languages (Max 3)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+        const Text('Languages (Max 3)',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
         Row(
           children: [
-            Expanded(child: TextField(controller: _langCtrl, decoration: const InputDecoration(labelText: 'Add Language'), onSubmitted: (_) => _addLang())),
-            IconButton(icon: const Icon(Icons.add_circle), onPressed: _addLang, color: Colors.indigo),
+            Expanded(
+                child: TextField(
+                    controller: _langCtrl,
+                    decoration:
+                        const InputDecoration(labelText: 'Add Language'),
+                    onSubmitted: (_) => _addLang())),
+            IconButton(
+                icon: const Icon(Icons.add_circle),
+                onPressed: _addLang,
+                color: Colors.indigo),
           ],
         ),
         Wrap(
           spacing: 8,
-          children: langList.map((l) => Chip(
-            label: Text(l.toString()),
-            onDeleted: () => setState(() => langList.remove(l)),
-          )).toList(),
+          children: langList
+              .map((l) => Chip(
+                    label: Text(l.toString()),
+                    onDeleted: () => setState(() => langList.remove(l)),
+                  ))
+              .toList(),
         ),
       ],
     );
@@ -704,7 +835,8 @@ class _ResumeBuilderScreenState extends State<ResumeBuilderScreen> {
 
   Widget _buildSummarySection() {
     return ExpansionTile(
-      title: const Text('Summary', style: TextStyle(fontWeight: FontWeight.bold)),
+      title:
+          const Text('Summary', style: TextStyle(fontWeight: FontWeight.bold)),
       leading: const Icon(Icons.description),
       childrenPadding: const EdgeInsets.all(16),
       children: [
@@ -714,7 +846,12 @@ class _ResumeBuilderScreenState extends State<ResumeBuilderScreen> {
             const Text('Professional Summary'),
             TextButton.icon(
               onPressed: _isGeneratingSummary ? null : _generateAiSummaries,
-              icon: _isGeneratingSummary ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.auto_awesome, size: 16),
+              icon: _isGeneratingSummary
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2))
+                  : const Icon(Icons.auto_awesome, size: 16),
               label: const Text('Ask AI'),
             )
           ],
@@ -723,7 +860,9 @@ class _ResumeBuilderScreenState extends State<ResumeBuilderScreen> {
           const SizedBox(height: 8),
           Container(
             height: 150,
-            decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade300), borderRadius: BorderRadius.circular(8)),
+            decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey.shade300),
+                borderRadius: BorderRadius.circular(8)),
             child: ListView.builder(
               itemCount: _aiSummaries.length,
               itemBuilder: (context, idx) {
@@ -731,11 +870,15 @@ class _ResumeBuilderScreenState extends State<ResumeBuilderScreen> {
                 final isSelected = _resumeData['chosen_summary'] == sum;
                 return ListTile(
                   dense: true,
-                  title: Text('Option \${idx + 1}', style: TextStyle(fontWeight: FontWeight.bold, color: isSelected ? Colors.indigo : null)),
+                  title: Text('Option \${idx + 1}',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: isSelected ? Colors.indigo : null)),
                   subtitle: Text(sum.toString()),
                   selected: isSelected,
                   selectedTileColor: Colors.indigo.withOpacity(0.1),
-                  onTap: () => setState(() => _resumeData['chosen_summary'] = sum),
+                  onTap: () =>
+                      setState(() => _resumeData['chosen_summary'] = sum),
                 );
               },
             ),
@@ -745,7 +888,8 @@ class _ResumeBuilderScreenState extends State<ResumeBuilderScreen> {
         TextFormField(
           initialValue: _resumeData['chosen_summary'] ?? '',
           key: Key(_resumeData['chosen_summary']),
-          decoration: const InputDecoration(hintText: 'Write your summary here or select an AI option...'),
+          decoration: const InputDecoration(
+              hintText: 'Write your summary here or select an AI option...'),
           maxLines: 4,
           onChanged: (v) => _resumeData['chosen_summary'] = v,
         ),
@@ -755,28 +899,33 @@ class _ResumeBuilderScreenState extends State<ResumeBuilderScreen> {
 
   Widget _buildDesignSection() {
     return ExpansionTile(
-      title: const Text('Design Settings', style: TextStyle(fontWeight: FontWeight.bold)),
+      title: const Text('Design Settings',
+          style: TextStyle(fontWeight: FontWeight.bold)),
       leading: const Icon(Icons.color_lens),
       childrenPadding: const EdgeInsets.all(16),
       children: [
         if (_templates.isNotEmpty) ...[
           DropdownButtonFormField<String>(
-            value: _templates.any((t) => t['_id'] == _resumeData['selected_template_id']) 
-                ? _resumeData['selected_template_id'] 
+            value: _templates
+                    .any((t) => t['_id'] == _resumeData['selected_template_id'])
+                ? _resumeData['selected_template_id']
                 : null,
             decoration: const InputDecoration(labelText: 'Template Design'),
-            items: _templates.map((t) => DropdownMenuItem<String>(
-              value: t['_id'], 
-              child: Text(t['name'] ?? 'Template')
-            )).toList(),
-            onChanged: (v) => setState(() => _resumeData['selected_template_id'] = v),
+            items: _templates
+                .map((t) => DropdownMenuItem<String>(
+                    value: t['_id'], child: Text(t['name'] ?? 'Template')))
+                .toList(),
+            onChanged: (v) =>
+                setState(() => _resumeData['selected_template_id'] = v),
           ),
           const SizedBox(height: 12),
         ],
         DropdownButtonFormField<String>(
           value: _resumeData['font_family'],
           decoration: const InputDecoration(labelText: 'Font Family'),
-          items: ['Inter', 'Outfit', 'Playfair Display', 'Roboto'].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+          items: ['Inter', 'Outfit', 'Playfair Display', 'Roboto']
+              .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+              .toList(),
           onChanged: (v) => setState(() => _resumeData['font_family'] = v),
         ),
         const SizedBox(height: 12),

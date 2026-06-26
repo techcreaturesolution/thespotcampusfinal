@@ -30,9 +30,9 @@ const DashboardCard = ({
         )}
 
         {/* Render label */}
-        <h3 className="font-bold uppercase tracking-wider text-[9px] text-slate-500 mt-1">
+        <p className="font-bold uppercase tracking-wider text-[9px] text-slate-500 mt-1">
           {label}
-        </h3>
+        </p>
 
         {/* Render description if present (Student style) */}
         {description && (
