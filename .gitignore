@@ -54,3 +54,6 @@ flutter_student_app/ios/.symlinks/
 flutter_student_app/pubspec.lock
 *.iml
 
+# Puppeteer cache
+server/.cache/
+.cache/

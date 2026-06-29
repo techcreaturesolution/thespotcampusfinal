@@ -1660,24 +1660,3 @@ class _ShimmerBoxState extends State<_ShimmerBox>
     );
   }
 }
-
-/// Pill badge used in job list
-class _JobPill extends StatelessWidget {
-  final String text;
-  const _JobPill({required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-          color: const Color(0xFFF3F4F6),
-          borderRadius: BorderRadius.circular(8)),
-      child: Text(text,
-          style: const TextStyle(
-              color: Color(0xFF4B5563),
-              fontSize: 11,
-              fontWeight: FontWeight.w500)),
-    );
-  }
-}

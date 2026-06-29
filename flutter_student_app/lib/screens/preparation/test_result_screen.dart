@@ -66,11 +66,8 @@ class _TestResultScreenState extends State<TestResultScreen> {
       );
     }
 
-    final score = _result!['score'] ?? 0;
     final mockTest = _result!['mock_test_id'] ?? {};
-    final marksPerQuestion = mockTest['marks_per_question'] ?? 1;
     final totalQ = _result!['total_questions'] ?? 1;
-    final totalMarks = totalQ * (marksPerQuestion is num ? marksPerQuestion : 1);
     final correct = _result!['correct_answers'] ?? 0;
     final wrong = _result!['wrong_answers'] ?? 0;
     final unattempted = _result!['skipped'] ?? 0;
