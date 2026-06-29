@@ -202,8 +202,8 @@ const DashboardLayout = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#f8f9ff] flex items-center justify-center relative overflow-hidden">
-        <div className="absolute top-10 left-10 w-96 h-96 bg-blue-400/5 blur-[100px] rounded-full pointer-events-none -z-10" />
-        <div className="absolute bottom-10 right-10 w-96 h-96 bg-indigo-400/5 blur-[100px] rounded-full pointer-events-none -z-10" />
+        <div className="fixed top-10 left-10 w-96 h-96 bg-blue-400/5 blur-[100px] rounded-full pointer-events-none -z-10" />
+        <div className="fixed bottom-10 right-10 w-96 h-96 bg-indigo-400/5 blur-[100px] rounded-full pointer-events-none -z-10" />
         <div className="flex flex-col items-center gap-3 relative z-10">
           <div className="w-10 h-10 border-4 border-[#3730a3] border-t-transparent rounded-full animate-spin"></div>
           <p className="text-[#3730a3] text-sm font-bold tracking-wide uppercase animate-pulse">Loading Portal...</p>
@@ -233,7 +233,7 @@ const DashboardLayout = () => {
           >
             <FiMenu className="w-5 h-5" />
           </button>
-          <button className="lg:hidden ml-auto" onClick={() => setSidebarOpen(false)}>
+          <button className="lg:hidden ml-auto" aria-label="Close sidebar" onClick={() => setSidebarOpen(false)}>
             <FiX />
           </button>
         </div>
@@ -331,8 +331,8 @@ const DashboardLayout = () => {
 
       <div className={`flex-1 min-w-0 transition-all duration-300 ${isCollapsed ? "lg:ml-16" : "lg:ml-56"} relative`}>
         {/* Soft Ambient Dashboard Background Glows */}
-        <div className="absolute top-0 left-0 w-96 h-96 bg-blue-400/5 blur-[120px] rounded-full pointer-events-none -z-10" />
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-indigo-400/5 blur-[120px] rounded-full pointer-events-none -z-10" />
+        <div className="fixed top-0 left-0 w-96 h-96 bg-blue-400/5 blur-[120px] rounded-full pointer-events-none -z-10" />
+        <div className="fixed bottom-0 right-0 w-96 h-96 bg-indigo-400/5 blur-[120px] rounded-full pointer-events-none -z-10" />
 
         <DashboardNavbar user={user} role={role} setSidebarOpen={setSidebarOpen} />
 

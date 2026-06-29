@@ -204,7 +204,10 @@ export const sessionTimeoutCheck = (req, res, next) => {
 
 // Enhanced authentication middleware with session security
 export const enhancedAuthenticateUser = (req, res, next) => {
-  const { token } = req.cookies;
+  let token = req.cookies.token;
+  if (!token && req.headers.authorization && req.headers.authorization.startsWith("Bearer ")) {
+    token = req.headers.authorization.split(" ")[1];
+  }
   
   if (!token) {
     throw new UnauthenticatedError('No authentication token provided');

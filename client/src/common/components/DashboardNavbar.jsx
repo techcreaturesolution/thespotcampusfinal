@@ -26,6 +26,7 @@ const DashboardNavbar = ({ user, role, setSidebarOpen }) => {
     <header className="bg-[#f8f9ff]/85 backdrop-blur-md border-b border-slate-200/60 px-6 h-16 flex items-center justify-between sticky top-0 z-40">
       <button
         type="button"
+        aria-label="Open sidebar"
         className="lg:hidden p-2.5 text-[#3730a3] hover:text-[#2563eb] hover:bg-indigo-50/50 border border-slate-200/50 rounded-xl transition-all duration-200 focus:outline-none active:scale-95 shadow-sm bg-white"
         onClick={() => setSidebarOpen(true)}
       >

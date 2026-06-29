@@ -7,6 +7,9 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react()],
+    esbuild: {
+      pure: mode === "production" ? ["console.log", "console.info", "console.debug"] : [],
+    },
     server: {
       proxy: {
         "/api": {
@@ -21,7 +24,7 @@ export default defineConfig(({ mode }) => {
       },
     },
     build: {
-      cssCodeSplit: false,
+      cssCodeSplit: true,
       rollupOptions: {
         output: {
           manualChunks(id) {

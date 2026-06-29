@@ -3,7 +3,11 @@ import { verifyJWT } from "../utils/tokenUtils.js";
 
 // Legacy authentication middleware (kept for compatibility)
 export const authenticateUser = (req, res, next) => {
-  const { token } = req.cookies;
+  let token = req.cookies.token;
+  if (!token && req.headers.authorization && req.headers.authorization.startsWith("Bearer ")) {
+    token = req.headers.authorization.split(" ")[1];
+  }
+
   if (!token) throw new UnauthenticatedError("authentication invalid");
 
   try {
@@ -26,7 +30,10 @@ export const authorizePermissions = (...roles) => {
 
 // Enhanced authentication middleware with additional security features
 export const enhancedAuthenticateUser = (req, res, next) => {
-  const { token } = req.cookies;
+  let token = req.cookies.token;
+  if (!token && req.headers.authorization && req.headers.authorization.startsWith("Bearer ")) {
+    token = req.headers.authorization.split(" ")[1];
+  }
   
   if (!token) {
     throw new UnauthenticatedError("No authentication token provided");

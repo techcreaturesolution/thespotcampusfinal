@@ -237,6 +237,7 @@ export const refreshToken = (req, res) => {
     
     res.status(StatusCodes.OK).json({
       message: 'Token refreshed successfully',
+      token: newToken,
       tokenExpiry: new Date(Date.now() + 24 * 60 * 60 * 1000),
       refreshCount: req.session?.tokenRefreshCount || 1
     });

@@ -50,7 +50,7 @@ export const login = async (req, res) => {
       partitioned: isSecure,
     });
 
-    res.status(StatusCodes.OK).json({ msg: "Admin logged in", admin });
+    res.status(StatusCodes.OK).json({ msg: "Admin logged in", token, admin });
   } catch (error) {
     res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)

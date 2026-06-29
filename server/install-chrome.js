@@ -1,7 +1,11 @@
 import { execSync } from 'child_process';
-import { join } from 'path';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
 
-const cacheDir = join(process.cwd(), '.cache', 'puppeteer');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const cacheDir = join(__dirname, '.cache', 'puppeteer');
 console.log(`Installing Chrome to custom cache dir: ${cacheDir}`);
 
 try {
@@ -14,3 +18,4 @@ try {
   console.error('Failed to install Chrome:', error);
   process.exit(1);
 }
+

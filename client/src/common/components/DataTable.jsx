@@ -73,18 +73,18 @@ const DataTable = ({
       </div>
 
       {filtered.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-16 gap-3 text-slate-400 text-sm bg-white/40">
+        <div className="flex flex-col items-center justify-center py-16 gap-3 text-slate-500 text-sm bg-white/40">
           <FiInbox className="w-12 h-12 text-[#3730a3]/20" />
-          <p className="font-semibold text-slate-500">{emptyMessage}</p>
-          {query && <p className="text-xs text-slate-400">Try a different search term</p>}
+          <p className="font-semibold text-slate-600">{emptyMessage}</p>
+          {query && <p className="text-xs text-slate-500">Try a different search term</p>}
         </div>
       )}
 
       {filtered.length > 0 && (
-        <div className="px-5 py-4 text-xs font-bold text-slate-400 border-t border-slate-200/60 bg-indigo-50/5">
-          Showing <span className="text-slate-600">{filtered.length}</span>
+        <div className="px-5 py-4 text-xs font-bold text-slate-600 border-t border-slate-200/60 bg-indigo-50/5">
+          Showing <span className="text-slate-900">{filtered.length}</span>
           {filtered.length !== data.length && (
-            <> of <span className="text-slate-600">{data.length}</span></>
+            <> of <span className="text-slate-900">{data.length}</span></>
           )}{" "}
           records
         </div>

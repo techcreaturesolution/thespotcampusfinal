@@ -1,8 +1,14 @@
-import { join } from 'path';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 export const generatePdfFromHtml = async (htmlContent) => {
   // Force Puppeteer to look for the Chrome binary in the local cache dir we installed to
-  process.env.PUPPETEER_CACHE_DIR = join(process.cwd(), '.cache', 'puppeteer');
+  // We resolve the cache directory relative to the file path to avoid process.cwd() mismatch on cloud environments like Render
+  const cacheDir = join(__dirname, '..', '..', '.cache', 'puppeteer');
+  process.env.PUPPETEER_CACHE_DIR = cacheDir;
 
   // Dynamic import to prevent ESM import hoisting from evaluating puppeteer before env variable is set
   const puppeteer = (await import('puppeteer')).default;
@@ -11,7 +17,14 @@ export const generatePdfFromHtml = async (htmlContent) => {
   try {
     browser = await puppeteer.launch({
       headless: "new",
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-gpu',
+        '--no-first-run',
+        '--no-zygote'
+      ]
     });
     const page = await browser.newPage();
     

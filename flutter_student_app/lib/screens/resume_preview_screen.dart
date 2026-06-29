@@ -131,6 +131,9 @@ class _ResumePreviewScreenState extends State<ResumePreviewScreen> {
     setState(() => _isPdfProcessing = true);
     try {
       final pdfBytes = await _resumeService.downloadPdf();
+      if (pdfBytes.isEmpty) {
+        throw Exception('Downloaded PDF is empty (0 bytes).');
+      }
       final directory = await getTemporaryDirectory();
 
       // Retrieve user's name to generate the filename

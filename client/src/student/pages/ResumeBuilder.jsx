@@ -1507,40 +1507,61 @@ const ResumeBuilder = () => {
               {/* Accent Color Theme */}
               <div className="space-y-2">
                 <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider block">Color Theme / Accent Color</label>
-                <div className="flex flex-wrap items-center gap-3">
-                  {[
-                    { name: "Indigo", value: "#3730a3" },
-                    { name: "Emerald", value: "#059669" },
-                    { name: "Charcoal", value: "#334155" },
-                    { name: "Slate Blue", value: "#1e3a8a" },
-                    { name: "Crimson", value: "#be123c" },
-                  ].map((color) => (
-                    <button
-                      key={color.value}
-                      type="button"
-                      onClick={() => setResumeData({ ...resumeData, color_theme: color.value })}
-                      style={{ backgroundColor: color.value }}
-                      className={`w-7 h-7 rounded-full border-2 transition-all relative ${resumeData.color_theme === color.value
-                        ? "border-slate-900 ring-2 ring-indigo-500/20 scale-110"
-                        : "border-transparent hover:scale-105"
-                        }`}
-                      title={color.name}
-                    >
-                      {resumeData.color_theme === color.value && (
-                        <FiCheck className="w-3.5 h-3.5 text-white absolute inset-0 m-auto stroke-[3.5]" />
-                      )}
-                    </button>
-                  ))}
+                <div className="space-y-3">
+                  {/* Table/Grid of 20 Preset Colors */}
+                  <div className="flex flex-wrap gap-2 max-w-[340px] border border-slate-100 p-2.5 rounded-xl bg-slate-50/30">
+                    {[
+                      { name: "Indigo", value: "#3730a3" },
+                      { name: "Sky Blue", value: "#0ea5e9" },
+                      { name: "Emerald", value: "#10b981" },
+                      { name: "Rose", value: "#f43f5e" },
+                      { name: "Slate", value: "#1e293b" },
+                      { name: "Purple", value: "#7c3aed" },
+                      { name: "Amber", value: "#d97706" },
+                      { name: "Red", value: "#ef4444" },
+                      { name: "Pink", value: "#ec4899" },
+                      { name: "Blue", value: "#3b82f6" },
+                      { name: "Cyan", value: "#06b6d4" },
+                      { name: "Teal", value: "#14b8a6" },
+                      { name: "Green", value: "#22c55e" },
+                      { name: "Lime", value: "#84cc16" },
+                      { name: "Yellow", value: "#eab308" },
+                      { name: "Orange", value: "#f97316" },
+                      { name: "Deep Orange", value: "#ff5722" },
+                      { name: "Brown", value: "#795548" },
+                      { name: "Blue Grey", value: "#607d8b" },
+                      { name: "Black", value: "#000000" },
+                    ].map((color) => (
+                      <button
+                        key={color.value}
+                        type="button"
+                        onClick={() => setResumeData({ ...resumeData, color_theme: color.value })}
+                        style={{ backgroundColor: color.value }}
+                        className={`w-7 h-7 rounded-full border-2 transition-all relative ${resumeData.color_theme === color.value
+                          ? "border-slate-900 ring-2 ring-indigo-500/20 scale-110"
+                          : "border-transparent hover:scale-105"
+                          }`}
+                        title={color.name}
+                      >
+                        {resumeData.color_theme === color.value && (
+                          <FiCheck className="w-3.5 h-3.5 text-white absolute inset-0 m-auto stroke-[3.5]" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
 
                   {/* Custom color picker */}
-                  <div className="flex items-center gap-2 ml-2 border border-slate-200 rounded-xl p-1 px-2.5 bg-slate-50/50">
-                    <input
-                      type="color"
-                      value={resumeData.color_theme}
-                      onChange={(e) => setResumeData({ ...resumeData, color_theme: e.target.value })}
-                      className="w-6 h-6 rounded border border-slate-200 cursor-pointer"
-                    />
-                    <span className="text-[10px] font-mono font-bold text-slate-500 uppercase">{resumeData.color_theme}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-extrabold text-slate-400 uppercase">Custom:</span>
+                    <div className="flex items-center gap-2 border border-slate-200 rounded-xl p-1 px-2.5 bg-slate-50/50">
+                      <input
+                        type="color"
+                        value={resumeData.color_theme}
+                        onChange={(e) => setResumeData({ ...resumeData, color_theme: e.target.value })}
+                        className="w-6 h-6 rounded border border-slate-200 cursor-pointer"
+                      />
+                      <span className="text-[10px] font-mono font-bold text-slate-500 uppercase">{resumeData.color_theme}</span>
+                    </div>
                   </div>
                 </div>
               </div>

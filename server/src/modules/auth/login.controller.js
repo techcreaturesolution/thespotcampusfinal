@@ -118,7 +118,7 @@ export const login = async (req, res) => {
       partitioned: isSecure,
     });
 
-    res.status(StatusCodes.OK).json({ msg: "Login successful", user, role: detectedRole });
+    res.status(StatusCodes.OK).json({ msg: "Login successful", token, user, role: detectedRole });
   } catch (error) {
     res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class AppConstants {
   static const String appName = 'The Spot Campus';
   static const String baseUrl = 'http://localhost:5000/api';
+  //static const String baseUrl = 'http://192.168.29.235:5000/api';
 
   // Render URL (Production - running old code)
   // static const String baseUrl = 'https://thespotcampus.onrender.com/api';
