@@ -18,7 +18,6 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
   bool isLoading = true;
   int _totalPages = 0;
   int _currentPage = 0;
-  PDFViewController? _pdfViewController;
   late Map<String, dynamic> _pdfData;
   double _downloadProgress = 0.0;
 
@@ -124,9 +123,7 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
                   onPageError: (page, error) {
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$page: ${error.toString()}')));
                   },
-                  onViewCreated: (PDFViewController pdfViewController) {
-                    _pdfViewController = pdfViewController;
-                  },
+                  onViewCreated: (PDFViewController pdfViewController) {},
                   onPageChanged: (int? page, int? total) {
                     if (page != null) {
                       setState(() {
