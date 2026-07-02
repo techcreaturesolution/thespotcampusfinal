@@ -256,6 +256,13 @@ export const getInterviewByRoom = async (req, res) => {
       .populate("job_id", "job_title");
 
     if (!interview) throw new NotFoundError(`No interview room: ${roomId}`);
+
+    if (interview.status === "scheduled") {
+      interview.status = "in_progress";
+      interview.started_at = new Date();
+      await interview.save();
+    }
+
     res.status(StatusCodes.OK).json({ interview });
   } catch (error) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });

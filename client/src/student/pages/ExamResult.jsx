@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, useOutletContext } from "react-router-dom";
 import { toast } from "react-toastify";
 import {
-  FiUser, FiShield, FiAlertTriangle, FiClock, FiArrowLeft, FiAward, 
-  FiEye, FiCheckCircle, FiFileText, FiSearch, FiMonitor, FiMapPin, 
+  FiUser, FiShield, FiAlertTriangle, FiClock, FiArrowLeft, FiAward,
+  FiEye, FiCheckCircle, FiFileText, FiSearch, FiMonitor, FiMapPin,
   FiCalendar, FiCpu, FiExternalLink, FiXCircle, FiFilter, FiMaximize2, FiMinimize2,
   FiCheck, FiX
 } from "react-icons/fi";
@@ -52,7 +52,7 @@ const ExamResult = () => {
         action,
       });
       toast.success(
-        action === "pass" 
+        action === "pass"
           ? (exam?.job_id?.has_multiple_rounds ? "Promoted to next round" : "Candidate selected")
           : (exam?.job_id?.has_multiple_rounds ? "Candidate eliminated" : "Candidate rejected")
       );
@@ -112,11 +112,11 @@ const ExamResult = () => {
     : "—";
 
   const highTrustCount = papers.filter((p) => (p.proctoring?.trustScore ?? 100) >= 80).length;
-  const trustRate = totalSubmissions > 0 
-    ? ((highTrustCount / totalSubmissions) * 100).toFixed(0) 
+  const trustRate = totalSubmissions > 0
+    ? ((highTrustCount / totalSubmissions) * 100).toFixed(0)
     : 100;
 
-  const flaggedCount = papers.filter(p => 
+  const flaggedCount = papers.filter(p =>
     (p.proctoring?.trustScore ?? 100) < 55 || (p.proctoring?.totalViolations || 0) > 3
   ).length;
 
@@ -271,41 +271,37 @@ const ExamResult = () => {
           </span>
           <button
             onClick={() => setStatusFilter("all")}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition shrink-0 ${
-              statusFilter === "all"
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition shrink-0 ${statusFilter === "all"
                 ? "bg-[#3730a3] text-white shadow-sm"
                 : "bg-slate-50 hover:bg-slate-100 text-slate-650 border border-slate-200/60"
-            }`}
+              }`}
           >
             All Submissions
           </button>
           <button
             onClick={() => setStatusFilter("high")}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition shrink-0 flex items-center gap-1.5 ${
-              statusFilter === "high"
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition shrink-0 flex items-center gap-1.5 ${statusFilter === "high"
                 ? "bg-emerald-600 text-white shadow-sm"
                 : "bg-emerald-50 hover:bg-emerald-100/75 text-emerald-800 border border-emerald-150"
-            }`}
+              }`}
           >
             <span className={`w-1.5 h-1.5 rounded-full ${statusFilter === "high" ? "bg-white" : "bg-emerald-500"}`} /> High Trust
           </button>
           <button
             onClick={() => setStatusFilter("moderate")}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition shrink-0 flex items-center gap-1.5 ${
-              statusFilter === "moderate"
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition shrink-0 flex items-center gap-1.5 ${statusFilter === "moderate"
                 ? "bg-amber-600 text-white shadow-sm"
                 : "bg-amber-50 hover:bg-amber-100/75 text-amber-800 border border-amber-150"
-            }`}
+              }`}
           >
             <span className={`w-1.5 h-1.5 rounded-full ${statusFilter === "moderate" ? "bg-white" : "bg-amber-500"}`} /> Mod. Trust
           </button>
           <button
             onClick={() => setStatusFilter("flagged")}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition shrink-0 flex items-center gap-1.5 ${
-              statusFilter === "flagged"
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition shrink-0 flex items-center gap-1.5 ${statusFilter === "flagged"
                 ? "bg-rose-600 text-white shadow-sm"
                 : "bg-rose-50 hover:bg-rose-100/75 text-rose-800 border border-rose-150"
-            }`}
+              }`}
           >
             <span className={`w-1.5 h-1.5 rounded-full ${statusFilter === "flagged" ? "bg-white" : "bg-rose-500"}`} /> Suspicious
           </button>
@@ -317,15 +313,14 @@ const ExamResult = () => {
         {filteredPapers.map((paper) => {
           const trust = getTrustScoreTier(paper.proctoring?.trustScore);
           const isExpanded = expandedPaperId === paper._id;
-          
+
           return (
             <div
               key={paper._id}
-              className={`bg-white rounded-2xl border transition-all duration-300 shadow-sm overflow-hidden ${
-                isExpanded 
-                  ? "border-[#3730a3] ring-1 ring-[#3730a3]/20" 
+              className={`bg-white rounded-2xl border transition-all duration-300 shadow-sm overflow-hidden ${isExpanded
+                  ? "border-[#3730a3] ring-1 ring-[#3730a3]/20"
                   : "border-slate-200/80 hover:shadow-md hover:border-slate-300"
-              }`}
+                }`}
             >
               {/* Outer Card Row */}
               <div className="p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-5 border-b border-slate-100/50">
@@ -359,11 +354,10 @@ const ExamResult = () => {
                   </div>
 
                   {/* Violations */}
-                  <div className={`px-3.5 py-2 rounded-xl border text-center min-w-[85px] shadow-sm ${
-                    (paper.proctoring?.totalViolations || 0) > 0 
-                      ? "bg-rose-50 border-rose-150 text-rose-700" 
+                  <div className={`px-3.5 py-2 rounded-xl border text-center min-w-[85px] shadow-sm ${(paper.proctoring?.totalViolations || 0) > 0
+                      ? "bg-rose-50 border-rose-150 text-rose-700"
                       : "bg-slate-50 border-slate-150 text-slate-650"
-                  }`}>
+                    }`}>
                     <p className="text-[10px] font-bold uppercase tracking-wider opacity-85">Violations</p>
                     <p className="text-lg font-black mt-0.5 flex items-center justify-center gap-1">
                       <FiAlertTriangle className="w-4 h-4" /> {paper.proctoring?.totalViolations || 0}
@@ -439,11 +433,10 @@ const ExamResult = () => {
                   {/* Toggle Button */}
                   <button
                     onClick={() => toggleExpand(paper._id)}
-                    className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold border transition ${
-                      isExpanded
+                    className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold border transition ${isExpanded
                         ? "bg-[#3730a3] text-white border-[#3730a3] shadow-md shadow-indigo-500/10"
                         : "bg-white hover:bg-slate-50 text-slate-700 border-slate-200 shadow-sm"
-                    }`}
+                      }`}
                   >
                     {isExpanded ? (
                       <>
@@ -542,9 +535,8 @@ const ExamResult = () => {
                               return (
                                 <div key={i} className="relative group">
                                   {/* Timeline marker */}
-                                  <div className={`absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full border-2 border-white ring-2 ${
-                                    isRed ? "bg-rose-500 ring-rose-100" : "bg-amber-500 ring-amber-100"
-                                  }`} />
+                                  <div className={`absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full border-2 border-white ring-2 ${isRed ? "bg-rose-500 ring-rose-100" : "bg-amber-500 ring-amber-100"
+                                    }`} />
                                   <div className="flex items-center justify-between">
                                     <span className="text-[10px] font-extrabold uppercase tracking-wide text-slate-800">
                                       {v.type?.replace("_", " ")}
@@ -583,9 +575,8 @@ const ExamResult = () => {
                               return (
                                 <div
                                   key={idx}
-                                  className={`relative group rounded-lg overflow-hidden border bg-slate-50 ${
-                                    alertSnapshot ? "border-rose-350 shadow-sm" : "border-slate-200"
-                                  }`}
+                                  className={`relative group rounded-lg overflow-hidden border bg-slate-50 ${alertSnapshot ? "border-rose-350 shadow-sm" : "border-slate-200"
+                                    }`}
                                 >
                                   {snap.imageUrl ? (
                                     <img
@@ -599,7 +590,7 @@ const ExamResult = () => {
                                       No Image
                                     </div>
                                   )}
-                                  
+
                                   {/* Badge Overlay */}
                                   <div className="absolute top-1 left-1 flex flex-wrap gap-0.5">
                                     {alertSnapshot && (

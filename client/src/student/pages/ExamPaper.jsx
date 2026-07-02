@@ -812,10 +812,10 @@ const ExamPaper = () => {
           <div className="flex items-center justify-between sm:justify-end gap-3 flex-wrap">
             {/* Trust Score */}
             <div className={`px-3 py-1.5 rounded-xl border flex items-center gap-2 ${trustScore >= 70
-                ? "bg-emerald-50/60 border-emerald-150 text-emerald-700 font-bold"
-                : trustScore >= 40
-                  ? "bg-amber-50 border-amber-150 text-amber-700 font-bold"
-                  : "bg-rose-50 border-rose-150 text-rose-700 font-bold"
+              ? "bg-emerald-50/60 border-emerald-150 text-emerald-700 font-bold"
+              : trustScore >= 40
+                ? "bg-amber-50 border-amber-150 text-amber-700 font-bold"
+                : "bg-rose-50 border-rose-150 text-rose-700 font-bold"
               }`}>
               <FiShield className="w-3.5 h-3.5 shrink-0" />
               <span className="text-xs font-black tracking-wide">Trust: {trustScore}%</span>
@@ -823,8 +823,8 @@ const ExamPaper = () => {
 
             {/* Violations */}
             <div className={`px-3 py-1.5 rounded-xl border flex items-center gap-2 ${totalViolations > 0
-                ? "bg-rose-50/60 border-rose-150 text-rose-700 font-bold"
-                : "bg-slate-50 border-slate-200 text-slate-500 font-bold"
+              ? "bg-rose-50/60 border-rose-150 text-rose-700 font-bold"
+              : "bg-slate-50 border-slate-200 text-slate-500 font-bold"
               }`}>
               <FiAlertTriangle className="w-3.5 h-3.5 shrink-0" />
               <span className="text-xs font-black tracking-wide">
@@ -834,10 +834,10 @@ const ExamPaper = () => {
 
             {/* Countdown Monospace Timer */}
             <div className={`px-3.5 py-1.5 rounded-xl border flex items-center gap-2 font-mono text-xs font-black tracking-widest ${timeLeft < 60
-                ? "bg-rose-50/60 border-rose-150 text-rose-700 animate-pulse"
-                : timeLeft < 300
-                  ? "bg-amber-50 border-amber-150 text-amber-700"
-                  : "bg-slate-50 border-slate-200 text-slate-700"
+              ? "bg-rose-50/60 border-rose-150 text-rose-700 animate-pulse"
+              : timeLeft < 300
+                ? "bg-amber-50 border-amber-150 text-amber-700"
+                : "bg-slate-50 border-slate-200 text-slate-700"
               }`}>
               <FiClock className="w-3.5 h-3.5 shrink-0" />
               <span>{formatTime(timeLeft)}</span>
@@ -888,10 +888,10 @@ const ExamPaper = () => {
                   </span>
                   {currentQuestion.difficulty && (
                     <span className={`text-[10px] font-black px-3 py-1 rounded-md uppercase tracking-wider border ${currentQuestion.difficulty === "hard"
-                        ? "bg-rose-50 border-rose-150 text-rose-700"
-                        : currentQuestion.difficulty === "medium"
-                          ? "bg-amber-50 border-amber-150 text-amber-700"
-                          : "bg-emerald-50 border-emerald-150 text-emerald-700"
+                      ? "bg-rose-50 border-rose-150 text-rose-700"
+                      : currentQuestion.difficulty === "medium"
+                        ? "bg-amber-50 border-amber-150 text-amber-700"
+                        : "bg-emerald-50 border-emerald-150 text-emerald-700"
                       }`}>
                       {currentQuestion.difficulty}
                     </span>
@@ -923,8 +923,8 @@ const ExamPaper = () => {
                     <label
                       key={option._id}
                       className={`flex items-center gap-4 p-4 rounded-2xl border transition-all duration-255 cursor-pointer hover:-translate-y-0.5 hover:shadow-md ${isSelected
-                          ? "border-[#3730a3] bg-gradient-to-r from-indigo-50/60 to-blue-50/30 text-slate-850 ring-2 ring-indigo-500/5 shadow-xs"
-                          : "border-slate-200 hover:border-indigo-250 bg-white hover:bg-indigo-50/5 text-slate-650"
+                        ? "border-[#3730a3] bg-gradient-to-r from-indigo-50/60 to-blue-50/30 text-slate-850 ring-2 ring-indigo-500/5 shadow-xs"
+                        : "border-slate-200 hover:border-indigo-250 bg-white hover:bg-indigo-50/5 text-slate-650"
                         }`}
                     >
                       <input
@@ -942,8 +942,8 @@ const ExamPaper = () => {
                         className="sr-only"
                       />
                       <span className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-black border uppercase tracking-wider shrink-0 transition-all ${isSelected
-                          ? "bg-gradient-to-br from-[#3730a3] to-[#2563eb] border-transparent text-white shadow-sm shadow-indigo-500/20 scale-105"
-                          : "bg-slate-50 border-slate-200 text-slate-450"
+                        ? "bg-gradient-to-br from-[#3730a3] to-[#2563eb] border-transparent text-white shadow-sm shadow-indigo-500/20 scale-105"
+                        : "bg-slate-50 border-slate-200 text-slate-450"
                         }`}>
                         {String.fromCharCode(65 + idx)}
                       </span>
@@ -1128,8 +1128,8 @@ const ExamPaper = () => {
             {/* Camera widget */}
             {exam.proctoring?.cameraEnabled && (
               <div className={`bg-white rounded-2xl shadow-sm border p-4 transition-all duration-200 text-left ${(cameraViolation || showViolationWarning)
-                  ? "border-rose-500 ring-4 ring-rose-500/10 animate-pulse"
-                  : "border-slate-200"
+                ? "border-rose-500 ring-4 ring-rose-500/10 animate-pulse"
+                : "border-slate-200"
                 }`}>
                 <div className="flex items-center gap-2 mb-3">
                   <FiCamera className={`w-4 h-4 ${(cameraViolation || showViolationWarning) ? "text-rose-500 animate-pulse" : "text-slate-500"}`} />
@@ -1166,10 +1166,10 @@ const ExamPaper = () => {
                       key={q._id}
                       onClick={() => setCurrentQuestionIndex(i)}
                       className={`w-8.5 h-8.5 rounded-xl text-xs font-black transition-all border ${i === currentQuestionIndex
-                          ? "bg-gradient-to-br from-[#3730a3] to-[#2563eb] border-transparent text-white shadow-sm shadow-indigo-500/20 scale-105"
-                          : isAnswered
-                            ? "bg-emerald-100 border-emerald-300 text-emerald-800 hover:bg-emerald-200/50"
-                            : "bg-slate-50 hover:bg-slate-100 text-slate-650 border-slate-200"
+                        ? "bg-gradient-to-br from-[#3730a3] to-[#2563eb] border-transparent text-white shadow-sm shadow-indigo-500/20 scale-105"
+                        : isAnswered
+                          ? "bg-emerald-100 border-emerald-300 text-emerald-800 hover:bg-emerald-200/50"
+                          : "bg-slate-50 hover:bg-slate-100 text-slate-650 border-slate-200"
                         }`}
                     >
                       {i + 1}

@@ -409,8 +409,8 @@ export const getRoundProgress = async (req, res) => {
     const initializedCount = await tbl_candidate_round.countDocuments({ job_id: jobId, round_number: 1 });
     const uninitializedCount = Math.max(0, totalApplications - initializedCount);
 
-    res.status(StatusCodes.OK).json({ 
-      progress, 
+    res.status(StatusCodes.OK).json({
+      progress,
       job_title: job.job_title,
       uninitialized_count: uninitializedCount
     });

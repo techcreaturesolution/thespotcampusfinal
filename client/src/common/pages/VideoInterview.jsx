@@ -13,6 +13,16 @@ const ICE_SERVERS = {
   iceServers: [
     { urls: "stun:stun.l.google.com:19302" },
     { urls: "stun:stun1.l.google.com:19302" },
+    {
+      urls: [
+        "stun:openrelay.metered.ca:80",
+        "turn:openrelay.metered.ca:80",
+        "turn:openrelay.metered.ca:443",
+        "turn:openrelay.metered.ca:443?transport=tcp"
+      ],
+      username: "openrelayproject",
+      credential: "openrelayproject"
+    }
   ],
 };
 
@@ -55,6 +65,19 @@ const VideoInterview = () => {
     fetchInterview();
     return () => cleanup();
   }, [roomId]);
+
+  useEffect(() => {
+    if (interview?.started_at) {
+      const startTime = new Date(interview.started_at).getTime();
+      const updateTimer = () => {
+        const seconds = Math.max(0, Math.floor((Date.now() - startTime) / 1000));
+        setElapsed(seconds);
+      };
+      updateTimer();
+      const intervalId = setInterval(updateTimer, 1000);
+      return () => clearInterval(intervalId);
+    }
+  }, [interview?.started_at]);
 
   const cleanup = () => {
     if (timerRef.current) clearInterval(timerRef.current);
@@ -122,8 +145,6 @@ const VideoInterview = () => {
     socket.on("user-joined", async (data) => {
       if (data.userId === userId) return;
       setRemoteUser(data);
-      setConnected(true);
-      startTimer();
       await createOffer(stream);
     });
 
@@ -228,9 +249,15 @@ const VideoInterview = () => {
     };
 
     peer.onconnectionstatechange = () => {
+      console.log("Peer connection state:", peer.connectionState);
       if (peer.connectionState === "connected") {
         setConnected(true);
-        startTimer();
+      } else if (
+        peer.connectionState === "failed" ||
+        peer.connectionState === "disconnected" ||
+        peer.connectionState === "closed"
+      ) {
+        setConnected(false);
       }
     };
 
@@ -252,8 +279,6 @@ const VideoInterview = () => {
       const answer = await peer.createAnswer();
       await peer.setLocalDescription(answer);
       socketRef.current.emit("interview-answer", { roomId, answer, userId, userName, role });
-      setConnected(true);
-      startTimer();
     } catch (err) {
       console.error("Error handling offer:", err);
     }
@@ -272,10 +297,7 @@ const VideoInterview = () => {
     }
   };
 
-  const startTimer = () => {
-    if (timerRef.current) return;
-    timerRef.current = setInterval(() => setElapsed((prev) => prev + 1), 1000);
-  };
+  const startTimer = () => {};
 
   const toggleVideo = () => {
     if (localStreamRef.current) {
