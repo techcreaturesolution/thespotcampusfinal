@@ -306,6 +306,18 @@ const CreateJobModal = ({ isOpen, onClose, jobId, onSuccess }) => {
                     <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">No. of Positions</label>
                     <input type="text" name="job_noofposition" className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#3730a3]/50 focus:border-[#3730a3] outline-none transition text-sm bg-white font-semibold text-slate-700" value={formData.job_noofposition} onChange={handleChange} />
                   </div>
+                  <div>
+                    <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">City</label>
+                    <input type="text" name="job_location.city" className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#3730a3]/50 focus:border-[#3730a3] outline-none transition text-sm bg-white font-semibold text-slate-700" value={formData.job_location.city} onChange={handleChange} placeholder="e.g. Mumbai" />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">State</label>
+                    <input type="text" name="job_location.state" className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#3730a3]/50 focus:border-[#3730a3] outline-none transition text-sm bg-white font-semibold text-slate-700" value={formData.job_location.state} onChange={handleChange} placeholder="e.g. Maharashtra" />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">Country</label>
+                    <input type="text" name="job_location.country" className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#3730a3]/50 focus:border-[#3730a3] outline-none transition text-sm bg-white font-semibold text-slate-700" value={formData.job_location.country} onChange={handleChange} placeholder="e.g. India" />
+                  </div>
                 </div>
                 <div>
                   <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">Job Description</label>

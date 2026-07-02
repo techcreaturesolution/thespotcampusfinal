@@ -80,26 +80,31 @@ export const loginValidation = [
 
 // Job validation chains
 export const jobValidation = [
-  body('title')
+  body('job_title')
     .trim()
     .isLength({ min: 3, max: 100 })
     .withMessage('Job title must be between 3 and 100 characters'),
-  body('description')
+  body('job_desc')
     .trim()
     .isLength({ min: 10, max: 2000 })
     .withMessage('Job description must be between 10 and 2000 characters'),
-  body('location')
+  body('job_location.city')
+    .optional({ checkFalsy: true })
     .trim()
     .isLength({ min: 2, max: 100 })
-    .withMessage('Location must be between 2 and 100 characters'),
-  body('salary')
-    .optional()
-    .isNumeric()
-    .withMessage('Salary must be a number'),
-  body('requirements')
-    .optional()
-    .isArray()
-    .withMessage('Requirements must be an array'),
+    .withMessage('City must be between 2 and 100 characters'),
+  body('job_location.state')
+    .optional({ checkFalsy: true })
+    .trim()
+    .isLength({ min: 2, max: 100 })
+    .withMessage('State must be between 2 and 100 characters'),
+  body('job_location.country')
+    .optional({ checkFalsy: true })
+    .trim()
+    .isLength({ min: 2, max: 100 })
+    .withMessage('Country must be between 2 and 100 characters'),
+  body('job_salary')
+    .optional(),
   validateInput
 ];
 
