@@ -8,6 +8,7 @@ class AppConstants {
   // Render URL (Production - running old code)
   // static const String baseUrl = 'https://thespotcampus.onrender.com/api';
   static const String baseUrl = 'https://thespotcampusfinal.onrender.com/api';
+  static const String baseUrl = 'https://thespotcampusfinal.onrender.com/api';
 
   static const String tokenKey = 'auth_token';
   static const String roleKey = 'user_role';

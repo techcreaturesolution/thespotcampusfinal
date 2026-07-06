@@ -25,7 +25,7 @@ class _ExamScreenState extends State<ExamScreen> with WidgetsBindingObserver {
   bool _examStarted = false;
   int _currentIndex = 0;
   final Map<String, dynamic> _selectedAnswers = {};
-  int _timeLeft = 0;
+  final ValueNotifier<int> _timeLeft = ValueNotifier<int>(0);
   Timer? _timer;
   int _violations = 0;
   int _trustScore = 100;
@@ -78,7 +78,7 @@ class _ExamScreenState extends State<ExamScreen> with WidgetsBindingObserver {
       final data = await api.get('/exam/${widget.examId}');
       setState(() {
         _exam = data['exam'];
-        _timeLeft = (data['exam']['timeLimit'] ?? 30) * 60;
+        _timeLeft.value = (data['exam']['timeLimit'] ?? 30) * 60;
         _loading = false;
       });
     } catch (e) {
@@ -213,6 +213,7 @@ class _ExamScreenState extends State<ExamScreen> with WidgetsBindingObserver {
       } else if (faces.length > 1) {
         _multiFaceFrameCount++;
         _noFaceFrameCount = 0;
+        _recordViolation('multiple_faces', 'Multiple faces detected in camera');
       } else {
         // Exactly one face detected
         _noFaceFrameCount = 0;
@@ -228,8 +229,8 @@ class _ExamScreenState extends State<ExamScreen> with WidgetsBindingObserver {
           final dy = cy - _lastFaceY!;
           final distance = sqrt(dx * dx + dy * dy);
 
-          // If the face moves more than 85 pixels, detect as movement violation
-          if (distance > 85.0) {
+          // If the face moves significantly (more than 120 pixels), detect as movement violation
+          if (distance > 120.0) {
             _recordViolation('excessive_movement', 'Excessive movement detected');
           }
         }
@@ -415,11 +416,11 @@ class _ExamScreenState extends State<ExamScreen> with WidgetsBindingObserver {
 
   void _startTimer() {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (_timeLeft <= 0) {
+      if (_timeLeft.value <= 0) {
         _autoSubmit('Time limit exceeded');
         return;
       }
-      setState(() => _timeLeft--);
+      _timeLeft.value--;
     });
   }
 
@@ -876,31 +877,36 @@ class _ExamScreenState extends State<ExamScreen> with WidgetsBindingObserver {
           ),
           actions: [
             // Timer Badge
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              margin: const EdgeInsets.symmetric(vertical: 10),
-              decoration: BoxDecoration(
-                color: _timeLeft < 60 ? const Color(0xFFFEE2E2) : const Color(0xFFEFF6FF),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.timer_outlined,
-                    size: 16,
-                    color: _timeLeft < 60 ? const Color(0xFFEF4444) : const Color(0xFF2563EB),
+            ValueListenableBuilder<int>(
+              valueListenable: _timeLeft,
+              builder: (context, timeLeft, child) {
+                return Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  margin: const EdgeInsets.symmetric(vertical: 10),
+                  decoration: BoxDecoration(
+                    color: timeLeft < 60 ? const Color(0xFFFEE2E2) : const Color(0xFFEFF6FF),
+                    borderRadius: BorderRadius.circular(20),
                   ),
-                  const SizedBox(width: 6),
-                  Text(
-                    _formatTime(_timeLeft),
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 13,
-                      color: _timeLeft < 60 ? const Color(0xFFEF4444) : const Color(0xFF2563EB),
-                    ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.timer_outlined,
+                        size: 16,
+                        color: timeLeft < 60 ? const Color(0xFFEF4444) : const Color(0xFF2563EB),
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        _formatTime(timeLeft),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                          color: timeLeft < 60 ? const Color(0xFFEF4444) : const Color(0xFF2563EB),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                );
+              },
             ),
             const SizedBox(width: 8),
 

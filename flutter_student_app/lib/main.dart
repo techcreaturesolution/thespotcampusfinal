@@ -27,6 +27,8 @@ import 'screens/preparation/practice_screen.dart';
 import 'screens/preparation/pdf_viewer_screen.dart';
 import 'screens/resume_builder_screen.dart';
 import 'screens/resume_preview_screen.dart';
+import 'screens/bookmarks_screen.dart';
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(
@@ -113,6 +115,7 @@ class SpotCampusApp extends StatelessWidget {
         '/preparation/previous-papers': (context) => const PreviousPapersScreen(),
         '/resume': (context) => const ResumeBuilderScreen(),
         '/resume-preview': (context) => const ResumePreviewScreen(),
+        '/bookmarks': (context) => const BookmarksScreen(),
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/job-detail') {
