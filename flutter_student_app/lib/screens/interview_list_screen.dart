@@ -113,23 +113,36 @@ class _InterviewListScreenState extends State<InterviewListScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Container(
-                          padding: const EdgeInsets.all(20),
+                          padding: const EdgeInsets.all(28),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF2563EB).withOpacity(0.1),
+                            gradient: const LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [Color(0xFF60A5FA), Color(0xFF2563EB)],
+                            ),
                             shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFF3B82F6).withOpacity(0.4),
+                                blurRadius: 20,
+                                spreadRadius: -5,
+                                offset: const Offset(0, 8),
+                              ),
+                            ],
                           ),
                           child: const Icon(
                             Icons.video_camera_back_outlined,
-                            size: 64,
-                            color: Color(0xFF2563EB),
+                            size: 56,
+                            color: Colors.white,
                           ),
                         ),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 32),
                         const Text(
                           'No interviews scheduled yet',
                           style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                            fontSize: 22,
+                            fontWeight: FontWeight.w900,
+                            color: Color(0xFF0F172A),
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -170,17 +183,30 @@ class _InterviewListScreenState extends State<InterviewListScreen> {
                       final isVideo = interview['interview_mode'] == 'video_conference';
                       final joinable = _isJoinable(interview);
 
-                      return Card(
+                      return Container(
                         margin: const EdgeInsets.only(bottom: 16),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            border: Border(
-                              left: BorderSide(
-                                color: _getStatusColor(status),
-                                width: 5,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.04),
+                              blurRadius: 16,
+                              offset: const Offset(0, 8),
+                            )
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              border: Border(
+                                left: BorderSide(
+                                  color: _getStatusColor(status),
+                                  width: 6,
+                                ),
                               ),
                             ),
-                          ),
                           child: Padding(
                             padding: const EdgeInsets.all(16),
                             child: Column(
@@ -338,7 +364,8 @@ class _InterviewListScreenState extends State<InterviewListScreen> {
                             ),
                           ),
                         ),
-                      );
+                      ),
+                    );
                     },
                   ),
                 ),

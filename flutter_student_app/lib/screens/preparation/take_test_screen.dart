@@ -219,22 +219,21 @@ class _TakeTestScreenState extends State<TakeTestScreen> {
                   // Question card
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: Colors.indigo.shade50),
+                      borderRadius: BorderRadius.circular(24),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.03),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
+                          color: Colors.black.withOpacity(0.04),
+                          blurRadius: 16,
+                          offset: const Offset(0, 8),
                         )
                       ]
                     ),
                     child: Text(
                       q['question_text'] ?? '',
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, height: 1.6, color: Color(0xFF1E293B)),
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, height: 1.5, color: Color(0xFF111827)),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -304,46 +303,67 @@ class _TakeTestScreenState extends State<TakeTestScreen> {
           ),
           // Bottom navigation
           Container(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
             decoration: BoxDecoration(
               color: Colors.white,
-              border: Border(top: BorderSide(color: Colors.grey.shade200)),
+              boxShadow: [
+                BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, -4))
+              ]
             ),
             child: Row(
               children: [
                 if (_currentIndex > 0)
                   Expanded(
-                    child: OutlinedButton.icon(
+                    flex: 1,
+                    child: OutlinedButton(
                       onPressed: () => setState(() => _currentIndex--),
-                      icon: const Icon(Icons.arrow_back, size: 16),
-                      label: const Text('Prev'),
                       style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        side: const BorderSide(color: Color(0xFFE2E8F0)),
+                        foregroundColor: const Color(0xFF64748B),
                       ),
+                      child: const Icon(Icons.arrow_back_rounded, size: 24),
                     ),
                   ),
-                if (_currentIndex > 0) const SizedBox(width: 12),
+                if (_currentIndex > 0) const SizedBox(width: 16),
                 Expanded(
-                  flex: 2,
+                  flex: 3,
                   child: _currentIndex < _questions.length - 1
-                      ? ElevatedButton.icon(
+                      ? ElevatedButton(
                           onPressed: () => setState(() => _currentIndex++),
-                          icon: const Icon(Icons.arrow_forward, size: 16),
-                          label: const Text('Next'),
                           style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            backgroundColor: const Color(0xFF2563EB),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                            elevation: 0,
+                          ),
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text('Next', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                              SizedBox(width: 8),
+                              Icon(Icons.arrow_forward_rounded, size: 20),
+                            ],
                           ),
                         )
-                      : ElevatedButton.icon(
+                      : ElevatedButton(
                           onPressed: _submitTest,
-                          icon: const Icon(Icons.check_circle_outline, size: 16),
-                          label: const Text('Submit'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF059669),
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                            elevation: 0,
+                          ),
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text('Submit Test', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                              SizedBox(width: 8),
+                              Icon(Icons.check_circle_outline_rounded, size: 20),
+                            ],
                           ),
                         ),
                 ),
