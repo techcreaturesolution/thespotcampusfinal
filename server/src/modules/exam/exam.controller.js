@@ -23,21 +23,7 @@ export const createExamFromJD = async (req, res) => {
   try {
     const company_id = req.user.userId;
 
-    // Check if the company has an active paid subscription plan
-    const now = new Date();
-    const activeSub = await RecruitmentSubscription.findOne({
-      company_id,
-      status: "Paid",
-      is_active: true,
-      expires_at: { $gt: now },
-    });
-
-    if (!activeSub) {
-      return res.status(StatusCodes.FORBIDDEN).json({
-        error: "subscription_required",
-        message: "An active recruitment subscription plan is required to generate exams.",
-      });
-    }
+    // Subscription check bypassed for companies (subscription feature removed for company)
 
     const {
       job_id,

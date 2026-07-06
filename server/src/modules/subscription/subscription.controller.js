@@ -153,6 +153,24 @@ export const verifySubscriptionPayment = async (req, res) => {
 export const checkSubscription = async (req, res) => {
   try {
     const companyId = req.params.id || req.user.userId;
+
+    // Check if the user is a Company role. If so, bypass and return mock subscription.
+    if (req.user && req.user.role === "Company") {
+      return res.status(StatusCodes.OK).json({
+        hasSubscription: true,
+        subscription: {
+          is_active: true,
+          expires_at: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year validity
+          plan_id: {
+            plan_name: "Enterprise Free (Company)",
+            features: {
+              max_interviews_per_month: 999999,
+            }
+          }
+        }
+      });
+    }
+
     const now = new Date();
 
     const subscription = await RecruitmentSubscription.findOne({

@@ -14,7 +14,7 @@ const ManageRecruitmentPlans = () => {
   const [editingPlan, setEditingPlan] = useState(null);
   const [subscriptions, setSubscriptions] = useState([]);
   const [studentPayments, setStudentPayments] = useState([]);
-  const [activeSubTab, setActiveSubTab] = useState("company");
+  const [activeSubTab, setActiveSubTab] = useState("student");
 
   useEffect(() => {
     fetchPlans();
@@ -115,7 +115,7 @@ const ManageRecruitmentPlans = () => {
       />
 
       <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-5 mb-8">
-        {plans.map((plan) => (
+        {plans.filter((plan) => plan.plan_for === "student").map((plan) => (
           <div key={plan._id} className={`bg-white rounded-xl shadow-sm border border-gray-200 p-6 border-2 transition-all ${plan.is_active ? "border-primary-200" : "border-gray-200 opacity-60"}`}>
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
@@ -231,34 +231,10 @@ const ManageRecruitmentPlans = () => {
 
       <div className="bg-gradient-to-br from-white to-[#fcfdfe] rounded-2xl border border-slate-200/80 p-6 shadow-sm hover:shadow-md transition-all duration-300">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 pb-4 mb-6 gap-3">
-          <h2 className="text-lg font-bold text-slate-800">Subscription History</h2>
-          <div className="flex bg-slate-100 rounded-lg p-0.5 border border-slate-200 w-fit">
-            <button
-              type="button"
-              onClick={() => setActiveSubTab("company")}
-              className={`px-4 py-1.5 text-xs font-bold rounded-md transition-all ${
-                activeSubTab === "company"
-                  ? "bg-white text-[#3730a3] shadow-xs"
-                  : "text-slate-700 hover:text-slate-800"
-              }`}
-            >
-              Company Subscriptions ({subscriptions.length})
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveSubTab("student")}
-              className={`px-4 py-1.5 text-xs font-bold rounded-md transition-all ${
-                activeSubTab === "student"
-                  ? "bg-white text-[#3730a3] shadow-xs"
-                  : "text-slate-700 hover:text-slate-800"
-              }`}
-            >
-              Student Payments ({studentPayments.length})
-            </button>
-          </div>
+          <h2 className="text-lg font-bold text-slate-800">Student Subscription History</h2>
         </div>
 
-        {activeSubTab === "company" ? (
+        {activeSubTab === "company" && false ? (
           <DataTable
             data={subscriptions}
             searchKeys={["company_id.company_name", "plan_id.plan_name", "status"]}

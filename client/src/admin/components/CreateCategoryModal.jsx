@@ -64,7 +64,7 @@ const CreateCategoryModal = ({ isOpen, onClose, onCategoryCreated }) => {
         {/* Header */}
         <div className="flex items-center justify-between mb-4 border-b border-slate-100 pb-3 shrink-0">
           <div className="flex items-center gap-2.5">
-            <img src="/logo_TSC.webp" alt="The Spot Campus" className="h-6 object-contain" />
+            <img src="/logo_TSC.png" alt="The Spot Campus" className="h-6 object-contain" />
             <span className="text-slate-355">|</span>
             <h3 className="text-xs font-black text-slate-800 uppercase tracking-wide">
               Manage Categories

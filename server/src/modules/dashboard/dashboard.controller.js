@@ -151,6 +151,31 @@ export const getDashboardStats = async (req, res) => {
 
         interviewQuery.student_id = { $in: studentIds };
         contactQuery._id = null;
+      } else if (req.user.role === "Student") {
+        studentQuery._id = req.user.userId;
+        applicationQuery.student_id = req.user.userId;
+        paperQuery.student_id = req.user.userId;
+        interviewQuery.student_id = req.user.userId;
+
+        const papers = await tbl_paper.find({ student_id: req.user.userId }).select("exam_id");
+        const takenExamIds = papers.map((p) => p.exam_id).filter(Boolean);
+        examQuery._id = { $in: takenExamIds };
+        contactQuery._id = null;
+      } else if (req.user.role === "Company") {
+        const jobs = await tbl_job.find({ job_company_id: req.user.userId }).select("_id");
+        const jobIds = jobs.map((j) => j._id);
+
+        jobQuery.job_company_id = req.user.userId;
+        applicationQuery.job_id = { $in: jobIds };
+        examQuery.job_id = { $in: jobIds };
+
+        const exams = await tbl_exam.find({ job_id: { $in: jobIds } }).select("_id");
+        const examIds = exams.map((e) => e._id);
+        paperQuery.exam_id = { $in: examIds };
+
+        interviewQuery.job_id = { $in: jobIds };
+        studentQuery._id = null;
+        contactQuery._id = null;
       }
     }
 

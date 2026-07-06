@@ -43,7 +43,7 @@ const SignIn = () => {
 
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center justify-center mb-5 p-2 bg-white rounded-2xl shadow-sm border border-slate-100/50">
-            <img src="/logo_TSC.webp" alt="The Spot Campus" width="130" height="40" className="h-10 object-contain" />
+            <img src="/logo_TSC.png" alt="The Spot Campus" width="130" height="40" className="h-10 object-contain" />
           </Link>
           <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">
             Welcome <span className="text-gradient font-black">Back</span>
@@ -99,6 +99,14 @@ const SignIn = () => {
               >
                 {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
               </button>
+            </div>
+            <div className="flex justify-end mt-2">
+              <Link
+                to="/forgot-password"
+                className="text-xs font-bold text-[#3730a3] hover:underline"
+              >
+                Forgot Password?
+              </Link>
             </div>
           </div>
 

@@ -61,7 +61,7 @@ const DashboardLayout = () => {
         { path: "/dashboard/admin/manage-company", icon: <FiBriefcase />, label: "Companies" },
         { path: "/dashboard/admin/manage-student", icon: <FiUsers />, label: "Students" },
         { path: "/dashboard/admin/manage-tpo", icon: <FiUser />, label: "TPOs" },
-        { path: "/dashboard/admin/manage-recruitment-plans", icon: <FiDollarSign />, label: "Recruitment Plans" },
+        { path: "/dashboard/admin/manage-recruitment-plans", icon: <FiDollarSign />, label: "Subscription Plans" },
         {
           label: "Preparation",
           icon: <FiBook />,
@@ -81,7 +81,6 @@ const DashboardLayout = () => {
         { path: "/dashboard/company/manage-job", icon: <FiBriefcase />, label: "Jobs & Recruitment" },
         { path: "/dashboard/company/applicants", icon: <FiUsers />, label: "Applicants" },
         { path: "/dashboard/company/company-interviews", icon: <FiVideo />, label: "Interviews" },
-        { path: "/dashboard/company/recruitment-subscription", icon: <FiLayers />, label: "Subscription" },
         ];
       case "Student":
         return [...base,
@@ -219,10 +218,10 @@ const DashboardLayout = () => {
       >
         <div className={`flex items-center ${isCollapsed ? "lg:flex-col lg:justify-center lg:gap-2 lg:py-4 lg:px-0 lg:h-auto px-4 h-16 justify-between" : "px-5 h-16 justify-between"} border-b border-slate-200/50`}>
           {!isCollapsed ? (
-            <img src="/logo_TSC.webp" alt="The Spot Campus" width="143" height="44" className="h-11 object-contain transition-all duration-300" />
+            <img src="/logo_TSC.png" alt="The Spot Campus" width="143" height="44" className="h-11 object-contain transition-all duration-300" />
           ) : (
             <div className="w-[32px] h-[32px] flex items-center justify-center rounded-lg flex-shrink-0" title="The Spot Campus">
-              <img src="/logo_TCS2.webp" alt="The Spot Campus" className="w-8 h-8 object-contain" />
+              <img src="/logo_TCS2.png" alt="The Spot Campus" className="w-8 h-8 object-contain" />
             </div>
           )}
           <button

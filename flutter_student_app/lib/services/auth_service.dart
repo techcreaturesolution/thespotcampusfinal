@@ -133,6 +133,36 @@ class AuthService extends ChangeNotifier {
     }
   }
 
+  Future<bool> forgotPassword(String email) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final response = await _dio.post(
+        '/auth/forgot-password',
+        data: {'email': email},
+      );
+
+      _isLoading = false;
+      notifyListeners();
+      return response.statusCode == 200;
+    } on DioException catch (e) {
+      _isLoading = false;
+      notifyListeners();
+
+      String message = 'Failed to request password reset';
+      if (e.response?.data != null) {
+        final data = e.response!.data;
+        message = data is Map ? (data['msg'] ?? data['error'] ?? data['message'] ?? message) : message;
+      }
+      throw ApiException(message, e.response?.statusCode);
+    } catch (e) {
+      _isLoading = false;
+      notifyListeners();
+      throw ApiException('An unexpected error occurred during password reset');
+    }
+  }
+
   Future<void> logout() async {
     try {
       final token = await _storage.read(key: AppConstants.tokenKey);

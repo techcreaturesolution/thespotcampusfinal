@@ -48,7 +48,8 @@ const VideoInterview = () => {
   const [chatOpen, setChatOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [messageInput, setMessageInput] = useState("");
-  const [elapsed, setElapsed] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(null);
+  const [isEarly, setIsEarly] = useState(false);
 
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
@@ -66,18 +67,44 @@ const VideoInterview = () => {
     return () => cleanup();
   }, [roomId]);
 
+  const endCallRef = useRef(null);
   useEffect(() => {
-    if (interview?.started_at) {
-      const startTime = new Date(interview.started_at).getTime();
+    endCallRef.current = endCall;
+  }, [endCall]);
+
+  useEffect(() => {
+    if (interview?.scheduled_at) {
+      const scheduledStart = new Date(interview.scheduled_at).getTime();
+      const durationMs = (interview.duration_minutes || 60) * 60 * 1000;
+      const scheduledEnd = scheduledStart + durationMs;
+
       const updateTimer = () => {
-        const seconds = Math.max(0, Math.floor((Date.now() - startTime) / 1000));
-        setElapsed(seconds);
+        const now = Date.now();
+
+        if (now >= scheduledEnd) {
+          setTimeLeft(0);
+          setIsEarly(false);
+          toast.error("The interview duration has expired. Ending call automatically.");
+          if (endCallRef.current) {
+            endCallRef.current();
+          }
+          return;
+        }
+
+        if (now < scheduledStart) {
+          setIsEarly(true);
+          setTimeLeft(Math.floor((scheduledStart - now) / 1000));
+        } else {
+          setIsEarly(false);
+          setTimeLeft(Math.floor((scheduledEnd - now) / 1000));
+        }
       };
+
       updateTimer();
       const intervalId = setInterval(updateTimer, 1000);
       return () => clearInterval(intervalId);
     }
-  }, [interview?.started_at]);
+  }, [interview?.scheduled_at, interview?.duration_minutes]);
 
   const cleanup = () => {
     if (timerRef.current) clearInterval(timerRef.current);
@@ -361,8 +388,10 @@ const VideoInterview = () => {
           </span>
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-gray-400 text-sm flex items-center gap-1">
-            <FiClock className="w-3.5 h-3.5" /> {formatTime(elapsed)}
+          <span className={`${isEarly ? "text-cyan-400 font-semibold animate-pulse" : timeLeft !== null && timeLeft < 60 ? "text-red-500 font-extrabold animate-pulse" : "text-gray-400"} text-sm flex items-center gap-1.5 transition-colors duration-300`}>
+            <FiClock className="w-3.5 h-3.5" /> 
+            {isEarly ? "Starts in: " : "Time Remaining: "}
+            {timeLeft !== null ? formatTime(timeLeft) : "--:--"}
           </span>
           {remoteUser && (
             <span className="text-gray-400 text-sm flex items-center gap-1">

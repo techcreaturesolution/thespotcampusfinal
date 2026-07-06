@@ -196,7 +196,7 @@ export const getJobInterviews = async (req, res) => {
     const interviews = await tbl_interview
       .find(query)
       .populate("student_id")
-      .populate("job_id", "job_title")
+      .populate("job_id", "job_title rounds")
       .sort("scheduled_at");
 
     res.status(StatusCodes.OK).json({ interviews });
@@ -213,7 +213,7 @@ export const getStudentInterviews = async (req, res) => {
     const interviews = await tbl_interview
       .find({ student_id: req.user.userId })
       .populate("company_id", "company_name company_email")
-      .populate("job_id", "job_title job_position")
+      .populate("job_id", "job_title job_position rounds")
       .sort("scheduled_at");
 
     res.status(StatusCodes.OK).json({ interviews });
@@ -233,7 +233,7 @@ export const getInterview = async (req, res) => {
       .findById(id)
       .populate("student_id")
       .populate("company_id", "company_name")
-      .populate("job_id", "job_title");
+      .populate("job_id", "job_title rounds");
 
     if (!interview) throw new NotFoundError(`No interview with id: ${id}`);
     res.status(StatusCodes.OK).json({ interview });
@@ -253,7 +253,7 @@ export const getInterviewByRoom = async (req, res) => {
       .findOne({ room_id: roomId })
       .populate("student_id")
       .populate("company_id", "company_name")
-      .populate("job_id", "job_title");
+      .populate("job_id", "job_title rounds");
 
     if (!interview) throw new NotFoundError(`No interview room: ${roomId}`);
 
@@ -376,7 +376,7 @@ export const getAllCompanyInterviews = async (req, res) => {
     const interviews = await tbl_interview
       .find({ company_id: req.user.userId })
       .populate("student_id")
-      .populate("job_id", "job_title job_position")
+      .populate("job_id", "job_title job_position rounds")
       .sort("-scheduled_at");
 
     res.status(StatusCodes.OK).json({ interviews });

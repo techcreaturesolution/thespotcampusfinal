@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { FiMail, FiPhone, FiMapPin, FiGithub, FiLinkedin, FiTwitter } from "react-icons/fi";
+import { FiGithub, FiLinkedin, FiTwitter } from "react-icons/fi";
 
 const Footer = () => {
   return (
@@ -14,7 +14,7 @@ const Footer = () => {
           {/* Brand Info */}
           <div className="space-y-4">
             <Link to="/" className="flex items-center justify-start group">
-              <img src="/logo_TSC.webp" alt="The Spot Campus" width="130" height="40" className="h-10 object-contain" />
+              <img src="/logo_TSC.png" alt="The Spot Campus" width="130" height="40" className="h-10 object-contain" />
             </Link>
             <p className="text-slate-400 text-sm leading-relaxed max-w-sm">
               An AI-powered campus placement ecosystem. Simplifying recruitment with automated examinations, proctored environments, and secure user management.
@@ -59,9 +59,18 @@ const Footer = () => {
           <div>
             <p className="text-white font-bold tracking-wider uppercase text-xs mb-5">Legal & Support</p>
             <div className="space-y-3 text-sm">
-              <p className="text-slate-400 hover:text-white transition-colors duration-150 cursor-pointer">Privacy Policy</p>
-              <p className="text-slate-400 hover:text-white transition-colors duration-150 cursor-pointer">Terms of Service</p>
-              <p className="text-slate-400 hover:text-white transition-colors duration-150 cursor-pointer">Security Protocol</p>
+              <Link to="/privacy-policy" className="block text-slate-400 hover:text-white transition-colors duration-150">
+                Privacy Policy
+              </Link>
+              <Link to="/terms-of-service" className="block text-slate-400 hover:text-white transition-colors duration-150">
+                Terms of Service
+              </Link>
+              <Link 
+                to="/account-deletion-request"
+                className="block text-slate-400 hover:text-rose-500 transition-colors duration-150 font-medium"
+              >
+                Account Deletion Request
+              </Link>
             </div>
           </div>
         </div>

@@ -613,7 +613,7 @@ const ExamPaper = () => {
         {/* Simple Branding Header */}
         <div className="bg-white border-b border-slate-200 px-6 py-4 shadow-sm">
           <div className="max-w-6xl mx-auto flex items-center justify-between">
-            <img src="/logo_TSC.webp" alt="The Spot Campus" width="130" height="40" className="h-10 object-contain" />
+            <img src="/logo_TSC.png" alt="The Spot Campus" width="130" height="40" className="h-10 object-contain" />
             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200 shadow-xs">
               Exam Terminal
             </span>
@@ -799,7 +799,7 @@ const ExamPaper = () => {
       <div className="bg-white text-slate-800 border-b border-slate-200 px-6 py-3.5 sticky top-0 z-50 shadow-xs">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-center gap-3 text-left">
-            <img src="/logo_TSC.webp" alt="The Spot Campus" width="117" height="36" className="h-9 object-contain" />
+            <img src="/logo_TSC.png" alt="The Spot Campus" width="117" height="36" className="h-9 object-contain" />
             <div className="h-6 w-[1px] bg-slate-250 hidden sm:block" />
             <div>
               <h2 className="text-sm font-black text-slate-800 tracking-tight leading-snug truncate max-w-[200px] sm:max-w-xs">{exam.title}</h2>

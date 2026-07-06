@@ -5,7 +5,7 @@ const CreatePlanModal = ({ isOpen, onClose, plan, onSubmit }) => {
   if (!isOpen) return null;
 
   const [form, setForm] = useState({
-    plan_for: "company",
+    plan_for: "student",
     plan_name: "",
     description: "",
     price: "",
@@ -41,7 +41,7 @@ const CreatePlanModal = ({ isOpen, onClose, plan, onSubmit }) => {
       });
     } else {
       setForm({
-        plan_for: "company",
+        plan_for: "student",
         plan_name: "",
         description: "",
         price: "",
@@ -70,7 +70,7 @@ const CreatePlanModal = ({ isOpen, onClose, plan, onSubmit }) => {
         {/* Header with Logo */}
         <div className="flex items-center justify-between mb-5 border-b border-slate-100 pb-4">
           <div className="flex items-center gap-3">
-            <img src="/logo_TSC.webp" alt="The Spot Campus" className="h-7 object-contain" />
+            <img src="/logo_TSC.png" alt="The Spot Campus" className="h-7 object-contain" />
             <span className="text-slate-300">|</span>
             <h3 className="text-sm font-black text-slate-800 uppercase tracking-wide">
               {plan ? "Edit Recruitment Plan" : "Create New Plan"}
@@ -109,20 +109,7 @@ const CreatePlanModal = ({ isOpen, onClose, plan, onSubmit }) => {
             />
           </div>
 
-          <div>
-            <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1.5 block">
-              Plan For
-            </label>
-            <select
-              className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#3730a3]/20 focus:border-[#3730a3] transition duration-200 bg-white"
-              value={form.plan_for}
-              onChange={(e) => setForm({ ...form, plan_for: e.target.value })}
-              required
-            >
-              <option value="company">Company</option>
-              <option value="student">Student</option>
-            </select>
-          </div>
+          {/* plan_for is defaulted to student and dropdown is hidden */}
 
           <div className="grid grid-cols-2 gap-4">
             <div>

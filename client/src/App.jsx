@@ -18,6 +18,11 @@ const SignUpCompany = lazy(() => import("./common/pages/SignUpCompany"));
 const SignUpUniversity = lazy(() => import("./common/pages/SignUpUniversity"));
 const SignUpCollege = lazy(() => import("./common/pages/SignUpCollege"));
 const Profile = lazy(() => import("./common/pages/Profile"));
+const AccountDeletionRequest = lazy(() => import("./common/pages/AccountDeletionRequest"));
+const PrivacyPolicy = lazy(() => import("./common/pages/PrivacyPolicy"));
+const TermsOfService = lazy(() => import("./common/pages/TermsOfService"));
+const ForgotPassword = lazy(() => import("./common/pages/ForgotPassword"));
+const ResetPassword = lazy(() => import("./common/pages/ResetPassword"));
 
 // Admin Pages
 const AdminManageUniversity = lazy(() => import("./admin/pages/ManageUniversity"));
@@ -58,7 +63,6 @@ const Bookmarks = lazy(() => import("./student/pages/preparation/Bookmarks"));
 // Company Pages
 const CompanyManageJob = lazy(() => import("./company/pages/ManageJob"));
 const CompanyInterviews = lazy(() => import("./company/pages/CompanyInterviews"));
-const CompanyRecruitmentSubscription = lazy(() => import("./company/pages/RecruitmentSubscription"));
 const CompanyRoundManagement = lazy(() => import("./company/pages/RoundManagement"));
 const CompanyApplicants = lazy(() => import("./company/pages/CompanyApplications"));
 
@@ -108,6 +112,26 @@ const router = createBrowserRouter([
   {
     path: "/sign-up-college",
     element: <SignUpCollege />,
+  },
+  {
+    path: "/account-deletion-request",
+    element: <AccountDeletionRequest />,
+  },
+  {
+    path: "/privacy-policy",
+    element: <PrivacyPolicy />,
+  },
+  {
+    path: "/terms-of-service",
+    element: <TermsOfService />,
+  },
+  {
+    path: "/forgot-password",
+    element: <ForgotPassword />,
+  },
+  {
+    path: "/reset-password/:token",
+    element: <ResetPassword />,
   },
   {
     path: "/dashboard",
@@ -165,7 +189,6 @@ const router = createBrowserRouter([
       { path: "company/round-management/:jobId", element: <CompanyRoundManagement /> },
       { path: "company/applicants", element: <CompanyApplicants /> },
       { path: "company/company-interviews", element: <CompanyInterviews /> },
-      { path: "company/recruitment-subscription", element: <CompanyRecruitmentSubscription /> },
       { path: "company/profile", element: <Profile /> },
 
       // College Pages

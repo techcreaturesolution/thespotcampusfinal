@@ -92,7 +92,7 @@ const SignUpStudent = () => {
 
         <div className="text-center mb-8">
           <Link to={fromAdmin ? "/dashboard/admin/manage-student" : "/"} className="inline-flex items-center justify-center mb-4 p-2 bg-white rounded-2xl shadow-sm border border-slate-100/50">
-            <img src="/logo_TSC.webp" alt="The Spot Campus" width="130" height="40" className="h-10 object-contain" />
+            <img src="/logo_TSC.png" alt="The Spot Campus" width="130" height="40" className="h-10 object-contain" />
           </Link>
           <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">
             {fromAdmin ? "Add New " : ""}<span className="text-gradient font-black">Student</span>{fromAdmin ? "" : " Registration"}

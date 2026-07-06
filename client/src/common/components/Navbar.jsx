@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { FiMenu, FiX, FiArrowRight } from "react-icons/fi";
 
 const navLinks = [
@@ -14,6 +14,8 @@ const navLinks = [
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const location = useLocation();
+  const isHomePage = location.pathname === "/";
 
   return (
     <nav className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-xl z-50 border-b border-gray-100/80 transition-all duration-300">
@@ -21,20 +23,23 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center justify-center group">
-            <img src="/logo_TSC.webp" alt="The Spot Campus" width="143" height="44" className="h-11 object-contain group-hover:scale-105 transition duration-300" />
+            <img src="/logo_TSC.png" alt="The Spot Campus" width="143" height="44" className="h-11 object-contain group-hover:scale-105 transition duration-300" />
           </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8 lg:gap-10">
-            {navLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                className="text-sm text-gray-600 font-semibold hover:text-primary-600 hover:-translate-y-0.5 transition-all duration-200 whitespace-nowrap"
-              >
-                {link.label}
-              </a>
-            ))}
+            {navLinks.map((link) => {
+              const hrefVal = isHomePage ? link.href : `/${link.href}`;
+              return (
+                <a
+                  key={link.href}
+                  href={hrefVal}
+                  className="text-sm text-gray-600 font-semibold hover:text-primary-600 hover:-translate-y-0.5 transition-all duration-200 whitespace-nowrap"
+                >
+                  {link.label}
+                </a>
+              );
+            })}
             
             <Link 
               to="/sign-in" 
@@ -58,16 +63,19 @@ const Navbar = () => {
         {mobileMenuOpen && (
           <div className="md:hidden py-5 border-t border-gray-100/50 animate-fadeIn">
             <div className="flex flex-col gap-4 px-2">
-              {navLinks.map((link) => (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  className="text-gray-600 font-semibold hover:text-primary-600 py-2 transition"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  {link.label}
-                </a>
-              ))}
+              {navLinks.map((link) => {
+                const hrefVal = isHomePage ? link.href : `/${link.href}`;
+                return (
+                  <a
+                    key={link.href}
+                    href={hrefVal}
+                    className="text-gray-600 font-semibold hover:text-primary-600 py-2 transition"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {link.label}
+                  </a>
+                );
+              })}
               
               <div className="h-px bg-gray-100 my-2" />
 

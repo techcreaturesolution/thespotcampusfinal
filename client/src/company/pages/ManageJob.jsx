@@ -112,12 +112,6 @@ const ManageJob = () => {
         action={
           role === "Company" ? (
             <div className="flex items-center gap-2">
-              <Link
-                to="/dashboard/company/recruitment-subscription"
-                className="bg-white hover:bg-slate-50 text-[#3730a3] border border-slate-200 rounded-xl transition-all duration-200 flex items-center gap-2 text-sm shadow-sm hover:scale-105 active:scale-95 font-bold py-2.5 px-5"
-              >
-                <FiLayers /> Subscription
-              </Link>
               <button
                 onClick={() => {
                   setEditingJobId(null);
@@ -206,11 +200,6 @@ const ManageJob = () => {
                       {!hasExam(job._id) ? (
                         <button
                           onClick={() => {
-                            if (!hasSubscription) {
-                              toast.warning("Please purchase a recruitment subscription to generate exams.");
-                              navigate("/dashboard/company/recruitment-subscription");
-                              return;
-                            }
                             setExamJobId(job._id);
                             setIsExamFromJDModalOpen(true);
                           }}

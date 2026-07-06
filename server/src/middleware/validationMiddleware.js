@@ -133,19 +133,29 @@ export const companyValidation = [
 
 // Student validation
 export const studentValidation = [
-  nameValidation('firstName'),
-  nameValidation('lastName'),
-  emailValidation,
-  body('rollNumber')
+  body('student_name')
+    .trim()
+    .isLength({ min: 2, max: 50 })
+    .withMessage('Name must be between 2 and 50 characters')
+    .matches(/^[a-zA-Z\s]+$/)
+    .withMessage('Name can only contain letters and spaces'),
+  body('student_email')
+    .isEmail()
+    .normalizeEmail()
+    .withMessage('Please provide a valid email address'),
+  body('student_password')
+    .isLength({ min: 6, max: 50 })
+    .withMessage('Password must be between 6 and 50 characters'),
+  body('student_contact')
+    .trim()
+    .isMobilePhone('any')
+    .withMessage('Please provide a valid contact number'),
+  body('student_enrollment')
     .trim()
     .isLength({ min: 5, max: 20 })
-    .withMessage('Roll number must be between 5 and 20 characters')
+    .withMessage('Enrollment number must be between 5 and 20 characters')
     .matches(/^[a-zA-Z0-9]+$/)
-    .withMessage('Roll number can only contain letters and numbers'),
-  body('cgpa')
-    .optional()
-    .isFloat({ min: 0, max: 10 })
-    .withMessage('CGPA must be between 0 and 10'),
+    .withMessage('Enrollment number can only contain letters and numbers'),
   validateInput
 ];
 

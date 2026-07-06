@@ -41,7 +41,7 @@ const quickLinks = [
   { to: "/dashboard/admin/manage-company", label: "Companies", icon: FiBriefcase, color: "text-purple-500" },
   { to: "/dashboard/admin/manage-student", label: "Students", icon: FiUsers, color: "text-blue-500" },
   { to: "/dashboard/admin/manage-tpo", label: "TPOs", icon: FiUser, color: "text-teal-500" },
-  { to: "/dashboard/admin/manage-recruitment-plans", label: "Recruitment Plans", icon: FiDollarSign, color: "text-emerald-500" },
+  { to: "/dashboard/admin/manage-recruitment-plans", label: "Subscription Plans", icon: FiDollarSign, color: "text-emerald-500" },
   { to: "/dashboard/admin/contact-list", label: "Contacts", icon: FiMessageSquare, color: "text-amber-500" },
 ];
 

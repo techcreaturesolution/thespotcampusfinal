@@ -29,7 +29,6 @@ const quickLinks = [
   { to: "/dashboard/company/manage-job", state: { openCreateModal: true }, label: "Post Job", icon: FiPlus, color: "text-primary-500" },
   { to: "/dashboard/company/manage-job", label: "Manage Jobs", icon: FiBriefcase, color: "text-purple-500" },
   { to: "/dashboard/company/company-interviews", label: "Interviews", icon: FiVideo, color: "text-indigo-500" },
-  { to: "/dashboard/company/recruitment-subscription", label: "Subscription", icon: FiLayers, color: "text-emerald-500" },
   { to: "/dashboard/company/profile", label: "Profile", icon: FiSettings, color: "text-gray-500" },
 ];
 

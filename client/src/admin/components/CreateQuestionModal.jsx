@@ -114,7 +114,7 @@ const CreateQuestionModal = ({ isOpen, onClose, question, subjects = [], onSubmi
         {/* Header with Logo */}
         <div className="flex items-center justify-between mb-5 border-b border-slate-100 pb-4">
           <div className="flex items-center gap-3">
-            <img src="/logo_TSC.webp" alt="The Spot Campus" className="h-7 object-contain" />
+            <img src="/logo_TSC.png" alt="The Spot Campus" className="h-7 object-contain" />
             <span className="text-slate-300">|</span>
             <h3 className="text-sm font-black text-slate-800 uppercase tracking-wide">
               {question ? "Edit Question" : "Add Question"}

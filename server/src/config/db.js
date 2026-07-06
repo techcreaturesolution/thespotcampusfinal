@@ -5,13 +5,11 @@ import dns from "dns";
 dns.setServers(["8.8.8.8", "8.8.4.4", "1.1.1.1", "1.0.0.1"]);
 dns.setDefaultResultOrder('ipv4first');
 
-// MongoDB connection event listeners
+// MongoDB connection event listeners (minimal logging)
 mongoose.connection.on('connected', async () => {
-  console.log('✅ MongoDB Connected Successfully!');
   try {
     const db = mongoose.connection.db;
     await db.collection('tbl_prep_bookmarks').dropIndex('student_id_1_item_id_1');
-    console.log('🗑️  Dropped old unique index student_id_1_item_id_1 on tbl_prep_bookmarks');
   } catch (err) {
     // Index doesn't exist, which is fine
   }
@@ -22,7 +20,7 @@ mongoose.connection.on('error', (err) => {
 });
 
 mongoose.connection.on('disconnected', () => {
-  console.log('⚠️  MongoDB Disconnected from Database!');
+  console.log('⚠️  MongoDB Disconnected!');
 });
 
 // Enhanced MongoDB connection with retry logic
@@ -44,14 +42,10 @@ export const connectToMongoDB = async () => {
       return true;
       
     } catch (error) {
-      console.error(`❌ Connection attempt ${attempt} failed: ${error.message}`);
-      
       if (attempt < retries) {
         await new Promise(resolve => setTimeout(resolve, delay));
       } else {
-        console.error('\n🔴 ==============================================');
-        console.error('🔴 MONGODB CONNECTION FAILED');  
-        console.error('🔴 ==============================================\n');
+        console.error('🔴 MongoDB Connection Failed:', error.message);
         throw error;
       }
     }

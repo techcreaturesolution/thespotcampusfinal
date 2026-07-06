@@ -13,6 +13,18 @@ const STATUS_STYLES = {
   no_show: "bg-amber-50 border-amber-150 text-amber-700",
 };
 
+const ROUND_TYPE_LABELS = {
+  mcq: "MCQ Test",
+  technical_interview: "Technical Interview",
+  hr_interview: "HR Interview",
+  coding_test: "Coding Test",
+  group_discussion: "Group Discussion",
+  aptitude_test: "Aptitude Test",
+  video_interview: "Video Interview",
+  assignment: "Assignment",
+  custom: "Custom Round",
+};
+
 const StudentInterviews = () => {
   const [interviews, setInterviews] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -57,47 +69,93 @@ const StudentInterviews = () => {
       />
 
       <div className="space-y-4">
-        {interviews.map((interview) => (
-          <div key={interview._id} className="bg-white rounded-2xl border border-slate-200/80 p-5 hover:shadow-md transition-shadow border-l-4 border-l-[#3730a3] flex flex-col lg:flex-row lg:items-center justify-between gap-4 shadow-xs">
-            <div className="flex-1 text-left">
-              <div className="flex flex-wrap items-center gap-3 mb-2.5">
-                <FiVideo className="w-4 h-4 text-[#3730a3]" />
-                <h3 className="text-sm font-extrabold text-slate-800 leading-snug">
-                  {interview.job_id?.job_title || "Selection Interview"}
-                </h3>
-                <span className={`px-2 py-0.5 rounded-md text-[9px] font-extrabold border uppercase tracking-wider ${
-                  (() => {
-                    const isExpired = Date.now() > new Date(interview.scheduled_at).getTime() + (interview.duration_minutes || 60) * 60 * 1000;
-                    const displayStatus = (isExpired && (interview.status === "scheduled" || interview.status === "in_progress")) ? "no_show" : interview.status;
-                    return STATUS_STYLES[displayStatus];
-                  })()
-                }`}>
-                  {(() => {
-                    const isExpired = Date.now() > new Date(interview.scheduled_at).getTime() + (interview.duration_minutes || 60) * 60 * 1000;
-                    const displayStatus = (isExpired && (interview.status === "scheduled" || interview.status === "in_progress")) ? "no_show" : interview.status;
-                    return displayStatus === "no_show" ? "TIMELINE OUT" : displayStatus.replace("_", " ");
-                  })()}
-                </span>
+        {interviews.map((interview) => {
+          console.log("--- Debug Interview ---");
+          console.log("Job Title:", interview.job_id?.job_title);
+          console.log("Interview Round ID:", interview.round_id);
+          console.log("Rounds in Job:", interview.job_id?.rounds);
+
+          const activeRound = interview.job_id?.rounds?.find(
+            (r) => r._id === interview.round_id || r._id?.toString() === interview.round_id?.toString()
+          );
+
+          console.log("Matched activeRound:", activeRound);
+
+          return (
+            <div key={interview._id} className="bg-white rounded-2xl border border-slate-200/80 p-5 hover:shadow-md transition-shadow border-l-4 border-l-[#3730a3] flex flex-col lg:flex-row lg:items-center justify-between gap-4 shadow-xs">
+              <div className="flex-1 text-left">
+                <div className="flex flex-wrap items-center gap-3 mb-2.5">
+                  <FiVideo className="w-4 h-4 text-[#3730a3]" />
+                  <div className="flex flex-col gap-0.5">
+                    <h3 className="text-sm font-extrabold text-slate-800 leading-snug">
+                      {interview.job_id?.job_title || "Selection Interview"}
+                    </h3>
+                    {activeRound && (
+                      <span className="text-[11px] font-bold text-indigo-600">
+                        {activeRound.round_name} (Round {activeRound.round_number})
+                      </span>
+                    )}
+                  </div>
+                  <span className={`px-2 py-0.5 rounded-md text-[9px] font-extrabold border uppercase tracking-wider ${
+                    (() => {
+                      const isExpired = Date.now() > new Date(interview.scheduled_at).getTime() + (interview.duration_minutes || 60) * 60 * 1000;
+                      const displayStatus = (isExpired && (interview.status === "scheduled" || interview.status === "in_progress")) ? "no_show" : interview.status;
+                      return STATUS_STYLES[displayStatus];
+                    })()
+                  }`}>
+                    {(() => {
+                      const isExpired = Date.now() > new Date(interview.scheduled_at).getTime() + (interview.duration_minutes || 60) * 60 * 1000;
+                      const displayStatus = (isExpired && (interview.status === "scheduled" || interview.status === "in_progress")) ? "no_show" : interview.status;
+                      return displayStatus === "no_show" ? "TIMELINE OUT" : displayStatus.replace("_", " ");
+                    })()}
+                  </span>
+                </div>
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[10px] text-slate-450 font-bold">
+                  <span className="flex items-center gap-1.5">
+                    <FiBriefcase className="w-3.5 h-3.5 text-slate-400" />
+                    {interview.company_id?.company_name || "Unknown Company"}
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <FiCalendar className="w-3.5 h-3.5 text-slate-400" />
+                    {new Date(interview.scheduled_at).toLocaleDateString()}
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <FiClock className="w-3.5 h-3.5 text-slate-400" />
+                    {new Date(interview.scheduled_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                  </span>
+                </div>
+                
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <span className="text-[10px] font-bold text-slate-500 bg-slate-50 border border-slate-150 px-2 py-1 rounded-lg">
+                    Mode: {interview.interview_mode === "video_conference" ? "Video Conference (Online)" : interview.interview_mode}
+                  </span>
+                  {interview.duration_minutes && (
+                    <span className="text-[10px] font-bold text-slate-500 bg-slate-50 border border-slate-150 px-2 py-1 rounded-lg">
+                      Duration: {interview.duration_minutes} mins
+                    </span>
+                  )}
+                  {activeRound?.round_type && (
+                    <span className="text-[10px] font-bold text-indigo-600 bg-indigo-50 border border-indigo-100 px-2 py-1 rounded-lg">
+                      Type: {ROUND_TYPE_LABELS[activeRound.round_type] || activeRound.round_type}
+                    </span>
+                  )}
+                  {activeRound?.is_eliminatory !== undefined && (
+                    <span className={`text-[10px] font-bold px-2 py-1 rounded-lg border ${
+                      activeRound.is_eliminatory 
+                        ? "bg-rose-50 border-rose-100 text-rose-600" 
+                        : "bg-slate-50 border-slate-150 text-slate-500"
+                    }`}>
+                      {activeRound.is_eliminatory ? "Eliminatory Round" : "Non-Eliminatory Round"}
+                    </span>
+                  )}
+                </div>
+                {activeRound?.round_description && (
+                  <div className="mt-2.5 text-[11px] text-slate-550 bg-slate-50/50 p-2.5 rounded-xl border border-slate-100 leading-relaxed font-semibold">
+                    <span className="text-slate-400 block text-[9px] font-black uppercase tracking-wider mb-0.5">Round Description:</span>
+                    {activeRound.round_description}
+                  </div>
+                )}
               </div>
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[10px] text-slate-450 font-bold">
-                <span className="flex items-center gap-1.5">
-                  <FiBriefcase className="w-3.5 h-3.5 text-slate-400" />
-                  {interview.company_id?.company_name || "Unknown Company"}
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <FiCalendar className="w-3.5 h-3.5 text-slate-400" />
-                  {new Date(interview.scheduled_at).toLocaleDateString()}
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <FiClock className="w-3.5 h-3.5 text-slate-400" />
-                  {new Date(interview.scheduled_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                </span>
-              </div>
-              <p className="text-[11px] font-bold text-slate-450 mt-2 bg-slate-50 p-2 rounded-lg border border-slate-100/60 inline-block">
-                Mode: {interview.interview_mode === "video_conference" ? "Video Conference (Online)" : interview.interview_mode}
-                {interview.duration_minutes && ` | Duration: ${interview.duration_minutes} mins`}
-              </p>
-            </div>
 
             <div className="flex flex-wrap items-center justify-start lg:justify-end gap-3 shrink-0 w-full lg:w-auto border-t border-slate-100 lg:border-t-0 pt-4 lg:pt-0">
               {isJoinable(interview) && interview.interview_mode === "video_conference" && (
@@ -120,7 +178,8 @@ const StudentInterviews = () => {
               })()}
             </div>
           </div>
-        ))}
+        );
+      })}
 
         {interviews.length === 0 && (
           <div className="text-center py-24 bg-white rounded-2xl border border-slate-200 border-dashed">
