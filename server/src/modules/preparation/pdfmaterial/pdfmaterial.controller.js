@@ -4,14 +4,58 @@ import { StatusCodes } from "http-status-codes";
 import cloudinary from "cloudinary";
 import { promises as fs } from "fs";
 
+// Helper to parse page count from local PDF file binary stream
+const getPdfPageCount = async (filePath) => {
+  try {
+    const data = await fs.readFile(filePath);
+    const content = data.toString("binary");
+
+    // Match "/Type /Pages /Count X" pattern
+    const pagesCountRegex = /\/Type\s*\/Pages\s*\/Count\s+(\d+)/g;
+    let match;
+    let maxPages = 0;
+    while ((match = pagesCountRegex.exec(content)) !== null) {
+      const count = parseInt(match[1], 10);
+      if (count > maxPages) maxPages = count;
+    }
+
+    if (maxPages > 0) return maxPages;
+
+    // Match "/Count X" general pattern
+    const countRegex = /\/Count\s+(\d+)/g;
+    while ((match = countRegex.exec(content)) !== null) {
+      const count = parseInt(match[1], 10);
+      if (count > maxPages) maxPages = count;
+    }
+
+    if (maxPages > 0) return maxPages;
+
+    // Fallback: count individual page objects "/Type /Page"
+    const pageMatches = content.match(/\/Type\s*\/Page\b/g);
+    return pageMatches ? pageMatches.length : 0;
+  } catch (error) {
+    console.error("Error reading PDF page count:", error);
+    return 0;
+  }
+};
+
 // Admin: Upload PDF
 export const createPdfMaterial = async (req, res) => {
   const { title, description, category, subject_id, tags, total_pages } = req.body;
   let file_url = req.body.file_url || "";
   let file_public_id = "";
+  let file_size_mb = 0;
+  let pages = parseInt(total_pages || "0", 10);
 
   if (req.file) {
     try {
+      // Calculate file size in MB
+      const stats = await fs.stat(req.file.path);
+      file_size_mb = Math.round((stats.size / (1024 * 1024)) * 100) / 100;
+
+      // Extract PDF page count automatically
+      pages = await getPdfPageCount(req.file.path);
+
       const result = await cloudinary.v2.uploader.upload(req.file.path, {
         resource_type: "raw",
         folder: "preparation_pdfs",
@@ -35,7 +79,8 @@ export const createPdfMaterial = async (req, res) => {
     file_url,
     file_public_id,
     tags: tags ? (typeof tags === "string" ? tags.split(",").map((t) => t.trim()) : tags) : [],
-    total_pages: total_pages || 0,
+    total_pages: pages,
+    file_size_mb,
   });
   res.status(StatusCodes.CREATED).json({ pdf });
 };
@@ -52,8 +97,55 @@ export const getAllPdfMaterials = async (req, res) => {
 
 // Admin: Update PDF
 export const updatePdfMaterial = async (req, res) => {
-  const pdf = await PdfMaterial.findByIdAndUpdate(req.params.id, req.body, { new: true });
-  if (!pdf) return res.status(StatusCodes.NOT_FOUND).json({ msg: "PDF not found" });
+  const { id } = req.params;
+  const updateData = { ...req.body };
+
+  const existingPdf = await PdfMaterial.findById(id);
+  if (!existingPdf) {
+    return res.status(StatusCodes.NOT_FOUND).json({ msg: "PDF not found" });
+  }
+
+  if (req.file) {
+    try {
+      // Calculate file size in MB
+      const stats = await fs.stat(req.file.path);
+      updateData.file_size_mb = Math.round((stats.size / (1024 * 1024)) * 100) / 100;
+
+      // Extract new page count automatically
+      updateData.total_pages = await getPdfPageCount(req.file.path);
+
+      // Upload new file to Cloudinary
+      const result = await cloudinary.v2.uploader.upload(req.file.path, {
+        resource_type: "raw",
+        folder: "preparation_pdfs",
+      });
+      updateData.file_url = result.secure_url;
+      updateData.file_public_id = result.public_id;
+
+      // Delete the old file from Cloudinary (if exists)
+      if (existingPdf.file_public_id) {
+        try {
+          await cloudinary.v2.uploader.destroy(existingPdf.file_public_id, { resource_type: "raw" });
+        } catch (cloudinaryErr) {
+          console.error("Failed to delete old PDF from Cloudinary:", cloudinaryErr);
+        }
+      }
+    } catch (err) {
+      return res.status(StatusCodes.BAD_REQUEST).json({ msg: err.message });
+    } finally {
+      try {
+        await fs.unlink(req.file.path);
+      } catch (err) {
+        console.error("Failed to delete local temp PDF file:", err);
+      }
+    }
+  }
+
+  if (updateData.tags && typeof updateData.tags === "string") {
+    updateData.tags = updateData.tags.split(",").map((t) => t.trim());
+  }
+
+  const pdf = await PdfMaterial.findByIdAndUpdate(id, updateData, { new: true }).populate("subject_id", "name");
   res.status(StatusCodes.OK).json({ pdf });
 };
 

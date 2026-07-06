@@ -13,7 +13,6 @@ const PdfMaterialSchema = new mongoose.Schema(
     },
     category: {
       type: String,
-      enum: ["aptitude", "reasoning", "programming", "interview_preparation", "company_specific", "general"],
       required: true,
     },
     subject_id: {

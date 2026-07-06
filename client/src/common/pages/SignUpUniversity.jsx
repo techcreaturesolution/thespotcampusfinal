@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import { FiEye, FiEyeOff, FiArrowLeft, FiUser, FiMail, FiLock, FiPhone, FiMapPin, FiGlobe, FiCalendar } from "react-icons/fi";
 import customFetch from "../../utils/customFetch";
+import SEO from "../components/SEO";
 
 const SignUpUniversity = () => {
   const navigate = useNavigate();
@@ -38,6 +39,12 @@ const SignUpUniversity = () => {
 
   return (
     <main className="min-h-screen bg-[#f8f9ff] text-[#0b1c30] flex items-center justify-center p-4 sm:p-6 lg:p-8 relative overflow-hidden selection:bg-[#3730a3] selection:text-white">
+      <SEO 
+        title="University Registration"
+        description="Register your university on The Spot Campus. Oversee affiliated colleges, run combined placement drives, and coordinate standard examinations."
+        keywords="university register, university sign up, campus placement board"
+        canonical="https://thespotcampus.com/sign-up-university"
+      />
       {/* Soft Ambient Background Glows */}
       <div className="absolute top-10 left-10 w-96 h-96 bg-blue-400/10 blur-[100px] rounded-full pointer-events-none -z-10" />
       <div className="absolute bottom-10 right-10 w-[450px] h-[450px] bg-indigo-400/10 blur-[120px] rounded-full pointer-events-none -z-10" />

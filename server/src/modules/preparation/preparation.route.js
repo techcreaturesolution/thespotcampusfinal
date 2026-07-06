@@ -59,7 +59,7 @@ router.get("/bookmarks/check/:item_id", checkBookmark);
 router.get("/pdfs", getAllPdfMaterials);
 router.get("/pdfs/active", getActivePdfs);
 router.post("/pdfs", upload.single("file"), createPdfMaterial);
-router.patch("/pdfs/:id", updatePdfMaterial);
+router.patch("/pdfs/:id", upload.single("file"), updatePdfMaterial);
 router.delete("/pdfs/:id", deletePdfMaterial);
 router.post("/pdfs/reading-progress", updateReadingProgress);
  

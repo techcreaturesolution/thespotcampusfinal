@@ -51,7 +51,7 @@ import { getActivePlans } from "./modules/subscription/subscription.controller.j
 import PreparationRouter from "./modules/preparation/preparation.route.js";
 import UploadRouter from "./modules/upload/upload.route.js";
 
-import { authenticateUser } from "./middleware/authMiddleware.js";
+import { authenticateUser, requireStudentSubscription } from "./middleware/authMiddleware.js";
 
 const allowedOrigins = process.env.CLIENT_URL
   ? process.env.CLIENT_URL.split(",").map(url => url.trim())
@@ -147,7 +147,7 @@ app.use("/api/rounds", authenticateUser, RoundRouter);
 app.use("/api/interviews", authenticateUser, InterviewRouter);
 app.get("/api/recruitment-subscription/plans/active", getActivePlans);
 app.use("/api/recruitment-subscription", authenticateUser, RecruitmentSubscriptionRouter);
-app.use("/api/preparation", authenticateUser, PreparationRouter);
+app.use("/api/preparation", authenticateUser, requireStudentSubscription, PreparationRouter);
 app.use("/api/upload", UploadRouter);
 app.use("/api/company", CompanyRouter);
 app.use("/api/application", authenticateUser, ApplicationRouter);

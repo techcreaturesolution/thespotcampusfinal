@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { FiBook, FiFileText, FiTarget, FiBookOpen, FiZap, FiTrendingUp, FiAward, FiCheckCircle } from "react-icons/fi";
+import { FiBook, FiFileText, FiTarget, FiBookOpen, FiZap, FiTrendingUp, FiAward, FiCheckCircle, FiLock, FiArrowRight } from "react-icons/fi";
 import customFetch from "../../../utils/customFetch";
 import Loading from "../../../common/components/Loading";
 import PageHeader from "../../../common/components/PageHeader";
@@ -8,11 +8,20 @@ import PageHeader from "../../../common/components/PageHeader";
 const PreparationDashboard = () => {
   const [progress, setProgress] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isLocked, setIsLocked] = useState(false);
 
   useEffect(() => {
     const fetchProgress = async () => {
-      try { const { data } = await customFetch.get("/preparation/progress"); setProgress(data.progress); }
-      catch {} finally { setLoading(false); }
+      try {
+        const { data } = await customFetch.get("/preparation/progress");
+        setProgress(data.progress);
+      } catch (error) {
+        if (error?.response?.status === 403) {
+          setIsLocked(true);
+        }
+      } finally {
+        setLoading(false);
+      }
     };
     fetchProgress();
   }, []);
@@ -27,6 +36,91 @@ const PreparationDashboard = () => {
   ];
 
   if (loading) return <Loading />;
+
+  if (isLocked) {
+    return (
+      <div className="max-w-4xl mx-auto py-8 px-4 text-center animate-fade-in">
+        <PageHeader
+          icon={FiBookOpen}
+          title="Preparation Hub"
+          subtitle="Your complete placement preparation suite"
+        />
+
+        <div className="bg-gradient-to-br from-white via-white to-indigo-50/20 rounded-[2rem] border border-slate-200 p-8 md:p-12 shadow-xl shadow-indigo-950/5 relative overflow-hidden mt-6 text-left max-w-2xl mx-auto">
+          {/* Subtle decorative glow */}
+          <div className="absolute -top-10 -right-10 w-40 h-40 bg-indigo-400/10 blur-[60px] rounded-full pointer-events-none" />
+          
+          <div className="flex flex-col items-center text-center">
+            {/* Pulsating locked badge */}
+            <div className="w-16 h-16 rounded-2xl flex items-center justify-center bg-indigo-50 text-indigo-600 border border-indigo-100 shadow-inner relative mb-6">
+              <span className="absolute inset-0 rounded-2xl bg-indigo-400/10 animate-ping opacity-60" />
+              <FiLock className="w-7 h-7 relative z-10" />
+            </div>
+
+            <h2 className="text-xl md:text-2xl font-black text-slate-800 tracking-tight leading-none mb-3">
+              Premium Placement Preparation
+            </h2>
+            <p className="text-xs md:text-sm text-slate-500 font-semibold max-w-md leading-relaxed mb-8">
+              Unlock subject-wise practice banks, full-length timed mock exams, daily tech streaks, and detailed performance analytics. 
+            </p>
+
+            {/* Feature checklist */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-md text-left mb-8">
+              <div className="flex items-center gap-3 p-3 bg-slate-50 border border-slate-100 rounded-xl">
+                <FiBook className="text-[#3730a3] w-5 h-5 shrink-0" />
+                <div>
+                  <h4 className="text-xs font-black text-slate-800 leading-none">Previous Papers</h4>
+                  <p className="text-[10px] text-slate-450 font-bold mt-1">Real company questions</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-3 bg-slate-50 border border-slate-100 rounded-xl">
+                <FiTarget className="text-[#3730a3] w-5 h-5 shrink-0" />
+                <div>
+                  <h4 className="text-xs font-black text-slate-800 leading-none">Mock Exams</h4>
+                  <p className="text-[10px] text-slate-450 font-bold mt-1">Real-time simulation</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-3 bg-slate-50 border border-slate-100 rounded-xl">
+                <FiBookOpen className="text-[#3730a3] w-5 h-5 shrink-0" />
+                <div>
+                  <h4 className="text-xs font-black text-slate-800 leading-none">Subject Banks</h4>
+                  <p className="text-[10px] text-slate-450 font-bold mt-1">Topic-focused practice</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-3 bg-slate-50 border border-slate-100 rounded-xl">
+                <FiFileText className="text-[#3730a3] w-5 h-5 shrink-0" />
+                <div>
+                  <h4 className="text-xs font-black text-slate-800 leading-none">Reading Material</h4>
+                  <p className="text-[10px] text-slate-450 font-bold mt-1">Study guides & PDFs</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-3 bg-slate-50 border border-slate-100 rounded-xl">
+                <FiZap className="text-[#3730a3] w-5 h-5 shrink-0" />
+                <div>
+                  <h4 className="text-xs font-black text-slate-800 leading-none">Daily Streaks</h4>
+                  <p className="text-[10px] text-slate-450 font-bold mt-1">Consistent coding habits</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-3 bg-slate-50 border border-slate-100 rounded-xl">
+                <FiTrendingUp className="text-[#3730a3] w-5 h-5 shrink-0" />
+                <div>
+                  <h4 className="text-xs font-black text-slate-800 leading-none">Advanced Analytics</h4>
+                  <p className="text-[10px] text-slate-450 font-bold mt-1">Track weak chapters</p>
+                </div>
+              </div>
+            </div>
+
+            <Link
+              to="/dashboard/student/plans"
+              className="inline-flex items-center justify-center gap-2 bg-[#3730a3] hover:bg-indigo-850 text-white font-bold text-sm px-8 py-3.5 rounded-2xl transition duration-200 active:scale-95 shadow-md shadow-indigo-950/10 w-full sm:w-auto"
+            >
+              Unlock Preparation Section <FiArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto py-2 text-left animate-fade-in">

@@ -28,18 +28,31 @@ const ManagePdfs = () => {
 
   const handleSubmit = async (formDataState, fileState) => {
     try {
+      const formData = new FormData();
+      Object.entries(formDataState).forEach(([k, v]) => {
+        if (v !== undefined && v !== null && v !== "") {
+          formData.append(k, v);
+        }
+      });
+      if (fileState) {
+        formData.append("file", fileState);
+      }
+
       if (editing) {
-        await customFetch.patch(`/preparation/pdfs/${editing._id}`, formDataState);
+        await customFetch.patch(`/preparation/pdfs/${editing._id}`, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
         toast.success("PDF updated");
       } else {
-        const formData = new FormData();
-        Object.entries(formDataState).forEach(([k, v]) => { if (v) formData.append(k, v); });
-        if (fileState) formData.append("file", fileState);
-        await customFetch.post("/preparation/pdfs", formData, { headers: { "Content-Type": "multipart/form-data" } });
+        await customFetch.post("/preparation/pdfs", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
         toast.success("PDF uploaded");
       }
       resetForm(); fetchPdfs();
-    } catch (err) { toast.error(err?.response?.data?.msg || "Error saving PDF"); }
+    } catch (err) {
+      toast.error(err?.response?.data?.msg || "Error saving PDF");
+    }
   };
 
   const resetForm = () => {

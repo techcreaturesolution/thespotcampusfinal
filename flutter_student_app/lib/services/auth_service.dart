@@ -151,7 +151,13 @@ class AuthService extends ChangeNotifier {
       notifyListeners();
 
       String message = 'Failed to request password reset';
-      if (e.response?.data != null) {
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.sendTimeout) {
+        message = 'Connection timed out. Please check your network or server status.';
+      } else if (e.type == DioExceptionType.connectionError) {
+        message = 'Could not connect to the server. If you are testing on a mobile device, please set your PC\'s local IP address in constants.dart instead of localhost.';
+      } else if (e.response?.data != null) {
         final data = e.response!.data;
         message = data is Map ? (data['msg'] ?? data['error'] ?? data['message'] ?? message) : message;
       }

@@ -14,6 +14,7 @@ import {
 } from "react-icons/fi";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import SEO from "../components/SEO";
 
 const PrivacyPolicy = () => {
   const [activeSection, setActiveSection] = useState("introduction");
@@ -213,6 +214,12 @@ const PrivacyPolicy = () => {
 
   return (
     <div className="min-h-screen bg-[#f8f9ff] text-[#0b1c30] flex flex-col justify-between selection:bg-[#3730a3] selection:text-white">
+      <SEO 
+        title="Privacy Policy"
+        description="Learn how The Spot Campus securely manages, monitors, and protects your personal and academic information."
+        keywords="privacy policy, data collection, proctoring security, exam data"
+        canonical="https://thespotcampus.com/privacy-policy"
+      />
       <Navbar />
 
       {/* Hero Header */}

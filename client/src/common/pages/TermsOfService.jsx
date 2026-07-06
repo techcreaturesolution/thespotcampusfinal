@@ -14,6 +14,7 @@ import {
 } from "react-icons/fi";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import SEO from "../components/SEO";
 
 const TermsOfService = () => {
   const [activeSection, setActiveSection] = useState("agreement");
@@ -181,6 +182,12 @@ const TermsOfService = () => {
 
   return (
     <div className="min-h-screen bg-[#f8f9ff] text-[#0b1c30] flex flex-col justify-between selection:bg-[#3730a3] selection:text-white">
+      <SEO 
+        title="Terms of Service"
+        description="Read the Terms of Service for using The Spot Campus platform, applications, and recruitment services."
+        keywords="terms of service, user agreement, candidate terms, exam rules"
+        canonical="https://thespotcampus.com/terms-of-service"
+      />
       <Navbar />
 
       {/* Hero Header */}

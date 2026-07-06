@@ -1,5 +1,6 @@
 import { UnauthenticatedError, UnauthorizedError } from "../errors/customErrors.js";
 import { verifyJWT } from "../utils/tokenUtils.js";
+import tbl_payment from "../modules/subscription/payment.model.js";
 
 // Legacy authentication middleware (kept for compatibility)
 export const authenticateUser = (req, res, next) => {
@@ -87,4 +88,27 @@ export const enhancedAuthenticateUser = (req, res, next) => {
       throw new UnauthenticatedError("Authentication failed");
     }
   }
+};
+
+export const requireStudentSubscription = async (req, res, next) => {
+  if (req.user && req.user.role === "Student") {
+    try {
+      const now = new Date();
+      const payment = await tbl_payment.findOne({
+        user_id: req.user.userId,
+        status: "Paid",
+        expires_at: { $gt: now },
+      });
+
+      if (!payment) {
+        return res.status(403).json({
+          msg: "Access denied. Active subscription required to access the preparation section.",
+          requiresSubscription: true
+        });
+      }
+    } catch (error) {
+      return res.status(500).json({ error: error.message });
+    }
+  }
+  next();
 };

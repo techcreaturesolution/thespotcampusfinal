@@ -31,6 +31,7 @@ import customFetch from "../../utils/customFetch";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import MobileAppShowcase from "../components/MobileAppShowcase";
+import SEO from "../components/SEO";
 
 const Landing = () => {
   const [contactForm, setContactForm] = useState({
@@ -91,6 +92,12 @@ const Landing = () => {
 
   return (
     <div className="min-h-screen bg-[#f8f9ff] text-[#0b1c30] overflow-x-hidden selection:bg-[#3730a3] selection:text-white">
+      <SEO 
+        title="AI-Powered Placement & Proctored Exam Platform"
+        description="The Spot Campus connects campus talent with top recruiters. Explore AI-driven recruitment, secure proctored exams, resume building, and placement coordination tools."
+        keywords="The Spot Campus, campus placements, AI proctoring, online exam portal, recruitment platform, TPO portal, student jobs, online placement coordination"
+        canonical="https://thespotcampus.com/"
+      />
       <style>{`
         @keyframes fadeInUp {
           from {

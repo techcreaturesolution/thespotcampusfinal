@@ -3,6 +3,7 @@ import { Link, useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { FiLock, FiEye, FiEyeOff, FiArrowLeft, FiCheckCircle } from "react-icons/fi";
 import customFetch from "../../utils/customFetch";
+import SEO from "../components/SEO";
 
 const ResetPassword = () => {
   const { token } = useParams();
@@ -45,6 +46,12 @@ const ResetPassword = () => {
 
   return (
     <main className="min-h-screen bg-[#f8f9ff] text-[#0b1c30] flex items-center justify-center p-4 relative overflow-hidden selection:bg-[#3730a3] selection:text-white">
+      <SEO 
+        title="Reset Password"
+        description="Set a new password for your account on The Spot Campus."
+        keywords="reset password, update credentials, change password"
+        canonical="https://thespotcampus.com/reset-password"
+      />
       {/* Soft Ambient Background Glows */}
       <div className="absolute top-10 left-10 w-96 h-96 bg-blue-400/10 blur-[100px] rounded-full pointer-events-none -z-10" />
       <div className="absolute bottom-10 right-10 w-[450px] h-[450px] bg-indigo-400/10 blur-[120px] rounded-full pointer-events-none -z-10" />

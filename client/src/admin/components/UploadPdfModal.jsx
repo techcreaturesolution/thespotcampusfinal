@@ -151,11 +151,11 @@ const UploadPdfModal = ({ isOpen, onClose, pdf, subjects = [], onSubmit }) => {
             </div>
             <div>
               <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1.5 block">
-                Total Pages
+                Total Pages (Auto-detected)
               </label>
               <input
                 type="number"
-                placeholder="0"
+                placeholder="Auto-detected on upload"
                 className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#3730a3]/20 focus:border-[#3730a3] transition duration-200"
                 value={form.total_pages}
                 onChange={(e) => setForm({ ...form, total_pages: Number(e.target.value) || 0 })}
@@ -175,31 +175,34 @@ const UploadPdfModal = ({ isOpen, onClose, pdf, subjects = [], onSubmit }) => {
             </div>
           </div>
 
-          {!pdf && (
-            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-3">
-              <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider block">
-                PDF File or URL:
-              </label>
-              <div className="flex flex-col sm:flex-row gap-3 items-center">
-                <div className="relative overflow-hidden inline-block w-full sm:w-auto">
-                  <input
-                    type="file"
-                    accept=".pdf"
-                    onChange={(e) => setFile(e.target.files[0])}
-                    className="text-xs font-extrabold text-slate-600 cursor-pointer"
-                  />
-                </div>
-                <span className="text-[10px] font-extrabold text-slate-400">OR</span>
+          <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-3">
+            <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider block">
+              PDF File or URL {pdf ? "(Optional - to replace current file)" : ""}
+            </label>
+            {pdf && form.file_url && (
+              <p className="text-[10px] text-[#3730a3] font-bold bg-indigo-50/50 border border-indigo-100 p-2.5 rounded-xl truncate">
+                Current File: {form.file_url}
+              </p>
+            )}
+            <div className="flex flex-col sm:flex-row gap-3 items-center">
+              <div className="relative overflow-hidden inline-block w-full sm:w-auto">
                 <input
-                  type="text"
-                  placeholder="Enter PDF URL instead"
-                  value={form.file_url}
-                  onChange={(e) => setForm({ ...form, file_url: e.target.value })}
-                  className="flex-1 w-full px-4 py-2 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#3730a3]/20 focus:border-[#3730a3] transition duration-200"
+                  type="file"
+                  accept=".pdf"
+                  onChange={(e) => setFile(e.target.files[0] || null)}
+                  className="text-xs font-extrabold text-slate-600 cursor-pointer"
                 />
               </div>
+              <span className="text-[10px] font-extrabold text-slate-400">OR</span>
+              <input
+                type="text"
+                placeholder={pdf ? "Enter new PDF URL to replace" : "Enter PDF URL instead"}
+                value={form.file_url}
+                onChange={(e) => setForm({ ...form, file_url: e.target.value })}
+                className="flex-1 w-full px-4 py-2 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#3730a3]/20 focus:border-[#3730a3] transition duration-200"
+              />
             </div>
-          )}
+          </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
             <button

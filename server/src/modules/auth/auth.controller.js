@@ -117,8 +117,8 @@ export const forgotPassword = async (req, res) => {
 
     // Return a generic success message even if email doesn't exist (mitigates email harvesting)
     if (!account) {
-      return res.status(StatusCodes.OK).json({ 
-        msg: "If an account is associated with this email, a password reset link has been sent." 
+      return res.status(StatusCodes.OK).json({
+        msg: "If an account is associated with this email, a password reset link has been sent."
       });
     }
 
@@ -147,8 +147,8 @@ export const forgotPassword = async (req, res) => {
     // 5. Send email
     await sendPasswordResetEmail(email, resetUrl);
 
-    res.status(StatusCodes.OK).json({ 
-      msg: "If an account is associated with this email, a password reset link has been sent." 
+    res.status(StatusCodes.OK).json({
+      msg: "If an account is associated with this email, a password reset link has been sent."
     });
   } catch (error) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
