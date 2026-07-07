@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'services/auth_service.dart';
 import 'services/api_service.dart';
 import 'screens/splash_screen.dart';
@@ -29,8 +30,9 @@ import 'screens/resume_builder_screen.dart';
 import 'screens/resume_preview_screen.dart';
 import 'screens/bookmarks_screen.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
   runApp(
     MultiProvider(
       providers: [
