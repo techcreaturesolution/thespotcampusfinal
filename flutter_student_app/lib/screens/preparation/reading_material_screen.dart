@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../services/api_service.dart';
+import '../../widgets/premium_paywall.dart';
 
 class ReadingMaterialScreen extends StatefulWidget {
   const ReadingMaterialScreen({super.key});
@@ -12,6 +13,7 @@ class ReadingMaterialScreen extends StatefulWidget {
 class _ReadingMaterialScreenState extends State<ReadingMaterialScreen> {
   List<dynamic> _pdfs = [];
   bool _isLoading = true;
+  bool _needsSubscription = false;
   String _filter = '';
 
   final _categories = ['aptitude', 'reasoning', 'programming', 'interview_preparation', 'company_specific', 'general'];
@@ -23,12 +25,23 @@ class _ReadingMaterialScreenState extends State<ReadingMaterialScreen> {
   }
 
   Future<void> _fetchPdfs() async {
+    setState(() {
+      _isLoading = true;
+      _needsSubscription = false;
+    });
     try {
       final api = Provider.of<ApiService>(context, listen: false);
       final params = _filter.isNotEmpty ? '?category=$_filter' : '';
       final data = await api.get('/preparation/pdfs/active$params');
       setState(() { _pdfs = data['pdfs'] ?? []; _isLoading = false; });
-    } catch (e) { setState(() => _isLoading = false); }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        if (e is ApiException && (e.statusCode == 403 || e.message.contains('subscription'))) {
+          _needsSubscription = true;
+        }
+      });
+    }
   }
 
   Future<void> _openPdf(Map<String, dynamic> pdf) async {
@@ -37,6 +50,15 @@ class _ReadingMaterialScreenState extends State<ReadingMaterialScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_needsSubscription) {
+      return PremiumPaywall(
+        onBack: () => Navigator.pop(context),
+        onPurchaseSuccess: () {
+          _fetchPdfs();
+        },
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(title: const Text('Reading Material')),
       body: _isLoading

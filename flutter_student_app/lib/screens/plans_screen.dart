@@ -104,9 +104,13 @@ class _PlansScreenState extends State<PlansScreen> {
         _plans = results[0]['plans'] ?? [];
         _currentSub = results[1]['subscription'];
         _loading = false;
+        _processing = false;
       });
     } catch (e) {
-      setState(() => _loading = false);
+      setState(() {
+        _loading = false;
+        _processing = false;
+      });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to load plans: $e'), backgroundColor: Colors.red),
@@ -298,6 +302,7 @@ class _PlansScreenState extends State<PlansScreen> {
                           final features = plan['features'] ?? {};
                           final price = plan['price'] ?? 0;
                           final validity = plan['validity_days'] ?? 30;
+                          final hasCurrentPlan = _currentSub != null && _currentSub!['plan_name'] == plan['plan_name'];
 
                           return Container(
                             margin: const EdgeInsets.only(bottom: 20),
@@ -396,19 +401,23 @@ class _PlansScreenState extends State<PlansScreen> {
                                   height: 48,
                                   child: ElevatedButton(
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFF2563EB),
+                                      backgroundColor: hasCurrentPlan ? const Color(0xFF10B981) : const Color(0xFF2563EB),
+                                      disabledBackgroundColor: hasCurrentPlan ? const Color(0xFF10B981) : Colors.grey.shade300,
+                                      disabledForegroundColor: hasCurrentPlan ? Colors.white : Colors.grey.shade600,
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(12),
                                       ),
                                       elevation: 0,
                                     ),
-                                    onPressed: _processing ? null : () => _purchasePlan(plan),
+                                    onPressed: (_processing || hasCurrentPlan) ? null : () => _purchasePlan(plan),
                                     child: Text(
                                       _processing
                                           ? 'Processing...'
-                                          : _currentSub != null
-                                              ? 'Upgrade Plan'
-                                              : 'Subscribe Now',
+                                          : hasCurrentPlan
+                                              ? 'Current Plan'
+                                              : _currentSub != null
+                                                  ? 'Upgrade Plan'
+                                                  : 'Subscribe Now',
                                       style: const TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.bold,

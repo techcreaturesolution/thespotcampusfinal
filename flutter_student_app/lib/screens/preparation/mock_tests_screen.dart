@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../services/api_service.dart';
+import '../../widgets/premium_paywall.dart';
 
 class MockTestsScreen extends StatefulWidget {
   const MockTestsScreen({super.key});
@@ -12,6 +13,7 @@ class MockTestsScreen extends StatefulWidget {
 class _MockTestsScreenState extends State<MockTestsScreen> {
   List<dynamic> _mockTests = [];
   bool _isLoading = true;
+  bool _needsSubscription = false;
   String _filter = '';
   String _search = '';
   Set<String> _bookmarkedIds = {};
@@ -62,7 +64,10 @@ class _MockTestsScreenState extends State<MockTestsScreen> {
   }
 
   Future<void> _fetchMockTests() async {
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _needsSubscription = false;
+    });
     try {
       final api = Provider.of<ApiService>(context, listen: false);
       final params = _filter.isNotEmpty ? '?test_type=$_filter' : '';
@@ -75,7 +80,12 @@ class _MockTestsScreenState extends State<MockTestsScreen> {
       }
     } catch (e) {
       if (mounted) {
-        setState(() => _isLoading = false);
+        setState(() {
+          _isLoading = false;
+          if (e is ApiException && (e.statusCode == 403 || e.message.contains('subscription'))) {
+            _needsSubscription = true;
+          }
+        });
       }
     }
   }
@@ -112,6 +122,15 @@ class _MockTestsScreenState extends State<MockTestsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_needsSubscription) {
+      return PremiumPaywall(
+        onBack: () => Navigator.pop(context),
+        onPurchaseSuccess: () {
+          _fetchMockTests();
+        },
+      );
+    }
+
     final filteredTests = _mockTests.where((test) {
       final title = (test['title'] ?? '').toString().toLowerCase();
       return title.contains(_search.toLowerCase());

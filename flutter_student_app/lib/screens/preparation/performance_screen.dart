@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../services/api_service.dart';
+import '../../widgets/premium_paywall.dart';
 
 class PerformanceScreen extends StatefulWidget {
   const PerformanceScreen({super.key});
@@ -13,6 +14,7 @@ class _PerformanceScreenState extends State<PerformanceScreen> {
   Map<String, dynamic>? _progress;
   Map<String, dynamic>? _subjectData;
   bool _isLoading = true;
+  bool _needsSubscription = false;
 
   @override
   void initState() {
@@ -21,6 +23,10 @@ class _PerformanceScreenState extends State<PerformanceScreen> {
   }
 
   Future<void> _fetchData() async {
+    setState(() {
+      _isLoading = true;
+      _needsSubscription = false;
+    });
     try {
       final api = Provider.of<ApiService>(context, listen: false);
       final results = await Future.wait([
@@ -32,11 +38,27 @@ class _PerformanceScreenState extends State<PerformanceScreen> {
         _subjectData = results[1];
         _isLoading = false;
       });
-    } catch (e) { setState(() => _isLoading = false); }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        if (e is ApiException && (e.statusCode == 403 || e.message.contains('subscription'))) {
+          _needsSubscription = true;
+        }
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_needsSubscription) {
+      return PremiumPaywall(
+        onBack: () => Navigator.pop(context),
+        onPurchaseSuccess: () {
+          _fetchData();
+        },
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.white,
       extendBodyBehindAppBar: true,

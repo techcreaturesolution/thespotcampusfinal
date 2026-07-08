@@ -23,6 +23,7 @@ const PrivacyPolicy = lazy(() => import("./common/pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("./common/pages/TermsOfService"));
 const ForgotPassword = lazy(() => import("./common/pages/ForgotPassword"));
 const ResetPassword = lazy(() => import("./common/pages/ResetPassword"));
+const ViewPdf = lazy(() => import("./common/pages/ViewPdf"));
 
 // Admin Pages
 const AdminManageUniversity = lazy(() => import("./admin/pages/ManageUniversity"));
@@ -132,6 +133,10 @@ const router = createBrowserRouter([
   {
     path: "/reset-password/:token",
     element: <ResetPassword />,
+  },
+  {
+    path: "/view-pdf",
+    element: <ViewPdf />,
   },
   {
     path: "/dashboard",

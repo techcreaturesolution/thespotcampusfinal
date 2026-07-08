@@ -22,6 +22,8 @@ export const getAllStudents = async (req, res) => {
       }
     } else if (req.user && req.user.role === "College") {
       query.college_id = req.user.userId;
+    } else if (req.user && req.user.role === "University") {
+      query.university_id = req.user.userId;
     }
 
     const students = await tbl_student

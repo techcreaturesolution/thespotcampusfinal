@@ -1,4 +1,5 @@
 import tbl_tpo from "./tpo.model.js";
+import tbl_college from "../college/college.model.js";
 import { StatusCodes } from "http-status-codes";
 import { NotFoundError } from "../../errors/customErrors.js";
 import { hashPassword } from "../../utils/passwordUtils.js";
@@ -8,8 +9,18 @@ import { promises as fs } from "fs";
 
 export const getAllTPOs = async (req, res) => {
   try {
+    let query = {};
+    if (req.user) {
+      if (req.user.role === "College") {
+        query.tpo_college_id = req.user.userId;
+      } else if (req.user.role === "University") {
+        const colleges = await tbl_college.find({ college_university_id: req.user.userId }).select("_id");
+        const collegeIds = colleges.map(c => c._id);
+        query.tpo_college_id = { $in: collegeIds };
+      }
+    }
     const tpos = await tbl_tpo
-      .find({})
+      .find(query)
       .populate({
         path: "tpo_college_id",
         populate: {

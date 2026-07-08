@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../services/api_service.dart';
+import '../../widgets/premium_paywall.dart';
 
 class PreviousPapersScreen extends StatefulWidget {
   const PreviousPapersScreen({super.key});
@@ -22,6 +23,7 @@ class _PreviousPapersScreenState extends State<PreviousPapersScreen> {
   String? _activeSubjectName;
 
   bool _isLoading = true;
+  bool _needsSubscription = false;
   int _page = 1;
   int _total = 0;
   String _companyFilter = '';
@@ -109,7 +111,10 @@ class _PreviousPapersScreenState extends State<PreviousPapersScreen> {
   }
 
   Future<void> _fetchYears() async {
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _needsSubscription = false;
+    });
     try {
       final api = Provider.of<ApiService>(context, listen: false);
       final data = await api.get('/preparation/questions/previous-year');
@@ -118,7 +123,12 @@ class _PreviousPapersScreenState extends State<PreviousPapersScreen> {
         _isLoading = false;
       });
     } catch (e) {
-      setState(() => _isLoading = false);
+      setState(() {
+        _isLoading = false;
+        if (e is ApiException && (e.statusCode == 403 || e.message.contains('subscription'))) {
+          _needsSubscription = true;
+        }
+      });
     }
   }
 
@@ -196,6 +206,15 @@ class _PreviousPapersScreenState extends State<PreviousPapersScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_needsSubscription) {
+      return PremiumPaywall(
+        onBack: () => Navigator.pop(context),
+        onPurchaseSuccess: () {
+          _fetchYears();
+        },
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(title: const Text('Previous Year Papers')),
       body: _isLoading

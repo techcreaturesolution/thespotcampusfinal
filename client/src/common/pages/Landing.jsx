@@ -198,7 +198,7 @@ const Landing = () => {
                   height={400}
                   fetchpriority="high"
                   className="w-full h-auto rounded-[1.8rem] transition-transform duration-700 group-hover:scale-103 shadow-md object-cover max-h-[420px]"
-                  src="/hero_section.webp"
+                  src="/hero_section.jpg"
                   onError={(e) => {
                     // Fallback offline display if image fails to load
                     e.target.style.display = "none";

@@ -10,7 +10,11 @@ import { promises as fs } from "fs";
 
 export const getAllColleges = async (req, res) => {
   try {
-    const colleges = await tbl_college.find({}).populate("college_university_id").sort("-createdAt");
+    let query = {};
+    if (req.user && req.user.role === "University") {
+      query.college_university_id = req.user.userId;
+    }
+    const colleges = await tbl_college.find(query).populate("college_university_id").sort("-createdAt");
     const collegesWithCounts = await Promise.all(
       colleges.map(async (c) => {
         const degreeCount = await tbl_degree.countDocuments({ college_id: c._id });

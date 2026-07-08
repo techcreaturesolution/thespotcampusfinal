@@ -542,6 +542,7 @@ const ExamPaper = () => {
   };
 
   const handleSubmit = async () => {
+    if (isSubmittingRef.current) return;
     isSubmittingRef.current = true;
     if (cameraStream) {
       cameraStream.getTracks().forEach((track) => track.stop());
@@ -569,6 +570,7 @@ const ExamPaper = () => {
       navigate("/dashboard/student/apply-list");
     } catch (error) {
       toast.error("Failed to submit exam.");
+      isSubmittingRef.current = false;
     }
   };
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../services/api_service.dart';
+import '../../widgets/premium_paywall.dart';
 
 class DailyChallengeScreen extends StatefulWidget {
   const DailyChallengeScreen({super.key});
@@ -14,6 +15,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
   bool _alreadyCompleted = false;
   Map<String, dynamic>? _previousAttempt;
   bool _isLoading = true;
+  bool _needsSubscription = false;
   int _currentIdx = 0;
   final Map<String, int> _answers = {};
   bool _submitted = false;
@@ -26,6 +28,10 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
   }
 
   Future<void> _fetchChallenge() async {
+    setState(() {
+      _isLoading = true;
+      _needsSubscription = false;
+    });
     try {
       final api = Provider.of<ApiService>(context, listen: false);
       final data = await api.get('/preparation/daily-challenge');
@@ -35,7 +41,14 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
         _previousAttempt = data['attempt'];
         _isLoading = false;
       });
-    } catch (e) { setState(() => _isLoading = false); }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        if (e is ApiException && (e.statusCode == 403 || e.message.contains('subscription'))) {
+          _needsSubscription = true;
+        }
+      });
+    }
   }
 
   Future<void> _submitChallenge() async {
@@ -60,6 +73,15 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_needsSubscription) {
+      return PremiumPaywall(
+        onBack: () => Navigator.pop(context),
+        onPurchaseSuccess: () {
+          _fetchChallenge();
+        },
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(title: const Text('Daily Challenge')),
       body: _isLoading

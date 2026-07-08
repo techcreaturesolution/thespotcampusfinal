@@ -29,6 +29,7 @@ import 'screens/preparation/pdf_viewer_screen.dart';
 import 'screens/resume_builder_screen.dart';
 import 'screens/resume_preview_screen.dart';
 import 'screens/bookmarks_screen.dart';
+import 'screens/forgot_password_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -101,6 +102,7 @@ class SpotCampusApp extends StatelessWidget {
       routes: {
         '/': (context) => const SplashScreen(),
         '/login': (context) => const LoginScreen(),
+        '/forgot-password': (context) => const ForgotPasswordScreen(),
         '/register': (context) => const RegisterScreen(),
         '/home': (context) => const HomeScreen(),
         '/jobs': (context) => const JobListScreen(),

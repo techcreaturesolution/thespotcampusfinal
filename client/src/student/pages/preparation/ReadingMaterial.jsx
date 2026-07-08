@@ -76,7 +76,7 @@ const ReadingMaterial = () => {
         total_pages: pdf.total_pages || 1,
       });
     } catch {}
-    window.open(pdf.file_url, "_blank");
+    window.open(`/view-pdf?url=${encodeURIComponent(pdf.file_url)}&title=${encodeURIComponent(pdf.title)}`, "_blank");
   };
 
   const getDownloadUrl = (url) => {

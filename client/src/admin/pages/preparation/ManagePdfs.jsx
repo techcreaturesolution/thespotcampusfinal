@@ -13,6 +13,7 @@ const ManagePdfs = () => {
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState(null);
   const [search, setSearch] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => { fetchPdfs(); fetchSubjects(); }, []);
 
@@ -27,6 +28,7 @@ const ManagePdfs = () => {
   };
 
   const handleSubmit = async (formDataState, fileState) => {
+    setIsSaving(true);
     try {
       const formData = new FormData();
       Object.entries(formDataState).forEach(([k, v]) => {
@@ -52,6 +54,8 @@ const ManagePdfs = () => {
       resetForm(); fetchPdfs();
     } catch (err) {
       toast.error(err?.response?.data?.msg || "Error saving PDF");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -179,6 +183,7 @@ const ManagePdfs = () => {
         pdf={editing}
         subjects={subjects}
         onSubmit={handleSubmit}
+        isSaving={isSaving}
       />
     </div>
   );

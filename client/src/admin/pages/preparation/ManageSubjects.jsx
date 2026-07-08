@@ -14,6 +14,7 @@ const ManageSubjects = () => {
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [editing, setEditing] = useState(null);
   const [search, setSearch] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => { fetchSubjects(); }, []);
 
@@ -26,6 +27,7 @@ const ManageSubjects = () => {
   };
 
   const handleSubmit = async (subjectData) => {
+    setIsSaving(true);
     try {
       if (editing) {
         await customFetch.patch(`/preparation/subjects/${editing._id}`, subjectData);
@@ -37,7 +39,11 @@ const ManageSubjects = () => {
       setShowForm(false);
       setEditing(null);
       fetchSubjects();
-    } catch (err) { toast.error(err?.response?.data?.msg || "Error saving subject"); }
+    } catch (err) {
+      toast.error(err?.response?.data?.msg || "Error saving subject");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleEdit = (s) => {
@@ -167,6 +173,7 @@ const ManageSubjects = () => {
         subject={editing}
         onSubmit={handleSubmit}
         nextSortOrder={subjects.length > 0 ? Math.max(...subjects.map(s => s.sort_order || 0)) + 1 : 1}
+        isSaving={isSaving}
       />
 
       <CreateCategoryModal

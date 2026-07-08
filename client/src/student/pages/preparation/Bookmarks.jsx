@@ -49,7 +49,7 @@ const Bookmarks = () => {
 
   const handleReadPdf = (pdf) => {
     if (pdf?.file_url) {
-      window.open(pdf.file_url, "_blank");
+      window.open(`/view-pdf?url=${encodeURIComponent(pdf.file_url)}&title=${encodeURIComponent(pdf.title || "Study Material")}`, "_blank");
     } else {
       toast.error("PDF URL not available");
     }

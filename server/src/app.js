@@ -21,6 +21,7 @@ import errorHandlerMiddleware from "./middleware/errorHandlerMiddleware.js";
 import mongoSanitize from "express-mongo-sanitize";
 import { sanitizeInput } from "./middleware/validationMiddleware.js";
 import { cleanupUploadOnError } from "./middleware/fileUploadMiddleware.js";
+import { requireIdempotency } from "./modules/idempotency/idempotencyMiddleware.js";
 
 // Routers
 import JobRouter from "./modules/job/job.route.js";
@@ -59,6 +60,27 @@ const allowedOrigins = process.env.CLIENT_URL
 
 const app = express();
 app.set("trust proxy", 1);
+
+// Middleware to clean client IP address (removing port number if forwarded by reverse proxy like IIS ARR)
+app.use((req, res, next) => {
+  const rawIp = req.ip;
+  if (rawIp) {
+    let cleanIp = rawIp;
+    if (cleanIp.includes('.')) {
+      cleanIp = cleanIp.split(':')[0];
+    } else if (cleanIp.startsWith('[') && cleanIp.includes(']')) {
+      cleanIp = cleanIp.substring(1, cleanIp.indexOf(']'));
+    }
+    Object.defineProperty(req, 'ip', {
+      value: cleanIp,
+      configurable: true,
+      enumerable: true,
+      writable: true
+    });
+  }
+  next();
+});
+
 const server = http.createServer(app);
 
 // Socket.IO for real-time proctoring
@@ -108,8 +130,9 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 // Input sanitization middleware
 app.use(sanitizeInput);
 
-// Apply rate limiting
+// Apply rate limiting & idempotency
 app.use("/api/", generalLimiter); // General rate limiting for all API routes
+app.use("/api/", requireIdempotency); // Enforce request idempotency (anti-duplicate guard)
 app.use("/api/auth", authLimiter); // Strict limiting for auth routes
 app.use("/api/login", authLimiter); // Strict limiting for login routes
 app.use("/api/order", paymentLimiter); // Strict limiting for payment routes

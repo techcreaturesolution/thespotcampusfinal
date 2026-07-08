@@ -7,8 +7,8 @@ class AppConstants {
   // static const String baseUrl = 'http://192.168.29.235:5000/api';
 
   // Render URL (Production - running old code)
-  // static const String baseUrl = 'https://thespotcampus.onrender.com/api';
-  static final String baseUrl = dotenv.env['BASE_URL'] ?? '';
+  static const String baseUrl = 'https://thespotcampus.onrender.com/api';
+  // static final String baseUrl = dotenv.env['BASE_URL'] ?? '';
 
   static const String tokenKey = 'auth_token';
   static const String roleKey = 'user_role';

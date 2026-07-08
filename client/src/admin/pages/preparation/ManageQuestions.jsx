@@ -19,6 +19,7 @@ const ManageQuestions = () => {
   const [page, setPage] = useState(1);
   const [filters, setFilters] = useState({ subject_id: "", difficulty: "", company_name: "", search: "", is_previous_year: "" });
   const [selectedIds, setSelectedIds] = useState([]);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => { fetchSubjects(); }, []);
   useEffect(() => { fetchQuestions(); }, [page, filters]);
@@ -40,6 +41,7 @@ const ManageQuestions = () => {
   };
 
   const handleSubmit = async (questionPayload) => {
+    setIsSaving(true);
     try {
       if (editing) {
         await customFetch.patch(`/preparation/questions/${editing._id}`, questionPayload);
@@ -49,7 +51,11 @@ const ManageQuestions = () => {
         toast.success("Question created");
       }
       resetForm(); fetchQuestions();
-    } catch (err) { toast.error(err?.response?.data?.msg || "Error saving question"); }
+    } catch (err) {
+      toast.error(err?.response?.data?.msg || "Error saving question");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const resetForm = () => {
@@ -290,6 +296,7 @@ const ManageQuestions = () => {
         question={editing}
         subjects={subjects}
         onSubmit={handleSubmit}
+        isSaving={isSaving}
       />
 
       <BulkUploadModal

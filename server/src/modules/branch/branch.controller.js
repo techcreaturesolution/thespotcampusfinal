@@ -1,10 +1,29 @@
 import tbl_branch from "./branch.model.js";
+import tbl_college from "../college/college.model.js";
+import tbl_tpo from "../tpo/tpo.model.js";
 import { StatusCodes } from "http-status-codes";
 import { NotFoundError } from "../../errors/customErrors.js";
 
 export const getAllBranches = async (req, res) => {
   try {
-    const branches = await tbl_branch.find({}).populate("degree_id").populate("college_id").sort("-createdAt");
+    let query = {};
+    if (req.user) {
+      if (req.user.role === "College") {
+        query.college_id = req.user.userId;
+      } else if (req.user.role === "TPO") {
+        const tpo = await tbl_tpo.findById(req.user.userId);
+        if (tpo && tpo.tpo_college_id) {
+          query.college_id = tpo.tpo_college_id;
+        } else {
+          return res.status(StatusCodes.OK).json({ branches: [] });
+        }
+      } else if (req.user.role === "University") {
+        const colleges = await tbl_college.find({ college_university_id: req.user.userId }).select("_id");
+        const collegeIds = colleges.map(c => c._id);
+        query.college_id = { $in: collegeIds };
+      }
+    }
+    const branches = await tbl_branch.find(query).populate("degree_id").populate("college_id").sort("-createdAt");
     res.status(StatusCodes.OK).json({ branches });
   } catch (error) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });

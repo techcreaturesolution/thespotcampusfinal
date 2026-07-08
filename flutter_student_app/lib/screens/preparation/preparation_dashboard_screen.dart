@@ -21,11 +21,19 @@ class _PreparationDashboardScreenState extends State<PreparationDashboardScreen>
 
   Future<void> _fetchProgress() async {
     try {
+      setState(() {
+        _isLoading = true;
+      });
       final api = Provider.of<ApiService>(context, listen: false);
       final data = await api.get('/preparation/progress');
-      setState(() { _progress = data['progress']; _isLoading = false; });
+      setState(() { 
+        _progress = data['progress']; 
+        _isLoading = false; 
+      });
     } catch (e) {
-      setState(() => _isLoading = false);
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -89,14 +97,24 @@ class _PreparationDashboardScreenState extends State<PreparationDashboardScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text(
-                'Preparation',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w900,
-                  color: Color(0xFF1E293B),
+              IconButton(
+                icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF1E293B), size: 20),
+                onPressed: () => Navigator.pop(context),
+              ),
+              const Expanded(
+                child: Center(
+                  child: Padding(
+                    padding: EdgeInsets.only(right: 40.0), // counterbalance the back button for centering
+                    child: Text(
+                      'Preparation',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w900,
+                        color: Color(0xFF1E293B),
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ],

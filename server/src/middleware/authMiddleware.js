@@ -4,9 +4,12 @@ import tbl_payment from "../modules/subscription/payment.model.js";
 
 // Legacy authentication middleware (kept for compatibility)
 export const authenticateUser = (req, res, next) => {
-  let token = req.cookies.token;
-  if (!token && req.headers.authorization && req.headers.authorization.startsWith("Bearer ")) {
+  let token = null;
+  if (req.headers.authorization && req.headers.authorization.startsWith("Bearer ")) {
     token = req.headers.authorization.split(" ")[1];
+  }
+  if (!token) {
+    token = req.cookies.token;
   }
 
   if (!token) throw new UnauthenticatedError("authentication invalid");
@@ -31,9 +34,12 @@ export const authorizePermissions = (...roles) => {
 
 // Enhanced authentication middleware with additional security features
 export const enhancedAuthenticateUser = (req, res, next) => {
-  let token = req.cookies.token;
-  if (!token && req.headers.authorization && req.headers.authorization.startsWith("Bearer ")) {
+  let token = null;
+  if (req.headers.authorization && req.headers.authorization.startsWith("Bearer ")) {
     token = req.headers.authorization.split(" ")[1];
+  }
+  if (!token) {
+    token = req.cookies.token;
   }
   
   if (!token) {

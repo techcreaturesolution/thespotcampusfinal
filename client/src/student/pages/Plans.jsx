@@ -36,11 +36,20 @@ const Plans = () => {
   const handlePurchase = async (plan) => {
     setProcessing(true);
     try {
-      const { data } = await customFetch.post("/payment", {
-        amount: plan.price,
-        plan_name: plan.plan_name,
-        description: plan.description || `Student Subscription Plan - ${plan.plan_name}`,
-      });
+      const idempotencyKey = `payment-${plan._id}-${user?._id || "anon"}-${Date.now()}`;
+      const { data } = await customFetch.post(
+        "/payment",
+        {
+          amount: plan.price,
+          plan_name: plan.plan_name,
+          description: plan.description || `Student Subscription Plan - ${plan.plan_name}`,
+        },
+        {
+          headers: {
+            "Idempotency-Key": idempotencyKey,
+          },
+        }
+      );
 
       const options = {
         key: data.key || import.meta.env.VITE_RAZORPAY_KEY_ID,

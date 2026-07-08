@@ -115,6 +115,7 @@ const BulkUploadModal = ({ isOpen, onClose, subjects = [], onUploadSuccess }) =>
 
   const handleUpload = async (e) => {
     e.preventDefault();
+    if (uploading) return;
     if (!file) {
       toast.error("Please select a file to upload");
       return;

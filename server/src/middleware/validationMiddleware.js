@@ -35,7 +35,7 @@ export const nameValidation = (field) => body(field)
   .withMessage(`${field} can only contain letters and spaces`);
 
 export const phoneValidation = body('phone')
-  .optional()
+  .optional({ checkFalsy: true })
   .isMobilePhone('any')
   .withMessage('Please provide a valid phone number');
 
@@ -104,7 +104,7 @@ export const jobValidation = [
     .isLength({ min: 2, max: 100 })
     .withMessage('Country must be between 2 and 100 characters'),
   body('job_salary')
-    .optional(),
+    .optional({ checkFalsy: true }),
   validateInput
 ];
 
@@ -115,16 +115,16 @@ export const companyValidation = [
     .isLength({ min: 2, max: 100 })
     .withMessage('Company name must be between 2 and 100 characters'),
   body('description')
-    .optional()
+    .optional({ checkFalsy: true })
     .trim()
     .isLength({ max: 1000 })
     .withMessage('Company description must not exceed 1000 characters'),
   body('website')
-    .optional()
+    .optional({ checkFalsy: true })
     .isURL()
     .withMessage('Please provide a valid website URL'),
   body('industry')
-    .optional()
+    .optional({ checkFalsy: true })
     .trim()
     .isLength({ min: 2, max: 50 })
     .withMessage('Industry must be between 2 and 50 characters'),
@@ -137,8 +137,8 @@ export const studentValidation = [
     .trim()
     .isLength({ min: 2, max: 50 })
     .withMessage('Name must be between 2 and 50 characters')
-    .matches(/^[a-zA-Z\s]+$/)
-    .withMessage('Name can only contain letters and spaces'),
+    .matches(/^[a-zA-Z\s.'-]+$/)
+    .withMessage('Name can only contain letters, spaces, dots, hyphens, and apostrophes'),
   body('student_email')
     .isEmail()
     .normalizeEmail()
@@ -152,10 +152,10 @@ export const studentValidation = [
     .withMessage('Please provide a valid contact number'),
   body('student_enrollment')
     .trim()
-    .isLength({ min: 5, max: 20 })
-    .withMessage('Enrollment number must be between 5 and 20 characters')
-    .matches(/^[a-zA-Z0-9]+$/)
-    .withMessage('Enrollment number can only contain letters and numbers'),
+    .isLength({ min: 5, max: 25 })
+    .withMessage('Enrollment number must be between 5 and 25 characters')
+    .matches(/^[a-zA-Z0-9\/\-\s]+$/)
+    .withMessage('Enrollment number can only contain letters, numbers, slashes, dashes, and spaces'),
   validateInput
 ];
 
@@ -166,12 +166,12 @@ export const collegeValidation = [
     .isLength({ min: 3, max: 200 })
     .withMessage('College name must be between 3 and 200 characters'),
   body('address')
-    .optional()
+    .optional({ checkFalsy: true })
     .trim()
     .isLength({ max: 500 })
     .withMessage('Address must not exceed 500 characters'),
   body('establishedYear')
-    .optional()
+    .optional({ checkFalsy: true })
     .isInt({ min: 1800, max: new Date().getFullYear() })
     .withMessage('Please provide a valid establishment year'),
   validateInput
@@ -199,7 +199,7 @@ export const examValidation = [
     .isLength({ min: 3, max: 100 })
     .withMessage('Exam title must be between 3 and 100 characters'),
   body('description')
-    .optional()
+    .optional({ checkFalsy: true })
     .trim()
     .isLength({ max: 500 })
     .withMessage('Description must not exceed 500 characters'),
@@ -228,7 +228,7 @@ export const questionValidation = [
     .isInt({ min: 0, max: 5 })
     .withMessage('Correct answer must be a valid option index'),
   body('explanation')
-    .optional()
+    .optional({ checkFalsy: true })
     .trim()
     .isLength({ max: 500 })
     .withMessage('Explanation must not exceed 500 characters'),
@@ -238,16 +238,16 @@ export const questionValidation = [
 // Search and pagination validation
 export const searchValidation = [
   query('search')
-    .optional()
+    .optional({ checkFalsy: true })
     .trim()
     .isLength({ max: 100 })
     .withMessage('Search term must not exceed 100 characters'),
   query('page')
-    .optional()
+    .optional({ checkFalsy: true })
     .isInt({ min: 1 })
     .withMessage('Page must be a positive integer'),
   query('limit')
-    .optional()
+    .optional({ checkFalsy: true })
     .isInt({ min: 1, max: 100 })
     .withMessage('Limit must be between 1 and 100'),
   validateInput
@@ -256,7 +256,7 @@ export const searchValidation = [
 // File upload validation
 export const fileValidation = [
   body('fileName')
-    .optional()
+    .optional({ checkFalsy: true })
     .trim()
     .isLength({ min: 1, max: 255 })
     .withMessage('File name must be between 1 and 255 characters')
@@ -267,14 +267,13 @@ export const fileValidation = [
 
 // General sanitization middleware
 export const sanitizeInput = (req, res, next) => {
-  // Sanitize string inputs to prevent XSS
+  // Sanitize string inputs to prevent XSS (without stripping code symbols like < and >)
   const sanitizeObject = (obj) => {
     for (let key in obj) {
       if (typeof obj[key] === 'string') {
-        // Remove potential XSS characters
+        // Strip script tags only to avoid corrupting programming questions containing comparison operators (<, >)
         obj[key] = obj[key]
           .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-          .replace(/<[^>]+>/g, '')
           .trim();
       } else if (typeof obj[key] === 'object' && obj[key] !== null) {
         sanitizeObject(obj[key]);

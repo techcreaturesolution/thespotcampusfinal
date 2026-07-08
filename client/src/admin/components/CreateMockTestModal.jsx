@@ -3,7 +3,7 @@ import { FiX } from "react-icons/fi";
 
 const TEST_TYPES = ["company", "subject", "mixed"];
 
-const CreateMockTestModal = ({ isOpen, onClose, mockTest, subjects = [], onSubmit }) => {
+const CreateMockTestModal = ({ isOpen, onClose, mockTest, subjects = [], onSubmit, isSaving }) => {
   if (!isOpen) return null;
 
   const [form, setForm] = useState({
@@ -280,15 +280,17 @@ const CreateMockTestModal = ({ isOpen, onClose, mockTest, subjects = [], onSubmi
             <button
               type="button"
               onClick={onClose}
-              className="bg-white hover:bg-slate-55 text-slate-700 font-extrabold py-2.5 px-5 rounded-xl border border-slate-200 transition-all duration-200 text-[10px] uppercase tracking-wider"
+              className="bg-white hover:bg-slate-55 text-slate-700 font-extrabold py-2.5 px-5 rounded-xl border border-slate-200 transition-all duration-200 text-[10px] uppercase tracking-wider disabled:opacity-50"
+              disabled={isSaving}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="vibrant-btn text-white font-extrabold py-2.5 px-5 rounded-xl transition-all duration-200 shadow-md hover:opacity-95 text-[10px] uppercase tracking-wider"
+              className="vibrant-btn text-white font-extrabold py-2.5 px-5 rounded-xl transition-all duration-200 shadow-md hover:opacity-95 text-[10px] uppercase tracking-wider disabled:opacity-50"
+              disabled={isSaving}
             >
-              {mockTest ? "Update" : "Create"}
+              {isSaving ? "Saving..." : (mockTest ? "Update" : "Create")}
             </button>
           </div>
         </form>

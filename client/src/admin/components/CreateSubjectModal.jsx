@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { FiX } from "react-icons/fi";
 import customFetch from "../../utils/customFetch";
 
-const CreateSubjectModal = ({ isOpen, onClose, subject, onSubmit, nextSortOrder = 1 }) => {
+const CreateSubjectModal = ({ isOpen, onClose, subject, onSubmit, nextSortOrder = 1, isSaving }) => {
   if (!isOpen) return null;
 
   const [categories, setCategories] = useState([]);
@@ -133,15 +133,17 @@ const CreateSubjectModal = ({ isOpen, onClose, subject, onSubmit, nextSortOrder 
             <button
               type="button"
               onClick={onClose}
-              className="bg-white hover:bg-slate-55 text-slate-700 font-extrabold py-2.5 px-5 rounded-xl border border-slate-200 transition-all duration-200 text-[10px] uppercase tracking-wider"
+              className="bg-white hover:bg-slate-55 text-slate-700 font-extrabold py-2.5 px-5 rounded-xl border border-slate-200 transition-all duration-200 text-[10px] uppercase tracking-wider disabled:opacity-50"
+              disabled={isSaving}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="vibrant-btn text-white font-extrabold py-2.5 px-5 rounded-xl transition-all duration-200 shadow-md hover:opacity-95 text-[10px] uppercase tracking-wider"
+              className="vibrant-btn text-white font-extrabold py-2.5 px-5 rounded-xl transition-all duration-200 shadow-md hover:opacity-95 text-[10px] uppercase tracking-wider disabled:opacity-50"
+              disabled={isSaving}
             >
-              {subject ? "Update" : "Create"}
+              {isSaving ? "Saving..." : (subject ? "Update" : "Create")}
             </button>
           </div>
         </form>

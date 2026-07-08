@@ -15,6 +15,7 @@ const DailyChallenge = () => {
   const [submitted, setSubmitted] = useState(false);
   const [result, setResult] = useState(null);
   const [startTime] = useState(Date.now());
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     const fetchChallenge = async () => {
@@ -35,7 +36,8 @@ const DailyChallenge = () => {
   };
 
   const handleSubmit = async () => {
-    if (submitted) return;
+    if (submitted || submitting) return;
+    setSubmitting(true);
     const timeTaken = Math.floor((Date.now() - startTime) / 1000);
     const answerPayload = challenge.questions.map(q => ({
       question_id: q._id,
@@ -46,7 +48,11 @@ const DailyChallenge = () => {
       setResult(data.attempt);
       setSubmitted(true);
       toast.success(`Challenge complete! Streak: ${data.streak} days`);
-    } catch (err) { toast.error(err?.response?.data?.msg || "Failed to submit"); }
+    } catch (err) {
+      toast.error(err?.response?.data?.msg || "Failed to submit");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (loading) return <Loading />;
@@ -213,10 +219,10 @@ const DailyChallenge = () => {
           {currentIdx === challenge.questions.length - 1 ? (
             <button
               onClick={handleSubmit}
-              disabled={answeredCount === 0}
+              disabled={answeredCount === 0 || submitting}
               className="vibrant-btn text-white font-extrabold py-2.5 px-6 rounded-full transition-all duration-200 shadow-md hover:opacity-95 text-[10px] uppercase tracking-wider disabled:opacity-50 active:scale-95"
             >
-              Submit Challenge
+              {submitting ? "Submitting..." : "Submit Challenge"}
             </button>
           ) : (
             <button

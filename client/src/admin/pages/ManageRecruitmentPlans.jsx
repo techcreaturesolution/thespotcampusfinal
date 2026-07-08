@@ -15,6 +15,7 @@ const ManageRecruitmentPlans = () => {
   const [subscriptions, setSubscriptions] = useState([]);
   const [studentPayments, setStudentPayments] = useState([]);
   const [activeSubTab, setActiveSubTab] = useState("student");
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     fetchPlans();
@@ -50,6 +51,7 @@ const ManageRecruitmentPlans = () => {
   };
 
   const handleSubmit = async (planData) => {
+    setIsSaving(true);
     try {
       if (editingPlan) {
         await customFetch.patch(`/recruitment-subscription/plans/${editingPlan._id}`, planData);
@@ -62,6 +64,8 @@ const ManageRecruitmentPlans = () => {
       fetchPlans();
     } catch (error) {
       toast.error(error?.response?.data?.error || "Failed to save plan");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -372,6 +376,7 @@ const ManageRecruitmentPlans = () => {
         onClose={resetForm}
         plan={editingPlan}
         onSubmit={handleSubmit}
+        isSaving={isSaving}
       />
     </div>
   );

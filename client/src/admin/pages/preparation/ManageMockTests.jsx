@@ -13,6 +13,7 @@ const ManageMockTests = () => {
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState(null);
   const [search, setSearch] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => { fetchMockTests(); fetchSubjects(); }, []);
 
@@ -27,6 +28,7 @@ const ManageMockTests = () => {
   };
 
   const handleSubmit = async (mockTestData) => {
+    setIsSaving(true);
     try {
       if (editing) {
         await customFetch.patch(`/preparation/mock-tests/${editing._id}`, mockTestData);
@@ -36,7 +38,11 @@ const ManageMockTests = () => {
         toast.success("Mock test created");
       }
       resetForm(); fetchMockTests();
-    } catch (err) { toast.error(err?.response?.data?.msg || "Error saving mock test"); }
+    } catch (err) {
+      toast.error(err?.response?.data?.msg || "Error saving mock test");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const resetForm = () => {
@@ -166,6 +172,7 @@ const ManageMockTests = () => {
         mockTest={editing}
         subjects={subjects}
         onSubmit={handleSubmit}
+        isSaving={isSaving}
       />
     </div>
   );

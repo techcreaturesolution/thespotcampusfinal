@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../services/api_service.dart';
+import '../../widgets/premium_paywall.dart';
 
 class SubjectPracticeScreen extends StatefulWidget {
   const SubjectPracticeScreen({super.key});
@@ -12,6 +13,7 @@ class SubjectPracticeScreen extends StatefulWidget {
 class _SubjectPracticeScreenState extends State<SubjectPracticeScreen> {
   List<dynamic> _subjects = [];
   bool _isLoading = true;
+  bool _needsSubscription = false;
 
   @override
   void initState() {
@@ -20,15 +22,35 @@ class _SubjectPracticeScreenState extends State<SubjectPracticeScreen> {
   }
 
   Future<void> _fetchSubjects() async {
+    setState(() {
+      _isLoading = true;
+      _needsSubscription = false;
+    });
     try {
       final api = Provider.of<ApiService>(context, listen: false);
       final data = await api.get('/preparation/subjects/active');
       setState(() { _subjects = data['subjects'] ?? []; _isLoading = false; });
-    } catch (e) { setState(() => _isLoading = false); }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        if (e is ApiException && (e.statusCode == 403 || e.message.contains('subscription'))) {
+          _needsSubscription = true;
+        }
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_needsSubscription) {
+      return PremiumPaywall(
+        onBack: () => Navigator.pop(context),
+        onPurchaseSuccess: () {
+          _fetchSubjects();
+        },
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Subject Practice'),

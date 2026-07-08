@@ -6,13 +6,61 @@ const customFetch = axios.create({
   withCredentials: true,
 });
 
-// Request interceptor to attach the token
+// Simple in-memory cache for request signatures to prevent duplicate submissions
+const requestCache = new Map();
+const CACHE_TTL_MS = 3000; // 3 seconds window for double clicks
+
+const getRequestSignature = (config) => {
+  const method = config.method || "";
+  const url = config.url || "";
+  
+  let dataStr = "";
+  if (config.data) {
+    if (config.data instanceof FormData) {
+      // Signature for FormData uses key/value/file metadata
+      const keys = [];
+      for (const [key, value] of config.data.entries()) {
+        if (value instanceof File) {
+          keys.push(`${key}:${value.name}:${value.size}`);
+        } else {
+          keys.push(`${key}:${value}`);
+        }
+      }
+      dataStr = keys.sort().join("|");
+    } else {
+      dataStr = typeof config.data === "string" ? config.data : JSON.stringify(config.data);
+    }
+  }
+
+  return `${method.toLowerCase()}:${url}:${dataStr}`;
+};
+
+// Request interceptor to attach the token and auto-idempotency keys
 customFetch.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
+    // Apply auto-idempotency key for mutating requests (POST, PUT, PATCH, DELETE)
+    const isMutating = ["post", "put", "patch", "delete"].includes(config.method?.toLowerCase());
+    if (isMutating && !config.headers["Idempotency-Key"] && !config.headers["x-idempotency-key"]) {
+      const signature = getRequestSignature(config);
+      let idempotencyKey = requestCache.get(signature);
+
+      if (!idempotencyKey) {
+        idempotencyKey = `idemp-${Math.random().toString(36).substring(2, 15)}-${Date.now()}`;
+        requestCache.set(signature, idempotencyKey);
+        
+        setTimeout(() => {
+          requestCache.delete(signature);
+        }, CACHE_TTL_MS);
+      }
+      
+      config.headers["Idempotency-Key"] = idempotencyKey;
+    }
+
     return config;
   },
   (error) => {
