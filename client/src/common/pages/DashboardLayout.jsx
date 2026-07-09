@@ -211,11 +211,14 @@ const DashboardLayout = () => {
     );
   }
 
+  const isVideoRoom = location.pathname.includes("/video-interview/");
+
   return (
     <div className="min-h-screen bg-[#f8f9ff] text-[#0b1c30] flex flex-col md:flex-row relative selection:bg-[#3730a3] selection:text-white">
-      <aside
-        className={`fixed inset-y-0 left-0 z-50 border-r border-slate-200/60 bg-[#f1f3f9]/90 backdrop-blur-lg transform transition-all duration-300 lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} ${isCollapsed ? "lg:w-16 w-56" : "w-56"}`}
-      >
+      {!isVideoRoom && (
+        <aside
+          className={`fixed inset-y-0 left-0 z-50 border-r border-slate-200/60 bg-[#f1f3f9]/90 backdrop-blur-lg transform transition-all duration-300 lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} ${isCollapsed ? "lg:w-16 w-56" : "w-56"}`}
+        >
         <div className={`flex items-center ${isCollapsed ? "lg:flex-col lg:justify-center lg:gap-2 lg:py-4 lg:px-0 lg:h-auto px-4 h-16 justify-between" : "px-5 h-16 justify-between"} border-b border-slate-200/50`}>
           {!isCollapsed ? (
             <img src="/logo_TSC.png" alt="The Spot Campus" width="143" height="44" className="h-11 object-contain transition-all duration-300" />
@@ -327,15 +330,16 @@ const DashboardLayout = () => {
           </button>
         </div>
       </aside>
+      )}
 
-      <div className={`flex-1 min-w-0 transition-all duration-300 ${isCollapsed ? "lg:ml-16" : "lg:ml-56"} relative`}>
+      <div className={`flex-1 min-w-0 transition-all duration-300 ${isVideoRoom ? "ml-0" : (isCollapsed ? "lg:ml-16" : "lg:ml-56")} relative`}>
         {/* Soft Ambient Dashboard Background Glows */}
         <div className="fixed top-0 left-0 w-96 h-96 bg-blue-400/5 blur-[120px] rounded-full pointer-events-none -z-10" />
         <div className="fixed bottom-0 right-0 w-96 h-96 bg-indigo-400/5 blur-[120px] rounded-full pointer-events-none -z-10" />
 
-        <DashboardNavbar user={user} role={role} setSidebarOpen={setSidebarOpen} />
+        {!isVideoRoom && <DashboardNavbar user={user} role={role} setSidebarOpen={setSidebarOpen} />}
 
-        <main className="p-4 md:p-6 lg:p-8">
+        <main className={isVideoRoom ? "p-0" : "p-4 md:p-6 lg:p-8"}>
           <Suspense fallback={<Loading />}>
             {location.pathname === "/dashboard" || location.pathname === "/dashboard/" ? (
               renderDashboard()

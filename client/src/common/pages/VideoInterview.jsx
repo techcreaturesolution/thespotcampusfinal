@@ -8,7 +8,7 @@ import {
   FiGrid, FiCalendar, FiUsers, FiSettings, FiCopy,
   FiActivity, FiFileText, FiSliders, FiCpu, FiPenTool, FiShare2,
   FiLayers, FiMail, FiPhoneCall, FiExternalLink, FiHelpCircle,
-  FiSmile, FiPaperclip, FiSun, FiMoon
+  FiSmile, FiPaperclip, FiSun, FiMoon, FiX
 } from "react-icons/fi";
 import { io } from "socket.io-client";
 import gsap from "gsap";
@@ -444,26 +444,8 @@ const VideoInterview = () => {
 
   const endCall = async () => {
     try {
-      const notesWithRubric = `
-Recommendation: ${recommendation.toUpperCase()}
-Overall Rating: ${overallRating}/10
-
-Rubric Evaluations:
-- Communication: ${rubricScores.communication}/5
-- Technical Skills: ${rubricScores.technical}/5
-- Problem Solving: ${rubricScores.problemSolving}/5
-- Confidence: ${rubricScores.confidence}/5
-- Behavior: ${rubricScores.behavior}/5
-- Culture Fit: ${rubricScores.cultureFit}/5
-
-Notes:
-${interviewerNotes || "No specific comments added."}
-      `.trim();
-
       await customFetch.patch(`/interviews/${interview._id}/end`, {
-        interviewer_notes: role === "Company" ? notesWithRubric : "Ended by student",
-        rating: overallRating,
-        recommendation: recommendation || "maybe",
+        interviewer_notes: role === "Company" ? "Ended by interviewer" : "Ended by student",
       });
       
       if (socketRef.current) {
@@ -473,7 +455,7 @@ ${interviewerNotes || "No specific comments added."}
       console.error("Failed to end interview:", error);
     }
     cleanup();
-    toast.info("Interview ended and evaluation saved.");
+    toast.info("Interview ended. You can evaluate the candidate from the dashboard.");
     navigate(-1);
   };
 
@@ -588,7 +570,7 @@ ${interviewerNotes || "No specific comments added."}
   const currentStageIndex = stages.indexOf(interviewStage);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans overflow-hidden">
+    <div className="h-[100dvh] w-full bg-slate-950 text-slate-100 flex flex-col font-sans overflow-hidden select-none">
       
       {/* Main Container */}
       <div className="flex-1 flex flex-col min-w-0 relative">
@@ -865,147 +847,145 @@ ${interviewerNotes || "No specific comments added."}
                 </div>
               </div>
 
-            </div>
-
-            {/* ------------------------------------------------
+            </div>            {/* ------------------------------------------------
                 BOTTOM CONTROL BAR (Glassmorphism Floating Toolbar)
                 ------------------------------------------------ */}
-            <div className="flex items-center justify-start sm:justify-center gap-2 sm:gap-4 bg-slate-900/60 backdrop-blur-md border border-slate-800/70 px-3.5 sm:px-6 py-2.5 sm:py-3.5 rounded-2xl shadow-xl w-full max-w-full sm:w-fit mx-auto mt-4 z-10 select-none overflow-x-auto whitespace-nowrap scrollbar-none">
+            <div className="flex items-center justify-center gap-1.5 sm:gap-4 bg-slate-900/60 backdrop-blur-md border border-slate-800/70 px-2 sm:px-6 py-2 sm:py-3.5 rounded-2xl shadow-xl w-full sm:w-fit mx-auto mt-4 z-10 select-none">
               
               <button
                 onClick={toggleAudio}
-                className={`control-btn p-3 rounded-xl transition-all duration-200 flex items-center justify-center relative hover:scale-105 ${
+                className={`control-btn p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-200 flex items-center justify-center relative hover:scale-105 ${
                   audioEnabled
                     ? "bg-slate-800 text-slate-200 border border-slate-700/80 hover:bg-slate-750"
-                    : "bg-red-650 text-white hover:bg-red-700 shadow-lg shadow-red-500/20"
+                    : "bg-red-655 text-white hover:bg-red-700 shadow-lg shadow-red-500/20"
                 }`}
                 title={audioEnabled ? "Mute Mic" : "Unmute Mic"}
               >
-                {audioEnabled ? <FiMic className="w-5 h-5" /> : <FiMicOff className="w-5 h-5" />}
+                {audioEnabled ? <FiMic className="w-4 h-4 sm:w-5 sm:h-5" /> : <FiMicOff className="w-4 h-4 sm:w-5 sm:h-5" />}
               </button>
 
               <button
                 onClick={toggleVideo}
-                className={`control-btn p-3 rounded-xl transition-all duration-200 flex items-center justify-center relative hover:scale-105 ${
+                className={`control-btn p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-200 flex items-center justify-center relative hover:scale-105 ${
                   videoEnabled
                     ? "bg-slate-800 text-slate-200 border border-slate-700/80 hover:bg-slate-750"
-                    : "bg-red-650 text-white hover:bg-red-700 shadow-lg shadow-red-500/20"
+                    : "bg-red-655 text-white hover:bg-red-700 shadow-lg shadow-red-500/20"
                 }`}
                 title={videoEnabled ? "Turn Off Video" : "Turn On Video"}
               >
-                {videoEnabled ? <FiVideo className="w-5 h-5" /> : <FiVideoOff className="w-5 h-5" />}
+                {videoEnabled ? <FiVideo className="w-4 h-4 sm:w-5 sm:h-5" /> : <FiVideoOff className="w-4 h-4 sm:w-5 sm:h-5" />}
               </button>
 
               <button
                 onClick={() => setScreenSharing(!screenSharing)}
-                className={`control-btn p-3 rounded-xl transition-all duration-200 flex items-center justify-center hover:scale-105 ${
+                className={`control-btn p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-200 flex items-center justify-center hover:scale-105 ${
                   screenSharing
                     ? "bg-indigo-600 text-white hover:bg-indigo-750"
                     : "bg-slate-800 text-slate-300 border border-slate-700/80 hover:bg-slate-750"
                 }`}
                 title="Share Screen"
               >
-                <FiShare2 className="w-5 h-5" />
+                <FiShare2 className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
 
               <button
                 onClick={() => setWhiteboardOpen(!whiteboardOpen)}
-                className={`control-btn p-3 rounded-xl transition-all duration-200 flex items-center justify-center hover:scale-105 ${
+                className={`control-btn p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-200 flex items-center justify-center hover:scale-105 ${
                   whiteboardOpen
-                    ? "bg-indigo-600 text-white hover:bg-indigo-750"
-                    : "bg-slate-800 text-slate-300 border border-slate-700/80 hover:bg-slate-750"
+                    ? "bg-indigo-650 text-white hover:bg-indigo-750"
+                    : "bg-slate-800 text-slate-300 border border-slate-700/85 hover:bg-slate-750"
                 }`}
                 title="Whiteboard Canvas"
               >
-                <FiPenTool className="w-5 h-5" />
+                <FiPenTool className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
 
               <button
                 onClick={() => setRaisedHand(!raisedHand)}
-                className={`control-btn p-3 rounded-xl transition-all duration-200 flex items-center justify-center hover:scale-105 ${
+                className={`control-btn p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-200 flex items-center justify-center hover:scale-105 ${
                   raisedHand
                     ? "bg-amber-600 text-white hover:bg-amber-700"
                     : "bg-slate-800 text-slate-300 border border-slate-700/80 hover:bg-slate-750"
                 }`}
                 title="Raise Hand"
               >
-                <span className="text-base font-bold leading-none">✋</span>
+                <span className="text-sm sm:text-base font-bold leading-none">✋</span>
               </button>
 
               <button
                 onClick={() => setBlurBackground(!blurBackground)}
-                className={`control-btn p-3 rounded-xl transition-all duration-200 flex items-center justify-center hover:scale-105 ${
+                className={`control-btn p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-200 flex items-center justify-center hover:scale-105 ${
                   blurBackground
                     ? "bg-indigo-600 text-white hover:bg-indigo-750"
                     : "bg-slate-800 text-slate-300 border border-slate-700/80 hover:bg-slate-750"
                 }`}
                 title="Blur Stream Background"
               >
-                <span className="text-base font-bold leading-none">✨</span>
+                <span className="text-sm sm:text-base font-bold leading-none">✨</span>
               </button>
 
-              <div className="w-px h-8 bg-slate-800" />
+              <div className="w-px h-5 sm:h-8 bg-slate-800 mx-0.5 sm:mx-0" />
 
               {/* Panel Toggles */}
               <button
                 onClick={() => handleTabToggle("chat")}
-                className={`control-btn p-3 rounded-xl transition-all duration-200 flex items-center justify-center hover:scale-105 ${
+                className={`control-btn p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-200 flex items-center justify-center hover:scale-105 ${
                   chatOpen && activeTab === "chat"
                     ? "bg-indigo-600 text-white"
                     : "bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-750"
                 }`}
                 title="Toggle Room Chat"
               >
-                <FiMessageSquare className="w-5 h-5" />
+                <FiMessageSquare className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
 
               <button
                 onClick={() => handleTabToggle("participants")}
-                className={`control-btn p-3 rounded-xl transition-all duration-200 flex items-center justify-center hover:scale-105 ${
+                className={`control-btn p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-200 flex items-center justify-center hover:scale-105 ${
                   chatOpen && activeTab === "participants"
                     ? "bg-indigo-600 text-white"
                     : "bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-750"
                 }`}
                 title="Participants List"
               >
-                <FiUsers className="w-5 h-5" />
+                <FiUsers className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
 
               {role === "Company" && (
                 <button
                   onClick={() => handleTabToggle("notes")}
-                  className={`control-btn p-3 rounded-xl transition-all duration-200 flex items-center justify-center hover:scale-105 ${
+                  className={`control-btn p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-200 flex items-center justify-center hover:scale-105 ${
                     chatOpen && activeTab === "notes"
                       ? "bg-indigo-600 text-white"
                       : "bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-750"
                   }`}
                   title="Interviewer Evaluation Rubrics"
                 >
-                  <FiStar className="w-5 h-5" />
+                  <FiStar className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
               )}
 
               <button
                 onClick={() => setAiAssistantOpen(!aiAssistantOpen)}
-                className={`control-btn p-3 rounded-xl transition-all duration-200 flex items-center justify-center hover:scale-105 ${
+                className={`control-btn p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-200 flex items-center justify-center hover:scale-105 ${
                   aiAssistantOpen
                     ? "bg-gradient-to-tr from-indigo-600 to-violet-500 text-white"
                     : "bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-750"
                 }`}
                 title="AI Recruiting Assistant hints"
               >
-                <FiCpu className="w-5 h-5 animate-pulse" />
+                <FiCpu className="w-4 h-4 sm:w-5 sm:h-5 animate-pulse" />
               </button>
 
-              <div className="w-px h-8 bg-slate-800" />
+              <div className="w-px h-5 sm:h-8 bg-slate-800 mx-0.5 sm:mx-0" />
 
               {/* End / Leave button */}
               <button
                 onClick={() => setShowEndConfirmation(true)}
-                className="control-btn px-5 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold transition-all duration-200 hover:scale-105 flex items-center gap-2 text-sm shadow-lg shadow-red-900/10"
+                className="control-btn p-2 sm:px-5 sm:py-3 rounded-lg sm:rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold transition-all duration-200 hover:scale-105 flex items-center justify-center gap-2 text-xs sm:text-sm shadow-lg shadow-red-900/10"
               >
-                <FiPhone className="w-4.5 h-4.5 rotate-[135deg]" />
-                <span>Leave Session</span>
+                <FiPhone className="w-4 h-4 sm:w-4.5 sm:h-4.5 rotate-[135deg]" />
+                <span className="hidden sm:inline">Leave Session</span>
               </button>
 
             </div>
@@ -1019,42 +999,53 @@ ${interviewerNotes || "No specific comments added."}
             <div className="w-full md:w-96 border-l border-slate-800/80 bg-slate-900 flex flex-col justify-between absolute md:relative inset-y-0 right-0 z-40 panel-slide select-none h-full md:h-auto">
               
               {/* Tab selector menu bar */}
-              <div className="bg-slate-950 p-2.5 border-b border-slate-800/60 flex items-center gap-1.5">
-                <button
-                  onClick={() => setActiveTab("profile")}
-                  className={`flex-1 py-2 text-center rounded-lg text-xs font-bold transition-all duration-200 ${
-                    activeTab === "profile" ? "bg-slate-900 text-indigo-400 border border-slate-800" : "text-slate-500 hover:text-slate-300"
-                  }`}
-                >
-                  Applicant
-                </button>
-                <button
-                  onClick={() => setActiveTab("chat")}
-                  className={`flex-1 py-2 text-center rounded-lg text-xs font-bold transition-all duration-200 ${
-                    activeTab === "chat" ? "bg-slate-900 text-indigo-400 border border-slate-800" : "text-slate-500 hover:text-slate-300"
-                  }`}
-                >
-                  Room Chat
-                </button>
-                <button
-                  onClick={() => setActiveTab("participants")}
-                  className={`flex-1 py-2 text-center rounded-lg text-xs font-bold transition-all duration-200 ${
-                    activeTab === "participants" ? "bg-slate-900 text-indigo-400 border border-slate-800" : "text-slate-500 hover:text-slate-300"
-                  }`}
-                >
-                  Members
-                </button>
-                {role === "Company" && (
+              <div className="bg-slate-950 p-2 border-b border-slate-800/60 flex items-center justify-between gap-1">
+                <div className="flex items-center gap-1 flex-1 overflow-x-auto scrollbar-none">
                   <button
-                    onClick={() => setActiveTab("notes")}
-                    className={`flex-1 py-2 text-center rounded-lg text-xs font-bold transition-all duration-200 ${
-                      activeTab === "notes" ? "bg-slate-900 text-indigo-400 border border-slate-800" : "text-slate-500 hover:text-slate-300"
+                    onClick={() => setActiveTab("profile")}
+                    className={`flex-1 py-1.5 px-2 text-center rounded-lg text-[10px] sm:text-xs font-bold transition-all duration-200 whitespace-nowrap ${
+                      activeTab === "profile" ? "bg-slate-900 text-indigo-400 border border-slate-800" : "text-slate-500 hover:text-slate-350"
                     }`}
                   >
-                    Rubrics
+                    Applicant
                   </button>
-                )}
+                  <button
+                    onClick={() => setActiveTab("chat")}
+                    className={`flex-1 py-1.5 px-2 text-center rounded-lg text-[10px] sm:text-xs font-bold transition-all duration-200 whitespace-nowrap ${
+                      activeTab === "chat" ? "bg-slate-900 text-indigo-400 border border-slate-800" : "text-slate-500 hover:text-slate-350"
+                    }`}
+                  >
+                    Room Chat
+                  </button>
+                  <button
+                    onClick={() => setActiveTab("participants")}
+                    className={`flex-1 py-1.5 px-2 text-center rounded-lg text-[10px] sm:text-xs font-bold transition-all duration-200 whitespace-nowrap ${
+                      activeTab === "participants" ? "bg-slate-900 text-indigo-400 border border-slate-800" : "text-slate-500 hover:text-slate-350"
+                    }`}
+                  >
+                    Members
+                  </button>
+                  {role === "Company" && (
+                    <button
+                      onClick={() => setActiveTab("notes")}
+                      className={`flex-1 py-1.5 px-2 text-center rounded-lg text-[10px] sm:text-xs font-bold transition-all duration-200 whitespace-nowrap ${
+                        activeTab === "notes" ? "bg-slate-900 text-indigo-400 border border-slate-800" : "text-slate-500 hover:text-slate-350"
+                      }`}
+                    >
+                      Rubrics
+                    </button>
+                  )}
+                </div>
+
+                <button
+                  onClick={() => setChatOpen(false)}
+                  className="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-colors ml-1 border border-slate-800"
+                  title="Close Panel"
+                >
+                  <FiX className="w-3.5 h-3.5" />
+                </button>
               </div>
+
 
               {/* Tab Contents Frame */}
               <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
@@ -1352,16 +1343,8 @@ ${interviewerNotes || "No specific comments added."}
 
             <h3 className="text-base font-bold text-slate-200 tracking-wide">End Video Interview Session</h3>
             <p className="text-xs text-slate-400 mt-2 leading-relaxed max-w-xs mx-auto">
-              Are you sure you want to exit the conference? {role === "Company" ? "This will finalize and save all rubric marks and interview details." : "This will leave the room."}
+              Are you sure you want to exit the conference?
             </p>
-
-            {role === "Company" && (
-              <div className="my-4 p-3 bg-slate-950/60 rounded-xl border border-slate-850 text-left text-xs text-slate-300 space-y-1.5">
-                <p>Overall Rating Score: <span className="text-indigo-400 font-bold">{overallRating} / 10</span></p>
-                <p>Recommendation: <span className="text-indigo-400 font-bold uppercase">{recommendation || "NONE"}</span></p>
-                <p className="truncate text-slate-500">Comments: {interviewerNotes || "No comments written"}</p>
-              </div>
-            )}
 
             <div className="flex gap-3.5 mt-6">
               <button
