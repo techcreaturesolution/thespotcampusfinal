@@ -69,6 +69,10 @@ const VideoInterview = () => {
   const [raisedHand, setRaisedHand] = useState(false);
   const [blurBackground, setBlurBackground] = useState(false);
   const [screenSharing, setScreenSharing] = useState(false);
+  const [isRemoteScreenSharing, setIsRemoteScreenSharing] = useState(false);
+  const [remoteScreenShareUser, setRemoteScreenShareUser] = useState(null);
+  const [isScreenShareLoading, setIsScreenShareLoading] = useState(false);
+  const screenStreamRef = useRef(null);
   const [aiAssistantOpen, setAiAssistantOpen] = useState(false);
   const [whiteboardOpen, setWhiteboardOpen] = useState(false);
   const [pipPosition, setPipPosition] = useState("bottom-right"); // bottom-right, bottom-left, top-right, top-left
@@ -218,6 +222,10 @@ const VideoInterview = () => {
     if (localStreamRef.current) {
       localStreamRef.current.getTracks().forEach((t) => t.stop());
     }
+    if (screenStreamRef.current) {
+      screenStreamRef.current.getTracks().forEach((t) => t.stop());
+      screenStreamRef.current = null;
+    }
     if (peerRef.current) peerRef.current.close();
     if (socketRef.current) {
       socketRef.current.emit("leave-interview", { roomId, userId, userName });
@@ -322,9 +330,30 @@ const VideoInterview = () => {
       if (data.userId === userId) return;
       setRemoteUser(null);
       setConnected(false);
+      setIsRemoteScreenSharing(false);
+      setRemoteScreenShareUser(null);
       if (timerRef.current) clearInterval(timerRef.current);
       if (remoteVideoRef.current) remoteVideoRef.current.srcObject = null;
       toast.info(`${data.userName} left the interview`);
+    });
+
+    socket.on("screen-share-started", (data) => {
+      if (data.userId === userId) return;
+      setIsRemoteScreenSharing(true);
+      setRemoteScreenShareUser(data);
+      toast.info(`${data.userName} started screen sharing`);
+    });
+
+    socket.on("screen-share-stopped", (data) => {
+      if (data.userId === userId) return;
+      setIsRemoteScreenSharing(false);
+      setRemoteScreenShareUser(null);
+      toast.info(`${data.userName} stopped screen sharing`);
+    });
+
+    socket.on("screen-share-error", (data) => {
+      if (data.userId === userId) return;
+      toast.error(`Screen share error: ${data.error}`);
     });
 
     socket.on("interview-ended-by-peer", (data) => {
@@ -436,6 +465,102 @@ const VideoInterview = () => {
     if (localStreamRef.current) {
       localStreamRef.current.getAudioTracks().forEach((t) => (t.enabled = !t.enabled));
       setAudioEnabled(!audioEnabled);
+    }
+  };
+
+  const startScreenShare = async () => {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
+      toast.error("Screen sharing is not supported in this browser.");
+      return;
+    }
+
+    setIsScreenShareLoading(true);
+    try {
+      const stream = await navigator.mediaDevices.getDisplayMedia({
+        video: { cursor: "always" },
+        audio: false
+      });
+
+      screenStreamRef.current = stream;
+      const screenTrack = stream.getVideoTracks()[0];
+
+      if (peerRef.current) {
+        const senders = peerRef.current.getSenders();
+        const videoSender = senders.find((s) => s.track && s.track.kind === "video");
+        if (videoSender) {
+          await videoSender.replaceTrack(screenTrack);
+          if (socketRef.current) {
+            socketRef.current.emit("screen-track-replaced", { roomId, userId, trackType: "screen" });
+          }
+        }
+      }
+
+      setScreenSharing(true);
+      toast.success("Screen Sharing Started");
+
+      if (socketRef.current) {
+        socketRef.current.emit("screen-share-started", {
+          roomId,
+          userId,
+          userName,
+          role
+        });
+      }
+
+      screenTrack.onended = () => {
+        stopScreenShare();
+      };
+    } catch (error) {
+      console.error("Error starting screen share:", error);
+      if (error.name === "NotAllowedError") {
+        toast.warning("Permission Denied: Screen sharing cancelled.");
+      } else {
+        toast.error("Sharing Failed: Could not initialize screen share.");
+        if (socketRef.current) {
+          socketRef.current.emit("screen-share-error", { roomId, userId, error: error.message });
+        }
+      }
+      setScreenSharing(false);
+    } finally {
+      setIsScreenShareLoading(false);
+    }
+  };
+
+  const stopScreenShare = async () => {
+    try {
+      if (screenStreamRef.current) {
+        screenStreamRef.current.getTracks().forEach((track) => track.stop());
+        screenStreamRef.current = null;
+      }
+
+      if (localStreamRef.current) {
+        const webcamTrack = localStreamRef.current.getVideoTracks()[0];
+        
+        if (peerRef.current && webcamTrack) {
+          const senders = peerRef.current.getSenders();
+          const videoSender = senders.find((s) => s.track && s.track.kind === "video");
+          if (videoSender) {
+            await videoSender.replaceTrack(webcamTrack);
+            if (socketRef.current) {
+              socketRef.current.emit("screen-track-replaced", { roomId, userId, trackType: "webcam" });
+            }
+          }
+        }
+      }
+
+      setScreenSharing(false);
+      toast.info("Screen Sharing Stopped");
+
+      if (socketRef.current) {
+        socketRef.current.emit("screen-share-stopped", {
+          roomId,
+          userId,
+          userName,
+          role
+        });
+      }
+    } catch (error) {
+      console.error("Error stopping screen share:", error);
     }
   };
 
@@ -750,6 +875,41 @@ const VideoInterview = () => {
                 } ${isMainFullscreen ? "absolute inset-0 z-10" : ""}`}
               />
 
+              {/* Screen share initializing indicator overlay */}
+              {isScreenShareLoading && (
+                <div className="absolute inset-0 bg-slate-950/75 backdrop-blur-sm z-30 flex flex-col items-center justify-center text-center">
+                  <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-indigo-500 mb-3" />
+                  <p className="text-xs font-bold text-slate-350 uppercase tracking-wider">Initializing screen share...</p>
+                </div>
+              )}
+
+              {/* Local Screen Sharing Banner Overlay */}
+              {screenSharing && (
+                <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-indigo-650/90 backdrop-blur-md border border-indigo-500/30 px-4 py-2 rounded-xl flex items-center gap-3 shadow-xl z-30 animate-scale-in">
+                  <span className="w-2 h-2 rounded-full bg-white animate-ping" />
+                  <span className="text-xs font-bold text-white uppercase tracking-wider">You are sharing your screen</span>
+                  <button
+                    onClick={stopScreenShare}
+                    className="px-2.5 py-1 rounded-lg bg-white text-indigo-600 hover:bg-slate-100 text-[10px] font-black uppercase transition-colors"
+                  >
+                    Stop Sharing
+                  </button>
+                </div>
+              )}
+
+              {/* Remote Screen Sharing Banner Overlay */}
+              {isRemoteScreenSharing && (
+                <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-slate-900/90 backdrop-blur-md border border-indigo-500/30 px-4 py-2 rounded-xl flex items-center gap-3 shadow-xl z-30 animate-scale-in">
+                  <span className="w-2 h-2 rounded-full bg-indigo-500 animate-ping" />
+                  <span className="text-xs font-bold text-slate-200 uppercase tracking-wider">
+                    {remoteScreenShareUser?.userName || "Participant"} is sharing their screen
+                  </span>
+                  <span className="px-2 py-0.5 rounded text-[9px] font-bold bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 uppercase tracking-wider">
+                    Live Screen
+                  </span>
+                </div>
+              )}
+
               {/* Waiting status screen overlay if not connected */}
               {!connected && (
                 <div className="absolute inset-0 bg-slate-950/90 flex flex-col items-center justify-center p-6 text-center z-10">
@@ -855,11 +1015,11 @@ const VideoInterview = () => {
             </div>            {/* ------------------------------------------------
                 BOTTOM CONTROL BAR (Glassmorphism Floating Toolbar)
                 ------------------------------------------------ */}
-            <div className="flex items-center justify-center gap-1 sm:gap-4 bg-slate-900/60 backdrop-blur-md border border-slate-800/70 px-1.5 sm:px-6 py-1.5 sm:py-3.5 rounded-xl sm:rounded-2xl shadow-xl w-full sm:w-fit mx-auto mt-2 sm:mt-4 z-10 select-none">
+            <div className="flex items-center justify-start sm:justify-center gap-1 sm:gap-4 bg-slate-900/60 backdrop-blur-md border border-slate-800/70 px-1.5 sm:px-6 py-1.5 sm:py-3.5 rounded-xl sm:rounded-2xl shadow-xl w-full sm:w-fit mx-auto mt-2 sm:mt-4 z-10 select-none overflow-x-auto whitespace-nowrap no-scrollbar">
               
               <button
                 onClick={toggleAudio}
-                className={`control-btn p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-200 flex items-center justify-center relative hover:scale-105 ${
+                className={`control-btn p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-200 flex items-center justify-center relative hover:scale-105 shrink-0 ${
                   audioEnabled
                     ? "bg-slate-800 text-slate-200 border border-slate-700/80 hover:bg-slate-750"
                     : "bg-red-655 text-white hover:bg-red-700 shadow-lg shadow-red-500/20"
@@ -871,7 +1031,7 @@ const VideoInterview = () => {
 
               <button
                 onClick={toggleVideo}
-                className={`control-btn p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-200 flex items-center justify-center relative hover:scale-105 ${
+                className={`control-btn p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-200 flex items-center justify-center relative hover:scale-105 shrink-0 ${
                   videoEnabled
                     ? "bg-slate-800 text-slate-200 border border-slate-700/80 hover:bg-slate-750"
                     : "bg-red-655 text-white hover:bg-red-700 shadow-lg shadow-red-500/20"
@@ -880,22 +1040,22 @@ const VideoInterview = () => {
               >
                 {videoEnabled ? <FiVideo className="w-4 h-4 sm:w-5 sm:h-5" /> : <FiVideoOff className="w-4 h-4 sm:w-5 sm:h-5" />}
               </button>
-
               <button
-                onClick={() => setScreenSharing(!screenSharing)}
-                className={`control-btn p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-200 flex items-center justify-center hover:scale-105 ${
+                onClick={screenSharing ? stopScreenShare : startScreenShare}
+                disabled={isScreenShareLoading}
+                className={`control-btn p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-200 flex items-center justify-center hover:scale-105 shrink-0 ${
                   screenSharing
-                    ? "bg-indigo-600 text-white hover:bg-indigo-750"
+                    ? "bg-indigo-600 text-white hover:bg-indigo-750 animate-pulse"
                     : "bg-slate-800 text-slate-300 border border-slate-700/80 hover:bg-slate-750"
-                }`}
-                title="Share Screen"
+                } ${isScreenShareLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+                title={screenSharing ? "Stop Sharing" : "Share your screen"}
               >
                 <FiShare2 className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
 
               <button
                 onClick={() => setWhiteboardOpen(!whiteboardOpen)}
-                className={`control-btn p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-200 flex items-center justify-center hover:scale-105 ${
+                className={`control-btn p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-200 flex items-center justify-center hover:scale-105 shrink-0 ${
                   whiteboardOpen
                     ? "bg-indigo-650 text-white hover:bg-indigo-750"
                     : "bg-slate-800 text-slate-300 border border-slate-700/85 hover:bg-slate-750"
@@ -907,7 +1067,7 @@ const VideoInterview = () => {
 
               <button
                 onClick={() => setRaisedHand(!raisedHand)}
-                className={`control-btn p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-200 flex items-center justify-center hover:scale-105 ${
+                className={`control-btn p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-200 flex items-center justify-center hover:scale-105 shrink-0 ${
                   raisedHand
                     ? "bg-amber-600 text-white hover:bg-amber-700"
                     : "bg-slate-800 text-slate-300 border border-slate-700/80 hover:bg-slate-750"
@@ -919,7 +1079,7 @@ const VideoInterview = () => {
 
               <button
                 onClick={() => setBlurBackground(!blurBackground)}
-                className={`control-btn p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-200 flex items-center justify-center hover:scale-105 ${
+                className={`control-btn p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-200 flex items-center justify-center hover:scale-105 shrink-0 ${
                   blurBackground
                     ? "bg-indigo-600 text-white hover:bg-indigo-750"
                     : "bg-slate-800 text-slate-300 border border-slate-700/80 hover:bg-slate-750"
@@ -929,12 +1089,12 @@ const VideoInterview = () => {
                 <span className="text-sm sm:text-base font-bold leading-none">✨</span>
               </button>
 
-              <div className="w-px h-5 sm:h-8 bg-slate-800 mx-0.5 sm:mx-0" />
+              <div className="w-px h-5 sm:h-8 bg-slate-800 mx-0.5 sm:mx-0 shrink-0" />
 
               {/* Panel Toggles */}
               <button
                 onClick={() => handleTabToggle("chat")}
-                className={`control-btn p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-200 flex items-center justify-center hover:scale-105 ${
+                className={`control-btn p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-200 flex items-center justify-center hover:scale-105 shrink-0 ${
                   chatOpen && activeTab === "chat"
                     ? "bg-indigo-600 text-white"
                     : "bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-750"
@@ -946,7 +1106,7 @@ const VideoInterview = () => {
 
               <button
                 onClick={() => handleTabToggle("participants")}
-                className={`control-btn p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-200 flex items-center justify-center hover:scale-105 ${
+                className={`control-btn p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-200 flex items-center justify-center hover:scale-105 shrink-0 ${
                   chatOpen && activeTab === "participants"
                     ? "bg-indigo-600 text-white"
                     : "bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-750"
@@ -959,7 +1119,7 @@ const VideoInterview = () => {
               {role === "Company" && (
                 <button
                   onClick={() => handleTabToggle("notes")}
-                  className={`control-btn p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-200 flex items-center justify-center hover:scale-105 ${
+                  className={`control-btn p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-200 flex items-center justify-center hover:scale-105 shrink-0 ${
                     chatOpen && activeTab === "notes"
                       ? "bg-indigo-600 text-white"
                       : "bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-750"
@@ -972,7 +1132,7 @@ const VideoInterview = () => {
 
               <button
                 onClick={() => setAiAssistantOpen(!aiAssistantOpen)}
-                className={`control-btn p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-200 flex items-center justify-center hover:scale-105 ${
+                className={`control-btn p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-200 flex items-center justify-center hover:scale-105 shrink-0 ${
                   aiAssistantOpen
                     ? "bg-gradient-to-tr from-indigo-600 to-violet-500 text-white"
                     : "bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-750"
@@ -982,12 +1142,12 @@ const VideoInterview = () => {
                 <FiCpu className="w-4 h-4 sm:w-5 sm:h-5 animate-pulse" />
               </button>
 
-              <div className="w-px h-5 sm:h-8 bg-slate-800 mx-0.5 sm:mx-0" />
+              <div className="w-px h-5 sm:h-8 bg-slate-800 mx-0.5 sm:mx-0 shrink-0" />
 
               {/* End / Leave button */}
               <button
                 onClick={() => setShowEndConfirmation(true)}
-                className="control-btn p-2 sm:px-5 sm:py-3 rounded-lg sm:rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold transition-all duration-200 hover:scale-105 flex items-center justify-center gap-2 text-xs sm:text-sm shadow-lg shadow-red-900/10"
+                className="control-btn p-2 sm:px-5 sm:py-3 rounded-lg sm:rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold transition-all duration-200 hover:scale-105 flex items-center justify-center gap-2 text-xs sm:text-sm shadow-lg shadow-red-900/10 shrink-0"
               >
                 <FiPhone className="w-4 h-4 sm:w-4.5 sm:h-4.5 rotate-[135deg]" />
                 <span className="hidden sm:inline">Leave Session</span>
