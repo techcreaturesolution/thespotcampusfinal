@@ -583,23 +583,23 @@ const VideoInterview = () => {
         {/* ------------------------------------------------
             TOP HEADER
             ------------------------------------------------ */}
-        <header className="h-16 border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md px-6 flex items-center justify-between z-10">
-          <div className="flex items-center gap-4 header-item">
-            <button onClick={() => navigate(-1)} className="p-2 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 hover:text-white transition-all flex items-center gap-1.5 text-xs font-semibold select-none border border-slate-700/50">
-              <FiChevronLeft className="w-4 h-4" /> Back
+        <header className="h-16 border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md px-3 sm:px-6 flex items-center justify-between z-10 shrink-0">
+          <div className="flex items-center gap-2 sm:gap-4 header-item">
+            <button onClick={() => navigate(-1)} className="p-1.5 sm:p-2 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 hover:text-white transition-all flex items-center gap-1 text-xs font-semibold select-none border border-slate-700/50">
+              <FiChevronLeft className="w-4 h-4" /> <span className="hidden sm:inline">Back</span>
             </button>
-            <div className="h-5 w-px bg-slate-800" />
+            <div className="h-5 w-px bg-slate-800 hidden sm:block" />
             <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-sm font-bold tracking-wide text-slate-100 uppercase">
-                  {interview?.job_id?.job_title || "Standard Video Round"}
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <h1 className="text-xs sm:text-sm font-black tracking-wide text-slate-100 uppercase max-w-[80px] sm:max-w-none truncate" title={interview?.job_id?.job_title}>
+                  {interview?.job_id?.job_title || "Video Round"}
                 </h1>
-                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 uppercase tracking-wider">
-                  {role} View
+                <span className="px-1.5 py-0.5 rounded text-[8px] sm:text-[10px] font-black bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 uppercase tracking-wider">
+                  {role === "Company" ? "Interviewer" : "Student"}
                 </span>
               </div>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Candidate: <span className="text-slate-300 font-semibold">{interview?.student_id?.student_name || "Applicant"}</span>
+              <p className="text-[10px] sm:text-xs text-slate-400 mt-0.5 font-bold truncate max-w-[100px] sm:max-w-none">
+                <span className="hidden sm:inline">Candidate: </span><span className="text-slate-300 font-extrabold">{interview?.student_id?.student_name || "Applicant"}</span>
               </p>
             </div>
           </div>
@@ -612,24 +612,24 @@ const VideoInterview = () => {
             </span>
           </div>
 
-          <div className="flex items-center gap-4 header-item">
+          <div className="flex items-center gap-1.5 sm:gap-4 header-item">
             {/* Live Recording Indicator */}
-            <div className="flex items-center gap-1.5 bg-red-950/30 border border-red-900/30 px-2.5 py-1 rounded-lg">
-              <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-              <span className="text-[10px] uppercase font-bold tracking-widest text-red-400">REC</span>
+            <div className="flex items-center gap-1 bg-red-950/30 border border-red-900/30 px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-lg">
+              <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-red-500 animate-pulse" />
+              <span className="text-[8px] sm:text-[10px] uppercase font-bold tracking-widest text-red-400">REC</span>
             </div>
 
             {/* Time Left & Session Timer */}
-            <div className="flex items-center gap-2 bg-slate-800/40 border border-slate-800 px-3 py-1.5 rounded-xl">
-              <FiClock className={`w-3.5 h-3.5 ${isEarly ? "text-cyan-400 animate-pulse" : timeLeft !== null && timeLeft < 300 ? "text-red-400 animate-pulse" : "text-slate-400"}`} />
-              <span className={`text-xs font-bold font-mono tracking-tight ${isEarly ? "text-cyan-400" : timeLeft !== null && timeLeft < 300 ? "text-red-400 animate-pulse" : "text-slate-200"}`}>
-                {isEarly ? "Starts in: " : ""}
+            <div className="flex items-center gap-1 sm:gap-2 bg-slate-800/40 border border-slate-800 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl">
+              <FiClock className={`w-3 sm:w-3.5 h-3 sm:h-3.5 ${isEarly ? "text-cyan-400 animate-pulse" : timeLeft !== null && timeLeft < 300 ? "text-red-400 animate-pulse" : "text-slate-400"}`} />
+              <span className={`text-[10px] sm:text-xs font-bold font-mono tracking-tight ${isEarly ? "text-cyan-400" : timeLeft !== null && timeLeft < 300 ? "text-red-400 animate-pulse" : "text-slate-200"}`}>
+                <span className="hidden sm:inline">{isEarly ? "Starts in: " : ""}</span>
                 {timeLeft !== null ? formatTime(timeLeft) : "--:--"}
               </span>
             </div>
 
             {/* Signal Strength Quality */}
-            <div className="flex items-center gap-1.5" title="Network Connection Strength">
+            <div className="hidden sm:flex items-center gap-1.5" title="Network Connection Strength">
               <FiActivity className={`w-4 h-4 ${connected ? "text-emerald-400" : "text-amber-400 animate-pulse"}`} />
               <span className="text-[10px] font-bold text-slate-400 uppercase hidden sm:inline">
                 {connected ? "Excellent" : "Connecting"}
