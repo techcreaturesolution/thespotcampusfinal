@@ -188,6 +188,21 @@ app.use("/api/logout", LoginRouter);
 app.use("/api/users", authenticateUser, userRouter);
 
 
+// Serve static frontend assets from client/dist in production
+const clientDistPath = path.resolve(__dirname, "../../client/dist");
+app.use(express.static(clientDistPath));
+
+// Fallback for React Router client-side routes
+app.get("*", (req, res, next) => {
+  if (req.originalUrl.startsWith("/api")) {
+    return next();
+  }
+  res.sendFile(path.resolve(clientDistPath, "index.html"), (err) => {
+    if (err) {
+      next();
+    }
+  });
+});
 
 app.use("*", (req, res) => {
   res.status(404).json({ msg: "not found" });
