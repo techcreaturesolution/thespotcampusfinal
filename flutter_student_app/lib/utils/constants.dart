@@ -3,12 +3,12 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AppConstants {
   static const String appName = 'The Spot Campus';
-  // static const String baseUrl = 'http://localhost:5006/api';
+  static const String baseUrl = 'http://localhost:5006/api';
   // static const String clientUrl = 'http://localhost:5173';
   // static const String baseUrl = 'http://192.168.29.235:5000/api';
 
   // Render URL (Production - running old code)
-  static const String baseUrl = 'https://thespotcampusfinal.onrender.com/api';
+  // static const String baseUrl = 'https://thespotcampusfinal.onrender.com/api';
   // static const String clientUrl = 'https://thespotcampus.com';
   // static final String baseUrl = dotenv.env['BASE_URL'] ?? '';
 

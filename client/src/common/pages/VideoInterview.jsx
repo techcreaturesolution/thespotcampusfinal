@@ -33,10 +33,15 @@ const ICE_SERVERS = {
 
 const getSocketUrl = () => {
   const envUrl = import.meta.env.VITE_API_BASE_URL;
+  const currentOrigin = window.location.origin;
+  
   if (envUrl && !import.meta.env.DEV) {
+    if (envUrl.includes("localhost") && !currentOrigin.includes("localhost")) {
+      return currentOrigin;
+    }
     return envUrl.replace(/\/api$/, "");
   }
-  return window.location.origin;
+  return currentOrigin;
 };
 
 const VideoInterview = () => {
@@ -638,7 +643,7 @@ const VideoInterview = () => {
             ------------------------------------------------ */}
         <main className="flex-1 relative flex overflow-hidden bg-slate-950">
           
-          <div className="flex-1 flex flex-col relative p-6 justify-between overflow-hidden">
+          <div className="flex-1 flex flex-col relative p-3 sm:p-6 justify-between overflow-hidden">
             
             {/* Video Streams Frame Container */}
             <div className="flex-1 w-full bg-slate-900/40 border border-slate-900 rounded-3xl relative overflow-hidden flex items-center justify-center shadow-2xl">
@@ -847,10 +852,10 @@ const VideoInterview = () => {
                 </div>
               </div>
 
-            </div>            {/* ------------------------------------------------
+            </div>            {/* ------------------------------------------------
                 BOTTOM CONTROL BAR (Glassmorphism Floating Toolbar)
                 ------------------------------------------------ */}
-            <div className="flex items-center justify-center gap-1.5 sm:gap-4 bg-slate-900/60 backdrop-blur-md border border-slate-800/70 px-2 sm:px-6 py-2 sm:py-3.5 rounded-2xl shadow-xl w-full sm:w-fit mx-auto mt-4 z-10 select-none">
+            <div className="flex items-center justify-center gap-1 sm:gap-4 bg-slate-900/60 backdrop-blur-md border border-slate-800/70 px-1.5 sm:px-6 py-1.5 sm:py-3.5 rounded-xl sm:rounded-2xl shadow-xl w-full sm:w-fit mx-auto mt-2 sm:mt-4 z-10 select-none">
               
               <button
                 onClick={toggleAudio}

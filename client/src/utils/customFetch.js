@@ -1,8 +1,23 @@
 
 import axios from "axios";
 
+const getBaseURL = () => {
+  if (import.meta.env.DEV) {
+    return "/api";
+  }
+  const envUrl = import.meta.env.VITE_API_BASE_URL;
+  const currentOrigin = window.location.origin;
+  if (envUrl) {
+    if (envUrl.includes("localhost") && !currentOrigin.includes("localhost")) {
+      return `${currentOrigin}/api`;
+    }
+    return envUrl;
+  }
+  return "/api";
+};
+
 const customFetch = axios.create({
-  baseURL: import.meta.env.DEV ? "/api" : (import.meta.env.VITE_API_BASE_URL || "/api"),
+  baseURL: getBaseURL(),
   withCredentials: true,
 });
 

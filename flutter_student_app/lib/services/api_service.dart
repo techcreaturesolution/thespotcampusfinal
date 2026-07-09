@@ -41,7 +41,8 @@ class ApiService {
       },
       onError: (DioException e, handler) {
         if (kDebugMode) {
-          debugPrint('API Error [${e.response?.statusCode}] => ${e.requestOptions.path}');
+          debugPrint(
+              'API Error [${e.response?.statusCode}] => ${e.requestOptions.path}');
         }
         return handler.next(e);
       },
@@ -55,7 +56,9 @@ class ApiService {
   Future<Map<String, dynamic>> get(String endpoint) async {
     try {
       final response = await _dio.get(endpoint);
-      return response.data is String ? jsonDecode(response.data) : response.data;
+      return response.data is String
+          ? jsonDecode(response.data)
+          : response.data;
     } on DioException catch (e) {
       throw _handleError(e);
     }
@@ -73,19 +76,25 @@ class ApiService {
     }
   }
 
-  Future<Map<String, dynamic>> post(String endpoint, Map<String, dynamic> body) async {
+  Future<Map<String, dynamic>> post(
+      String endpoint, Map<String, dynamic> body) async {
     try {
       final response = await _dio.post(endpoint, data: body);
-      return response.data is String ? jsonDecode(response.data) : response.data;
+      return response.data is String
+          ? jsonDecode(response.data)
+          : response.data;
     } on DioException catch (e) {
       throw _handleError(e);
     }
   }
 
-  Future<Map<String, dynamic>> patch(String endpoint, Map<String, dynamic> body) async {
+  Future<Map<String, dynamic>> patch(
+      String endpoint, Map<String, dynamic> body) async {
     try {
       final response = await _dio.patch(endpoint, data: body);
-      return response.data is String ? jsonDecode(response.data) : response.data;
+      return response.data is String
+          ? jsonDecode(response.data)
+          : response.data;
     } on DioException catch (e) {
       throw _handleError(e);
     }
@@ -94,7 +103,9 @@ class ApiService {
   Future<Map<String, dynamic>> delete(String endpoint) async {
     try {
       final response = await _dio.delete(endpoint);
-      return response.data is String ? jsonDecode(response.data) : response.data;
+      return response.data is String
+          ? jsonDecode(response.data)
+          : response.data;
     } on DioException catch (e) {
       throw _handleError(e);
     }
@@ -104,16 +115,19 @@ class ApiService {
     String message = 'An unexpected error occurred';
     int? statusCode = e.response?.statusCode;
 
-    if (e.type == DioExceptionType.connectionTimeout || 
-        e.type == DioExceptionType.receiveTimeout || 
+    if (e.type == DioExceptionType.connectionTimeout ||
+        e.type == DioExceptionType.receiveTimeout ||
         e.type == DioExceptionType.sendTimeout) {
       message = 'Connection timed out. Please check your internet.';
     } else if (e.type == DioExceptionType.connectionError) {
       message = 'No internet connection available.';
     } else if (e.response != null && e.response?.data != null) {
       try {
-        final data = e.response!.data is String ? jsonDecode(e.response!.data) : e.response!.data;
-        message = data['error'] ?? data['msg'] ?? data['message'] ?? 'Request failed';
+        final data = e.response!.data is String
+            ? jsonDecode(e.response!.data)
+            : e.response!.data;
+        message =
+            data['error'] ?? data['msg'] ?? data['message'] ?? 'Request failed';
       } catch (_) {
         message = 'Request failed with status: ${e.response?.statusCode}';
       }

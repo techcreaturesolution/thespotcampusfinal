@@ -7,7 +7,7 @@ import 'api_service.dart';
 class AuthService extends ChangeNotifier {
   final _storage = const FlutterSecureStorage();
   late Dio _dio;
-  
+
   Map<String, dynamic>? _user;
   bool _isLoading = false;
   bool _isAuthenticated = false;
@@ -38,7 +38,7 @@ class AuthService extends ChangeNotifier {
           '/login/current-user',
           options: Options(headers: {'Cookie': 'token=$token'}),
         );
-        
+
         if (response.statusCode == 200) {
           _user = response.data['user'];
           _isAuthenticated = true;
@@ -92,11 +92,13 @@ class AuthService extends ChangeNotifier {
     } on DioException catch (e) {
       _isLoading = false;
       notifyListeners();
-      
+
       String message = 'Login failed';
       if (e.response?.data != null) {
-         final data = e.response!.data;
-         message = data is Map ? (data['error'] ?? data['message'] ?? message) : message;
+        final data = e.response!.data;
+        message = data is Map
+            ? (data['error'] ?? data['message'] ?? message)
+            : message;
       }
       throw ApiException(message, e.response?.statusCode);
     } catch (e) {
@@ -112,18 +114,20 @@ class AuthService extends ChangeNotifier {
 
     try {
       final response = await _dio.post('/register', data: studentData);
-      
+
       _isLoading = false;
       notifyListeners();
       return response.statusCode == 201;
     } on DioException catch (e) {
       _isLoading = false;
       notifyListeners();
-      
+
       String message = 'Registration failed';
       if (e.response?.data != null) {
-         final data = e.response!.data;
-         message = data is Map ? (data['error'] ?? data['message'] ?? message) : message;
+        final data = e.response!.data;
+        message = data is Map
+            ? (data['error'] ?? data['message'] ?? message)
+            : message;
       }
       throw ApiException(message, e.response?.statusCode);
     } catch (e) {
@@ -154,12 +158,16 @@ class AuthService extends ChangeNotifier {
       if (e.type == DioExceptionType.connectionTimeout ||
           e.type == DioExceptionType.receiveTimeout ||
           e.type == DioExceptionType.sendTimeout) {
-        message = 'Connection timed out. Please check your network or server status.';
+        message =
+            'Connection timed out. Please check your network or server status.';
       } else if (e.type == DioExceptionType.connectionError) {
-        message = 'Could not connect to the server. If you are testing on a mobile device, please set your PC\'s local IP address in constants.dart instead of localhost.';
+        message =
+            'Could not connect to the server. If you are testing on a mobile device, please set your PC\'s local IP address in constants.dart instead of localhost.';
       } else if (e.response?.data != null) {
         final data = e.response!.data;
-        message = data is Map ? (data['msg'] ?? data['error'] ?? data['message'] ?? message) : message;
+        message = data is Map
+            ? (data['msg'] ?? data['error'] ?? data['message'] ?? message)
+            : message;
       }
       throw ApiException(message, e.response?.statusCode);
     } catch (e) {
