@@ -54,9 +54,12 @@ import UploadRouter from "./modules/upload/upload.route.js";
 
 import { authenticateUser, requireStudentSubscription } from "./middleware/authMiddleware.js";
 
-const allowedOrigins = process.env.CLIENT_URL
-  ? process.env.CLIENT_URL.split(",").map(url => url.trim())
-  : ["http://localhost:5173", "http://localhost:4173", "http://localhost:5174"];
+const allowedOrigins = [
+  "https://thespotcampus.netlify.app",
+  ...(process.env.CLIENT_URL
+    ? process.env.CLIENT_URL.split(",").map(url => url.trim())
+    : ["http://localhost:5173", "http://localhost:4173", "http://localhost:5174"])
+];
 
 const app = express();
 app.set("trust proxy", 1);

@@ -44,10 +44,55 @@ const getSocketUrl = () => {
   return currentOrigin;
 };
 
+// Feature Detection for Screen Sharing Support
+const useScreenShareSupport = () => {
+  const [support, setSupport] = useState({
+    isSupported: false,
+    hasDisplayMedia: false,
+    isSecure: false,
+    reason: "",
+  });
+
+  useEffect(() => {
+    const isSecure = !!window.isSecureContext;
+    const hasMediaDevices = !!navigator.mediaDevices;
+    const hasDisplayMedia = !!(navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia);
+    
+    let reason = "";
+    let isSupported = false;
+
+    if (!isSecure) {
+      reason = "Screen sharing is available only in secure contexts (HTTPS).";
+    } else if (!hasMediaDevices || !hasDisplayMedia) {
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent
+      );
+      if (isMobile) {
+        reason = "Screen sharing is currently available only on supported desktop browsers. To share your screen, please join the interview from a laptop or desktop.";
+      } else {
+        reason = "Screen sharing is not supported by your current browser.";
+      }
+    } else {
+      isSupported = true;
+    }
+
+    setSupport({
+      isSupported,
+      hasDisplayMedia,
+      isSecure,
+      reason,
+    });
+  }, []);
+
+  return support;
+};
+
 const VideoInterview = () => {
   const { roomId } = useParams();
   const navigate = useNavigate();
   const { user, role } = useOutletContext();
+  
+  const { isSupported: isScreenShareSupported, reason: screenShareUnsupportedReason } = useScreenShareSupport();
 
   const [interview, setInterview] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -55,6 +100,20 @@ const VideoInterview = () => {
   const [remoteUser, setRemoteUser] = useState(null);
   const [videoEnabled, setVideoEnabled] = useState(true);
   const [audioEnabled, setAudioEnabled] = useState(true);
+
+  // Show notification toast for mobile students who can't screen share
+  useEffect(() => {
+    if (!loading && role === "Student" && !isScreenShareSupported && screenShareUnsupportedReason) {
+      toast.info(screenShareUnsupportedReason, {
+        position: "top-center",
+        autoClose: 8000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+    }
+  }, [loading, role, isScreenShareSupported, screenShareUnsupportedReason]);
   
   // UI Panels and Mock States
   const [activeTab, setActiveTab] = useState("profile"); // default to candidate profile
@@ -498,6 +557,10 @@ const VideoInterview = () => {
       setScreenSharing(true);
       toast.success("Screen Sharing Started");
 
+      if (localVideoRef.current) {
+        localVideoRef.current.srcObject = stream;
+      }
+
       if (socketRef.current) {
         socketRef.current.emit("screen-share-started", {
           roomId,
@@ -550,6 +613,10 @@ const VideoInterview = () => {
 
       setScreenSharing(false);
       toast.info("Screen Sharing Stopped");
+
+      if (localVideoRef.current && localStreamRef.current) {
+        localVideoRef.current.srcObject = localStreamRef.current;
+      }
 
       if (socketRef.current) {
         socketRef.current.emit("screen-share-stopped", {
@@ -870,7 +937,9 @@ const VideoInterview = () => {
                 ref={remoteVideoRef}
                 autoPlay
                 playsInline
-                className={`w-full h-full object-cover transition-all duration-300 ${
+                className={`w-full h-full transition-all duration-300 ${
+                  isRemoteScreenSharing ? "object-contain bg-slate-950" : "object-cover"
+                } ${
                   blurBackground ? "filter blur-md brightness-50" : ""
                 } ${isMainFullscreen ? "absolute inset-0 z-10" : ""}`}
               />
@@ -979,7 +1048,9 @@ const VideoInterview = () => {
                   autoPlay
                   playsInline
                   muted
-                  className="w-full h-full object-cover bg-slate-950"
+                  className={`w-full h-full transition-all duration-300 ${
+                    screenSharing ? "object-contain bg-slate-950" : "object-cover bg-slate-950"
+                  }`}
                 />
                 
                 {/* Visual Camera Off placeholder */}
@@ -1042,13 +1113,21 @@ const VideoInterview = () => {
               </button>
               <button
                 onClick={screenSharing ? stopScreenShare : startScreenShare}
-                disabled={isScreenShareLoading}
+                disabled={isScreenShareLoading || !isScreenShareSupported}
                 className={`control-btn p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-200 flex items-center justify-center hover:scale-105 shrink-0 ${
-                  screenSharing
-                    ? "bg-indigo-600 text-white hover:bg-indigo-750 animate-pulse"
-                    : "bg-slate-800 text-slate-300 border border-slate-700/80 hover:bg-slate-750"
-                } ${isScreenShareLoading ? "opacity-50 cursor-not-allowed" : ""}`}
-                title={screenSharing ? "Stop Sharing" : "Share your screen"}
+                  !isScreenShareSupported
+                    ? "bg-slate-800/40 text-slate-500 border border-slate-850 cursor-not-allowed opacity-60"
+                    : screenSharing
+                      ? "bg-indigo-600 text-white hover:bg-indigo-750 animate-pulse"
+                      : "bg-slate-800 text-slate-300 border border-slate-700/80 hover:bg-slate-750"
+                } ${isScreenShareLoading ? "opacity-50" : ""}`}
+                title={
+                  !isScreenShareSupported
+                    ? screenShareUnsupportedReason
+                    : screenSharing
+                      ? "Stop Sharing"
+                      : "Share your screen"
+                }
               >
                 <FiShare2 className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
