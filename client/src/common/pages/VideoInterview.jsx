@@ -134,9 +134,27 @@ const VideoInterview = () => {
   const screenStreamRef = useRef(null);
   const [aiAssistantOpen, setAiAssistantOpen] = useState(false);
   const [whiteboardOpen, setWhiteboardOpen] = useState(false);
-  const [pipPosition, setPipPosition] = useState("bottom-right"); // bottom-right, bottom-left, top-right, top-left
+  const [pipPosition, setPipPosition] = useState("bottom-right");
   const [isPipPinned, setIsPipPinned] = useState(false);
-  const [isMainFullscreen, setIsMainFullscreen] = useState(false);
+  const [isFullscreenActive, setIsFullscreenActive] = useState(false);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreenActive(!!document.fullscreenElement);
+    };
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  }, []);
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch((err) => {
+        console.error("Error attempting to enable full-screen mode:", err);
+      });
+    } else {
+      document.exitFullscreen();
+    }
+  };
   
   // Evaluation Rubrics (for Company Interviewers)
   const [interviewerNotes, setInterviewerNotes] = useState("");
@@ -941,7 +959,7 @@ const VideoInterview = () => {
                   isRemoteScreenSharing ? "object-contain bg-slate-950" : "object-cover"
                 } ${
                   blurBackground ? "filter blur-md brightness-50" : ""
-                } ${isMainFullscreen ? "absolute inset-0 z-10" : ""}`}
+                }`}
               />
 
               {/* Screen share initializing indicator overlay */}
@@ -1023,11 +1041,11 @@ const VideoInterview = () => {
 
               {/* Fullscreen stream button */}
               <button
-                onClick={() => setIsMainFullscreen(!isMainFullscreen)}
+                onClick={toggleFullscreen}
                 className="absolute top-4 right-4 p-2 rounded-lg bg-slate-950/80 border border-slate-850 text-slate-400 hover:text-white transition-all z-20"
                 title="Fullscreen Stream"
               >
-                {isMainFullscreen ? <FiMinimize2 className="w-4.5 h-4.5" /> : <FiMaximize2 className="w-4.5 h-4.5" />}
+                {isFullscreenActive ? <FiMinimize2 className="w-4.5 h-4.5" /> : <FiMaximize2 className="w-4.5 h-4.5" />}
               </button>
 
               {/* ------------------------------------------------
@@ -1144,30 +1162,6 @@ const VideoInterview = () => {
                 <FiPenTool className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
 
-              <button
-                onClick={() => setRaisedHand(!raisedHand)}
-                className={`control-btn p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-200 flex items-center justify-center hover:scale-105 shrink-0 ${
-                  raisedHand
-                    ? "bg-amber-600 text-white hover:bg-amber-700"
-                    : "bg-slate-800 text-slate-300 border border-slate-700/80 hover:bg-slate-750"
-                }`}
-                title="Raise Hand"
-              >
-                <span className="text-sm sm:text-base font-bold leading-none">✋</span>
-              </button>
-
-              <button
-                onClick={() => setBlurBackground(!blurBackground)}
-                className={`control-btn p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-200 flex items-center justify-center hover:scale-105 shrink-0 ${
-                  blurBackground
-                    ? "bg-indigo-600 text-white hover:bg-indigo-750"
-                    : "bg-slate-800 text-slate-300 border border-slate-700/80 hover:bg-slate-750"
-                }`}
-                title="Blur Stream Background"
-              >
-                <span className="text-sm sm:text-base font-bold leading-none">✨</span>
-              </button>
-
               <div className="w-px h-5 sm:h-8 bg-slate-800 mx-0.5 sm:mx-0 shrink-0" />
 
               {/* Panel Toggles */}
@@ -1208,18 +1202,6 @@ const VideoInterview = () => {
                   <FiStar className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
               )}
-
-              <button
-                onClick={() => setAiAssistantOpen(!aiAssistantOpen)}
-                className={`control-btn p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-200 flex items-center justify-center hover:scale-105 shrink-0 ${
-                  aiAssistantOpen
-                    ? "bg-gradient-to-tr from-indigo-600 to-violet-500 text-white"
-                    : "bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-750"
-                }`}
-                title="AI Recruiting Assistant hints"
-              >
-                <FiCpu className="w-4 h-4 sm:w-5 sm:h-5 animate-pulse" />
-              </button>
 
               <div className="w-px h-5 sm:h-8 bg-slate-800 mx-0.5 sm:mx-0 shrink-0" />
 

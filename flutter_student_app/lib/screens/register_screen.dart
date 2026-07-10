@@ -22,6 +22,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _semesterController = TextEditingController();
   final _skillsController = TextEditingController();
 
+  final _nameFocusNode = FocusNode();
+  final _emailFocusNode = FocusNode();
+  final _passwordFocusNode = FocusNode();
+  final _contactFocusNode = FocusNode();
+  final _enrollmentFocusNode = FocusNode();
+  final _universityFocusNode = FocusNode();
+  final _collegeFocusNode = FocusNode();
+  final _degreeFocusNode = FocusNode();
+  final _branchFocusNode = FocusNode();
+  final _semesterFocusNode = FocusNode();
+
   List<dynamic> _universities = [];
   List<dynamic> _colleges = [];
   List<dynamic> _degrees = [];
@@ -127,33 +138,127 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Future<void> _handleRegister() async {
+    if (_nameController.text.trim().isEmpty) {
+      _nameFocusNode.requestFocus();
+      _formKey.currentState!.validate();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter your Full Name'), backgroundColor: Colors.red),
+      );
+      return;
+    }
+    final email = _emailController.text.trim();
+    if (email.isEmpty || !email.contains('@')) {
+      _emailFocusNode.requestFocus();
+      _formKey.currentState!.validate();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a valid Email Address'), backgroundColor: Colors.red),
+      );
+      return;
+    }
+    if (_passwordController.text.length < 6) {
+      _passwordFocusNode.requestFocus();
+      _formKey.currentState!.validate();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Password must be at least 6 characters'), backgroundColor: Colors.red),
+      );
+      return;
+    }
+    if (_contactController.text.trim().isEmpty) {
+      _contactFocusNode.requestFocus();
+      _formKey.currentState!.validate();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter your Contact Number'), backgroundColor: Colors.red),
+      );
+      return;
+    }
+    if (_enrollmentController.text.trim().isEmpty) {
+      _enrollmentFocusNode.requestFocus();
+      _formKey.currentState!.validate();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter your Enrollment Number'), backgroundColor: Colors.red),
+      );
+      return;
+    }
+    if (_selectedUniversityId == null) {
+      _universityFocusNode.requestFocus();
+      _formKey.currentState!.validate();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select your University'), backgroundColor: Colors.red),
+      );
+      return;
+    }
+    if (_selectedCollegeId == null) {
+      _collegeFocusNode.requestFocus();
+      _formKey.currentState!.validate();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select your College'), backgroundColor: Colors.red),
+      );
+      return;
+    }
+    if (_selectedDegreeId == null) {
+      _degreeFocusNode.requestFocus();
+      _formKey.currentState!.validate();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select your Degree'), backgroundColor: Colors.red),
+      );
+      return;
+    }
+    if (_selectedBranchId == null) {
+      _branchFocusNode.requestFocus();
+      _formKey.currentState!.validate();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select your Branch'), backgroundColor: Colors.red),
+      );
+      return;
+    }
+    if (_semesterController.text.trim().isEmpty) {
+      _semesterFocusNode.requestFocus();
+      _formKey.currentState!.validate();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter your Current Semester'), backgroundColor: Colors.red),
+      );
+      return;
+    }
+
     if (!_formKey.currentState!.validate()) return;
 
     final auth = Provider.of<AuthService>(context, listen: false);
-    final success = await auth.register({
-      'student_name': _nameController.text.trim(),
-      'student_email': _emailController.text.trim(),
-      'student_password': _passwordController.text,
-      'student_contact': _contactController.text.trim(),
-      'student_enrollment': _enrollmentController.text.trim(),
-      'university_id': _selectedUniversityId,
-      'college_id': _selectedCollegeId,
-      'degree_id': _selectedDegreeId,
-      'branch_id': _selectedBranchId,
-      'student_current_sem': _semesterController.text.trim(),
-      'student_skills': _skillsController.text.trim(),
-      'student_total_backlog': '0',
-    });
+    try {
+      final success = await auth.register({
+        'student_name': _nameController.text.trim(),
+        'student_email': _emailController.text.trim(),
+        'student_password': _passwordController.text,
+        'student_contact': _contactController.text.trim(),
+        'student_enrollment': _enrollmentController.text.trim(),
+        'university_id': _selectedUniversityId,
+        'college_id': _selectedCollegeId,
+        'degree_id': _selectedDegreeId,
+        'branch_id': _selectedBranchId,
+        'student_current_sem': _semesterController.text.trim(),
+        'student_skills': _skillsController.text.trim(),
+        'student_total_backlog': '0',
+      });
 
-    if (!mounted) return;
-    if (success) {
+      if (!mounted) return;
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Registration successful! Please login.'), backgroundColor: Colors.green),
+        );
+        Navigator.pop(context);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Registration failed. Please try again.'), backgroundColor: Colors.red),
+        );
+      }
+    } on ApiException catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Registration successful! Please login.'), backgroundColor: Colors.green),
+        SnackBar(content: Text(e.message), backgroundColor: Colors.red),
       );
-      Navigator.pop(context);
-    } else {
+    } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Registration failed. Please try again.'), backgroundColor: Colors.red),
+        const SnackBar(content: Text('An unexpected error occurred during registration'), backgroundColor: Colors.red),
       );
     }
   }
@@ -298,6 +403,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                             _buildTextField(
                               controller: _nameController,
+                              focusNode: _nameFocusNode,
                               label: 'Full Name',
                               hint: 'Enter your full name',
                               icon: Icons.person_outline,
@@ -306,6 +412,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                             _buildTextField(
                               controller: _emailController,
+                              focusNode: _emailFocusNode,
                               label: 'Email Address',
                               hint: 'Enter email address',
                               icon: Icons.email_outlined,
@@ -331,6 +438,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 const SizedBox(height: 8),
                                 TextFormField(
                                   controller: _passwordController,
+                                  focusNode: _passwordFocusNode,
                                   obscureText: _obscurePassword,
                                   style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w500),
                                   decoration: InputDecoration(
@@ -380,6 +488,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                             _buildTextField(
                               controller: _contactController,
+                              focusNode: _contactFocusNode,
                               label: 'Contact Number',
                               hint: 'Enter mobile number',
                               icon: Icons.phone_outlined,
@@ -387,13 +496,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               validator: (v) => v == null || v.isEmpty ? 'Contact required' : null,
                             ),
 
-                            _buildTextField(
-                              controller: _enrollmentController,
-                              label: 'Enrollment Number',
-                              hint: 'Enter enrollment number',
-                              icon: Icons.badge_outlined,
-                              validator: (v) => v == null || v.isEmpty ? 'Enrollment required' : null,
-                            ),
+                             _buildTextField(
+                               controller: _enrollmentController,
+                               focusNode: _enrollmentFocusNode,
+                               label: 'Enrollment Number',
+                               hint: 'Enter enrollment number',
+                               icon: Icons.badge_outlined,
+                               validator: (v) => v == null || v.isEmpty ? 'Enrollment required' : null,
+                             ),
 
                             const SizedBox(height: 20),
                             
@@ -416,10 +526,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             const SizedBox(height: 12),
 
                             // University Dropdown
-                            _buildDropdownField<String>(
-                              label: 'University',
-                              value: _selectedUniversityId,
-                              icon: Icons.school_outlined,
+                             _buildDropdownField<String>(
+                               label: 'University',
+                               value: _selectedUniversityId,
+                               focusNode: _universityFocusNode,
+                               icon: Icons.school_outlined,
                               hint: _loadingDropdowns && _universities.isEmpty ? 'Loading...' : 'Select University',
                               items: _universities.map<DropdownMenuItem<String>>((u) {
                                 return DropdownMenuItem<String>(
@@ -445,10 +556,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
 
                             // College Dropdown
-                            _buildDropdownField<String>(
-                              label: 'College',
-                              value: _selectedCollegeId,
-                              icon: Icons.location_city_outlined,
+                             _buildDropdownField<String>(
+                               label: 'College',
+                               value: _selectedCollegeId,
+                               focusNode: _collegeFocusNode,
+                               icon: Icons.location_city_outlined,
                               hint: _selectedUniversityId == null 
                                   ? 'Select university first'
                                   : (_loadingDropdowns && _colleges.isEmpty ? 'Loading...' : 'Select College'),
@@ -474,10 +586,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
 
                             // Degree Dropdown
-                            _buildDropdownField<String>(
-                              label: 'Degree',
-                              value: _selectedDegreeId,
-                              icon: Icons.class_outlined,
+                             _buildDropdownField<String>(
+                               label: 'Degree',
+                               value: _selectedDegreeId,
+                               focusNode: _degreeFocusNode,
+                               icon: Icons.class_outlined,
                               hint: _selectedCollegeId == null 
                                   ? 'Select college first'
                                   : (_loadingDropdowns && _degrees.isEmpty ? 'Loading...' : 'Select Degree'),
@@ -501,37 +614,39 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
 
                             // Branch Dropdown
-                            _buildDropdownField<String>(
-                              label: 'Branch',
-                              value: _selectedBranchId,
-                              icon: Icons.account_tree_outlined,
-                              hint: _selectedDegreeId == null 
-                                  ? 'Select degree first'
-                                  : (_loadingDropdowns && _branches.isEmpty ? 'Loading...' : 'Select Branch'),
-                              items: _branches.map<DropdownMenuItem<String>>((b) {
-                                return DropdownMenuItem<String>(
-                                  value: b['_id'] as String,
-                                  child: Text(b['branch_name'] as String, overflow: TextOverflow.ellipsis),
-                                );
-                              }).toList(),
-                              onChanged: _loadingDropdowns || _selectedDegreeId == null
-                                  ? null
-                                  : (val) {
-                                      setState(() {
-                                        _selectedBranchId = val;
-                                      });
-                                    },
-                              validator: (v) => v == null ? 'Branch required' : null,
-                            ),
+                             _buildDropdownField<String>(
+                               label: 'Branch',
+                               value: _selectedBranchId,
+                               focusNode: _branchFocusNode,
+                               icon: Icons.account_tree_outlined,
+                               hint: _selectedDegreeId == null 
+                                   ? 'Select degree first'
+                                   : (_loadingDropdowns && _branches.isEmpty ? 'Loading...' : 'Select Branch'),
+                               items: _branches.map<DropdownMenuItem<String>>((b) {
+                                 return DropdownMenuItem<String>(
+                                   value: b['_id'] as String,
+                                   child: Text(b['branch_name'] as String, overflow: TextOverflow.ellipsis),
+                                 );
+                               }).toList(),
+                               onChanged: _loadingDropdowns || _selectedDegreeId == null
+                                   ? null
+                                   : (val) {
+                                       setState(() {
+                                         _selectedBranchId = val;
+                                       });
+                                     },
+                               validator: (v) => v == null ? 'Branch required' : null,
+                             ),
 
-                            _buildTextField(
-                              controller: _semesterController,
-                              label: 'Current Semester',
-                              hint: 'Enter semester number',
-                              icon: Icons.calendar_today_outlined,
-                              keyboardType: TextInputType.number,
-                              validator: (v) => v == null || v.isEmpty ? 'Semester required' : null,
-                            ),
+                             _buildTextField(
+                               controller: _semesterController,
+                               focusNode: _semesterFocusNode,
+                               label: 'Current Semester',
+                               hint: 'Enter semester number',
+                               icon: Icons.calendar_today_outlined,
+                               keyboardType: TextInputType.number,
+                               validator: (v) => v == null || v.isEmpty ? 'Semester required' : null,
+                             ),
 
                             _buildTextField(
                               controller: _skillsController,
@@ -669,6 +784,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     TextInputType keyboardType = TextInputType.text,
     required String? Function(String?) validator,
     Widget? suffixIcon,
+    FocusNode? focusNode,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -687,6 +803,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         const SizedBox(height: 8),
         TextFormField(
           controller: controller,
+          focusNode: focusNode,
           obscureText: obscureText,
           keyboardType: keyboardType,
           style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w500),
@@ -734,6 +851,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     required List<DropdownMenuItem<T>> items,
     required ValueChanged<T?>? onChanged,
     required String? Function(T?) validator,
+    FocusNode? focusNode,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -752,6 +870,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         const SizedBox(height: 8),
         DropdownButtonFormField<T>(
           value: value,
+          focusNode: focusNode,
           isExpanded: true,
           icon: Icon(Icons.arrow_drop_down, color: Colors.white.withOpacity(0.8)),
           style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w500),
@@ -801,6 +920,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _enrollmentController.dispose();
     _semesterController.dispose();
     _skillsController.dispose();
+
+    _nameFocusNode.dispose();
+    _emailFocusNode.dispose();
+    _passwordFocusNode.dispose();
+    _contactFocusNode.dispose();
+    _enrollmentFocusNode.dispose();
+    _universityFocusNode.dispose();
+    _collegeFocusNode.dispose();
+    _degreeFocusNode.dispose();
+    _branchFocusNode.dispose();
+    _semesterFocusNode.dispose();
+
     super.dispose();
   }
 }

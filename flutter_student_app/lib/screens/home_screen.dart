@@ -305,11 +305,20 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
     return Scaffold(
       backgroundColor: _bg,
-      body: _isLoading
-          ? _buildSkeleton()
-          : _buildBody(
-              auth, user, completeness, upcomingInterview, scheduledCount),
-      bottomNavigationBar: _buildFloatingNav(),
+      body: Stack(
+        children: [
+          _isLoading
+              ? _buildSkeleton()
+              : _buildBody(
+                  auth, user, completeness, upcomingInterview, scheduledCount),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: _buildFloatingNav(),
+          ),
+        ],
+      ),
     );
   }
 
@@ -1380,68 +1389,71 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       _NavTab(icon: Icons.person_outline, activeIcon: Icons.person_rounded, label: 'Profile'),
     ];
 
-    return Container(
-      height: 70,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        boxShadow: [
-          BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, -4))
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: List.generate(tabs.length, (i) {
-          final tab = tabs[i];
-          final isSelected = _currentIndex == i;
-          return InkWell(
-            onTap: () {
-              setState(() => _currentIndex = i);
-              switch (i) {
-                case 0:
-                  break;
-                case 1:
-                  Navigator.pushNamed(context, '/jobs');
-                  break;
-                case 2:
-                  Navigator.pushNamed(context, '/preparation/mock-tests');
-                  break;
-                case 3:
-                  Navigator.pushNamed(context, '/interviews');
-                  break;
-                case 4:
-                  Navigator.pushNamed(context, '/profile');
-                  break;
-              }
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-              decoration: BoxDecoration(
-                color: isSelected ? _primary.withOpacity(0.1) : Colors.transparent,
-                borderRadius: BorderRadius.circular(20),
+    return SafeArea(
+      child: Container(
+        height: 68,
+        margin: const EdgeInsets.fromLTRB(16, 0, 16, 20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(30),
+          boxShadow: [
+            BoxShadow(
+                color: Colors.black.withOpacity(0.08),
+                blurRadius: 20,
+                offset: const Offset(0, 8))
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: List.generate(tabs.length, (i) {
+            final tab = tabs[i];
+            final isSelected = _currentIndex == i;
+            return InkWell(
+              onTap: () {
+                setState(() => _currentIndex = i);
+                switch (i) {
+                  case 0:
+                    break;
+                  case 1:
+                    Navigator.pushNamed(context, '/jobs');
+                    break;
+                  case 2:
+                    Navigator.pushNamed(context, '/preparation/mock-tests');
+                    break;
+                  case 3:
+                    Navigator.pushNamed(context, '/interviews');
+                    break;
+                  case 4:
+                    Navigator.pushNamed(context, '/profile');
+                    break;
+                }
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                decoration: BoxDecoration(
+                  color: isSelected ? _primary.withOpacity(0.1) : Colors.transparent,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      isSelected ? tab.activeIcon : tab.icon,
+                      color: isSelected ? _primary : const Color(0xFF9CA3AF),
+                      size: 24,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(tab.label,
+                        style: TextStyle(
+                            color: isSelected ? _primary : const Color(0xFF9CA3AF),
+                            fontSize: 10,
+                            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500)),
+                  ],
+                ),
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    isSelected ? tab.activeIcon : tab.icon,
-                    color: isSelected ? _primary : const Color(0xFF9CA3AF),
-                    size: 24,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(tab.label,
-                      style: TextStyle(
-                          color: isSelected ? _primary : const Color(0xFF9CA3AF),
-                          fontSize: 10,
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.w500)),
-                ],
-              ),
-            ),
-          );
-        }),
+            );
+          }),
+        ),
       ),
     );
   }

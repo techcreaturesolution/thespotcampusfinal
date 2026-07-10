@@ -97,7 +97,7 @@ class AuthService extends ChangeNotifier {
       if (e.response?.data != null) {
         final data = e.response!.data;
         message = data is Map
-            ? (data['error'] ?? data['message'] ?? message)
+            ? (data['msg'] ?? data['error'] ?? data['message'] ?? message)
             : message;
       }
       throw ApiException(message, e.response?.statusCode);
@@ -126,7 +126,7 @@ class AuthService extends ChangeNotifier {
       if (e.response?.data != null) {
         final data = e.response!.data;
         message = data is Map
-            ? (data['error'] ?? data['message'] ?? message)
+            ? (data['msg'] ?? data['error'] ?? data['message'] ?? message)
             : message;
       }
       throw ApiException(message, e.response?.statusCode);
