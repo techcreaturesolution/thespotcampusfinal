@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { FiArrowLeft, FiAlertTriangle, FiTrash2, FiExternalLink } from "react-icons/fi";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import SEO from "../components/SEO";
 
 const AccountDeletionRequest = () => {
   const [agreed, setAgreed] = useState(false);
@@ -20,6 +21,12 @@ const AccountDeletionRequest = () => {
 
   return (
     <div className="min-h-screen bg-[#f8f9ff] text-[#0b1c30] flex flex-col justify-between selection:bg-[#3730a3] selection:text-white">
+      <SEO 
+        title="Account Deletion Request"
+        description="Request account deletion for your account on The Spot Campus."
+        keywords="account deletion, delete account, privacy, The Spot Campus"
+        canonical="https://thespotcampus.com/account-deletion-request"
+      />
       {/* Navbar */}
       <Navbar />
 

@@ -1,4 +1,9 @@
 User-agent: *
 Allow: /
 
+# Block indexing backend source scripts & API endpoints
+Disallow: /server.cjs
+Disallow: /*.cjs
+Disallow: /api/
+
 Sitemap: https://thespotcampus.com/sitemap.xml

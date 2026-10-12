@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
+import SEO from "../components/SEO";
 
 const ViewPdf = () => {
   const [searchParams] = useSearchParams();
@@ -21,6 +22,11 @@ const ViewPdf = () => {
 
   return (
     <div className="w-screen h-screen overflow-hidden bg-slate-900">
+      <SEO 
+        title={title}
+        description="View document and study material on The Spot Campus."
+        canonical="https://thespotcampus.com/view-pdf"
+      />
       <iframe
         src={url}
         className="w-full h-full border-none"
