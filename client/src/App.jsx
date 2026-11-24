@@ -42,6 +42,7 @@ const AdminManageMockTests = lazy(() => import("./admin/pages/preparation/Manage
 const AdminManagePdfs = lazy(() => import("./admin/pages/preparation/ManagePdfs"));
 
 // Student Pages
+const StudentJobFinder = lazy(() => import("./student/pages/JobFinder"));
 const StudentOpeningList = lazy(() => import("./student/pages/OpeningList"));
 const StudentApplyList = lazy(() => import("./student/pages/ApplyList"));
 const StudentExamPaper = lazy(() => import("./student/pages/ExamPaper"));
@@ -169,6 +170,7 @@ const router = createBrowserRouter([
       { path: "admin/profile", element: <Profile /> },
 
       // Student Pages
+      { path: "student/job-finder", element: <StudentJobFinder /> },
       { path: "student/opening-list", element: <StudentOpeningList /> },
       { path: "student/apply-list", element: <StudentApplyList /> },
       { path: "student/exam-paper/:id", element: <StudentExamPaper /> },

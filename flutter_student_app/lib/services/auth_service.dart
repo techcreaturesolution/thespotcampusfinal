@@ -70,16 +70,23 @@ class AuthService extends ChangeNotifier {
       );
 
       if (response.statusCode == 200) {
-        // Extract token from cookies
-        final cookies = response.headers.map['set-cookie'];
-        if (cookies != null && cookies.isNotEmpty) {
-          for (var cookie in cookies) {
-            final token = RegExp(r'token=([^;]+)').firstMatch(cookie)?.group(1);
-            if (token != null) {
-              await _storage.write(key: AppConstants.tokenKey, value: token);
-              break;
+        // Extract token from response body or cookies
+        String? token = response.data['token'];
+        if (token == null) {
+          final cookies = response.headers.map['set-cookie'];
+          if (cookies != null && cookies.isNotEmpty) {
+            for (var cookie in cookies) {
+              final match = RegExp(r'token=([^;]+)').firstMatch(cookie)?.group(1);
+              if (match != null) {
+                token = match;
+                break;
+              }
             }
           }
+        }
+
+        if (token != null) {
+          await _storage.write(key: AppConstants.tokenKey, value: token);
         }
 
         _user = response.data['user'];

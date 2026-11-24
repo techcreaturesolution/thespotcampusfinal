@@ -1309,6 +1309,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   // ── 9. QUICK ACTIONS ─────────────────────────────────────────────────────────
   Widget _buildQuickActions() {
     final actions = <_QA>[
+      _QA(icon: Icons.travel_explore, label: 'Job Finder', color: const Color(0xFF4F46E5), route: '/market-job-finder'),
       _QA(icon: Icons.work, label: 'Jobs', color: const Color(0xFF2563EB), route: '/jobs'),
       _QA(icon: Icons.assignment, label: 'Applications', color: const Color(0xFF4F46E5), route: '/my-applications'),
       _QA(icon: Icons.description, label: 'Resume', color: const Color(0xFF8B5CF6), route: '/resume'),

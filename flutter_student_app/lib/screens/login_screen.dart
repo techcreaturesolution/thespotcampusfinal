@@ -49,8 +49,8 @@ class _LoginScreenState extends State<LoginScreen> {
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('An unexpected error occurred during login'),
+        SnackBar(
+          content: Text('Login failed: ${e.toString().replaceAll('Exception: ', '')}'),
           backgroundColor: Colors.red,
         ),
       );

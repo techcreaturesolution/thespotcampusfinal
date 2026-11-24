@@ -51,6 +51,7 @@ import RecruitmentSubscriptionRouter from "./modules/subscription/subscription.r
 import { getActivePlans } from "./modules/subscription/subscription.controller.js";
 import PreparationRouter from "./modules/preparation/preparation.route.js";
 import UploadRouter from "./modules/upload/upload.route.js";
+import JobFinderRouter from "./modules/jobFinder/jobFinder.route.js";
 
 import { authenticateUser, requireStudentSubscription } from "./middleware/authMiddleware.js";
 
@@ -159,6 +160,7 @@ app.post("/api/csp-report", (req, res) => {
 });
 
 // Mount Routes directly
+app.use("/api/job-finder", authenticateUser, JobFinderRouter);
 app.use("/api/jobs", authenticateUser, JobRouter);
 app.use("/api/stats", authenticateUser, StatsRouter);
 app.use("/api/contact", ContactRouter);
