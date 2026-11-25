@@ -26,9 +26,14 @@ const getClientIp = (req) => {
 export const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 5000, // Raised to 5,000 to accommodate multi-agent background sync & admin portal live feeds
-  message: "Too many requests. Please try again later.",
+  message: {
+    error: "Too many requests from this IP, please try again later.",
+    retryAfter: Math.ceil((15 * 60 * 1000) / 1000), // in seconds
+  },
   keyGenerator: getClientIp,
   validate: { ip: false },
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 
 // Strict rate limiting for authentication routes
