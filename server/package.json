@@ -8,7 +8,13 @@
     "start": "node server.js",
     "dev": "nodemon server.js",
     "seed": "node src/scripts/seed.js",
-    "postinstall": "node install-chrome.js"
+    "postinstall": "node install-chrome.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "migrate:status": "node src/migrations/runner.js status",
+    "migrate:dry-run": "node src/migrations/runner.js dry-run",
+    "migrate:up": "node src/migrations/runner.js up",
+    "migrate:rollback": "node src/migrations/runner.js rollback"
   },
   "dependencies": {
     "@sparticuz/chromium": "^149.0.0",
@@ -45,6 +51,9 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "nodemon": "^3.1.0"
+    "@vitest/coverage-v8": "^5.1.2",
+    "nodemon": "^3.1.0",
+    "supertest": "^7.3.2",
+    "vitest": "^5.1.2"
   }
 }

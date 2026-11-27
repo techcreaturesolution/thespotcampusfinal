@@ -25,7 +25,7 @@ const autoImportRuleSchema = new mongoose.Schema(
       durationMs: Number,
     },
     totalPosted: { type: Number, default: 0 },
-    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'tbl_user' },
+    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'tbl_admin' },
   },
   { timestamps: true },
 );

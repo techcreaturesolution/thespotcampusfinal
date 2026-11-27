@@ -4,8 +4,6 @@ import { toast } from "react-toastify";
 import customFetch from "../../utils/customFetch";
 
 const CreateCategoryModal = ({ isOpen, onClose, onCategoryCreated }) => {
-  if (!isOpen) return null;
-
   const [name, setName] = useState("");
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -15,6 +13,8 @@ const CreateCategoryModal = ({ isOpen, onClose, onCategoryCreated }) => {
       fetchCategories();
     }
   }, [isOpen]);
+
+  if (!isOpen) return null;
 
   const fetchCategories = async () => {
     try {

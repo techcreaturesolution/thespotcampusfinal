@@ -38,7 +38,9 @@ const ManageRecruitmentPlans = () => {
     try {
       const { data } = await customFetch.get("/recruitment-subscription/all");
       setSubscriptions(data.subscriptions);
-    } catch {}
+    } catch (err) {
+      console.error("Failed to fetch subscriptions", err);
+    }
   };
 
   const fetchStudentPayments = async () => {
@@ -238,7 +240,7 @@ const ManageRecruitmentPlans = () => {
           <h2 className="text-lg font-bold text-slate-800">Student Subscription History</h2>
         </div>
 
-        {activeSubTab === "company" && false ? (
+        {activeSubTab === "company_archived" ? (
           <DataTable
             data={subscriptions}
             searchKeys={["company_id.company_name", "plan_id.plan_name", "status"]}

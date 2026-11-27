@@ -5,13 +5,13 @@ import { toast } from "react-toastify";
 import customFetch from "../../utils/customFetch";
 
 const BulkUploadModal = ({ isOpen, onClose, subjects = [], onUploadSuccess }) => {
-  if (!isOpen) return null;
-
   const [selectedSubjectIds, setSelectedSubjectIds] = useState([]);
   const [file, setFile] = useState(null);
   const [dragOver, setDragOver] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [results, setResults] = useState(null);
+
+  if (!isOpen) return null;
 
   const handleDragOver = (e) => {
     e.preventDefault();

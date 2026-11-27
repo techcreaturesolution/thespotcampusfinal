@@ -241,22 +241,47 @@ router.post("/mixed",
   }
 );
 
-// File deletion endpoint (for cleanup)
+// File deletion endpoint (for cleanup with strict ownership validation)
 router.delete("/:filename", authenticateUser, async (req, res) => {
   try {
     const { filename } = req.params;
-    
-    // Security: Only allow deletion of files that belong to the user
-    // You should implement proper ownership checks here
-    if (!filename || filename.includes('..') || filename.includes('/')) {
+    const path = await import("path");
+    const safeName = path.basename(filename || "");
+
+    if (!filename || safeName !== filename || filename.includes("..") || filename.includes("/") || filename.includes("\\")) {
       return res.status(400).json({ msg: "Invalid filename" });
     }
 
-    // In a real application, you would check if the file belongs to the authenticated user
-    // For now, this is a basic implementation
+    // Verify ownership unless Admin
+    if (req.user.role !== "Admin") {
+      const [{ default: tbl_student }, { default: tbl_company }, { default: tbl_college }, { default: tbl_university }] =
+        await Promise.all([
+          import("../student/student.model.js"),
+          import("../company/company.model.js"),
+          import("../college/college.model.js"),
+          import("../university/university.model.js"),
+        ]);
+
+      const escaped = safeName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const nameRegex = new RegExp(escaped);
+      let isOwner = safeName.startsWith(`${req.user.userId}_`);
+
+      if (!isOwner && req.user.role === "Student") {
+        isOwner = !!(await tbl_student.findOne({ _id: req.user.userId, $or: [{ student_image: nameRegex }, { student_resume: nameRegex }] }));
+      } else if (!isOwner && req.user.role === "Company") {
+        isOwner = !!(await tbl_company.findOne({ _id: req.user.userId, company_logo: nameRegex }));
+      } else if (!isOwner && req.user.role === "College") {
+        isOwner = !!(await tbl_college.findOne({ _id: req.user.userId, college_logo: nameRegex }));
+      } else if (!isOwner && req.user.role === "University") {
+        isOwner = !!(await tbl_university.findOne({ _id: req.user.userId, university_logo: nameRegex }));
+      }
+
+      if (!isOwner) {
+        return res.status(403).json({ msg: "Forbidden: you do not own this file" });
+      }
+    }
     
     const fs = await import('fs');
-    const path = await import('path');
     const { fileURLToPath } = await import('url');
     const { dirname } = await import('path');
 

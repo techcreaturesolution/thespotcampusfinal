@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 const jobSearchSchema = new mongoose.Schema(
   {
-    owner: { type: mongoose.Schema.Types.ObjectId, ref: 'tbl_user', required: true, index: true },
+    owner: { type: mongoose.Schema.Types.ObjectId, ref: 'tbl_student', required: true, index: true },
     prompt: { type: String, trim: true, default: '' },
     level: String,
     category: String,

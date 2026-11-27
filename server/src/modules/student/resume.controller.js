@@ -111,6 +111,8 @@ export const generateAiSummaries = async (req, res) => {
 
     const openai = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
+      timeout: 30000,
+      maxRetries: 2,
     });
 
     const response = await openai.chat.completions.create({
@@ -119,18 +121,36 @@ export const generateAiSummaries = async (req, res) => {
       response_format: { type: "json_object" },
     });
 
-    const parsedData = JSON.parse(response.choices[0].message.content);
-    const summaries = parsedData.summaries || [];
+    const rawContent = response.choices?.[0]?.message?.content;
+    if (!rawContent) {
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Failed to generate summaries: Empty response from AI service." });
+    }
+
+    let parsedData;
+    try {
+      parsedData = JSON.parse(rawContent);
+    } catch {
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Failed to parse AI response. Please try again." });
+    }
+
+    const summaries = Array.isArray(parsedData.summaries)
+      ? parsedData.summaries.filter((s) => typeof s === "string" && s.trim().length > 0)
+      : [];
+
+    if (summaries.length === 0) {
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "AI service could not produce valid summary variations." });
+    }
 
     // Save generated summaries to the database so they persist
     await tbl_resume.findOneAndUpdate(
       { student_id },
       { $set: { ai_summaries: summaries } },
-      { new: true }
+      { new: true, upsert: true }
     );
 
     res.status(StatusCodes.OK).json({ summaries });
   } catch (error) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
+    console.error("[AI Summary Generation Error]:", error.message);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: `AI CV Summary generation failed: ${error.message}` });
   }
 };

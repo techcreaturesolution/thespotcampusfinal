@@ -17,7 +17,16 @@ const TakeTest = () => {
   const [startTime] = useState(Date.now());
 
   const handleAnswer = (qId, optionIdx) => {
-    setAnswers((prev) => ({ ...prev, [qId]: optionIdx }));
+    setAnswers((prev) => {
+      const next = { ...prev, [qId]: optionIdx };
+      const currentAttemptId = attemptId || attempt?._id;
+      if (currentAttemptId) {
+        customFetch.post(`/preparation/mock-tests/save/${currentAttemptId}`, {
+          answers: [{ question_id: qId, selected_option: optionIdx }],
+        }).catch(() => {});
+      }
+      return next;
+    });
   };
 
   const handleSubmit = useCallback(async () => {
@@ -27,7 +36,6 @@ const TakeTest = () => {
     const answerPayload = questions.map((q) => ({
       question_id: q._id,
       selected_option: answers[q._id] !== undefined ? answers[q._id] : -1,
-      is_correct: answers[q._id] === q.correct_option_index,
       time_spent_seconds: 0,
     }));
     try {
@@ -62,6 +70,17 @@ const TakeTest = () => {
             setQuestions(data.questions || []);
             if (data.remaining_seconds !== undefined) {
               setTimeLeft(data.remaining_seconds);
+            }
+            if (Array.isArray(data.attempt.answers)) {
+              const loadedAnswers = {};
+              data.attempt.answers.forEach((ans) => {
+                const opt = ans.selected_option !== undefined ? ans.selected_option : ans.selected_option_index;
+                if (opt !== undefined && opt !== null && opt !== -1) {
+                  const qId = ans.question_id?._id || ans.question_id;
+                  if (qId) loadedAnswers[qId] = opt;
+                }
+              });
+              setAnswers(loadedAnswers);
             }
           }
         })

@@ -1,6 +1,7 @@
 import { Router } from "express";
 const router = Router();
 import upload from "../../middleware/multerMiddleware.js";
+import { authenticateUser, authorizePermissions } from "../../middleware/authMiddleware.js";
 
 import {
   getAllCompanys,
@@ -15,8 +16,8 @@ router.route("/").get(getAllCompanys).post(upload.single("company_logo"), create
 router
   .route("/:id")
   .get(getCompany)
-  .patch(upload.single("company_logo"), updateCompany)
-  .delete(deleteCompany);
-router.route("/:id/status/:status").patch(updateStatus);
+  .patch(authenticateUser, upload.single("company_logo"), updateCompany)
+  .delete(authenticateUser, authorizePermissions("Admin"), deleteCompany);
+router.route("/:id/status/:status").patch(authenticateUser, authorizePermissions("Admin"), updateStatus);
 
 export default router;

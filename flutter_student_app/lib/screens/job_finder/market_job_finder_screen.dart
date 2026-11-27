@@ -280,7 +280,7 @@ class _MarketJobFinderScreenState extends State<MarketJobFinderScreen> {
                     ? _meta!.education.map((e) => {'key': e.key, 'label': e.label}).toList()
                     : JobFinderConstants.education);
 
-            final List<Map<String, dynamic>> postedList = JobFinderConstants.postedWithinOptions;
+            const List<Map<String, dynamic>> postedList = JobFinderConstants.postedWithinOptions;
 
             return Container(
               constraints: BoxConstraints(

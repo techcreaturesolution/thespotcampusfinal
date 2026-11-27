@@ -75,7 +75,9 @@ const ReadingMaterial = () => {
         last_page: 1,
         total_pages: pdf.total_pages || 1,
       });
-    } catch {}
+    } catch (err) {
+      console.warn("Failed to record reading progress:", err);
+    }
     window.open(`/view-pdf?url=${encodeURIComponent(pdf.file_url)}&title=${encodeURIComponent(pdf.title)}`, "_blank");
   };
 

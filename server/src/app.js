@@ -54,6 +54,9 @@ import UploadRouter from "./modules/upload/upload.route.js";
 import JobFinderRouter from "./modules/jobFinder/jobFinder.route.js";
 
 import { authenticateUser, requireStudentSubscription } from "./middleware/authMiddleware.js";
+import { uploadProfileImage, validateUploadedFile } from "./middleware/fileUploadMiddleware.js";
+import { studentValidation } from "./middleware/validationMiddleware.js";
+import { createStudent } from "./modules/student/student.controller.js";
 
 const allowedOrigins = [
   "https://thespotcampus.netlify.app",
@@ -185,7 +188,7 @@ app.use("/api/degree", authenticateUser, DegreeRouter);
 app.use("/api/degreeMaster", DegreeMasterRoutes);
 app.use("/api/student", authenticateUser, StudentRouter);
 app.use("/api/cv-templates", authenticateUser, CvTemplateRouter);
-app.use("/api/register", StudentRouter);
+app.post("/api/register", uploadProfileImage, validateUploadedFile, studentValidation, createStudent);
 app.use("/api/tpo", authenticateUser, TPORouter);
 app.use("/api/auth", authRouter);
 app.use("/api/login", LoginRouter);

@@ -2,13 +2,13 @@ import React, { useState } from "react";
 import { FiX, FiBookOpen } from "react-icons/fi";
 
 const AddDegreeModal = ({ isOpen, onClose, onSubmit }) => {
-  if (!isOpen) return null;
-
   const [form, setForm] = useState({
     degree_name: "",
     degree_code: "",
     degree_sem: "6",
   });
+
+  if (!isOpen) return null;
 
   const handleSubmit = (e) => {
     e.preventDefault();

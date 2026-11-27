@@ -4,8 +4,6 @@ import { FiX } from "react-icons/fi";
 const TEST_TYPES = ["company", "subject", "mixed"];
 
 const CreateMockTestModal = ({ isOpen, onClose, mockTest, subjects = [], onSubmit, isSaving }) => {
-  if (!isOpen) return null;
-
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -63,6 +61,8 @@ const CreateMockTestModal = ({ isOpen, onClose, mockTest, subjects = [], onSubmi
     const payload = { ...form, subject_id: form.subject_id || undefined };
     onSubmit(payload);
   };
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
