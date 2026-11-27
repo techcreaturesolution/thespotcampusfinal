@@ -3,6 +3,8 @@ import { useOutletContext, Link } from "react-router-dom";
 import { FiUser, FiCamera, FiEdit2, FiSave, FiX, FiCheck } from "react-icons/fi";
 import { toast } from "react-toastify";
 import PageHeader from "../components/PageHeader";
+import ProfileCompletenessCard from "../components/ProfileCompletenessCard";
+import ProfileValidationVisibilityCard from "../components/ProfileValidationVisibilityCard";
 import customFetch from "../../utils/customFetch";
 
 const Profile = () => {
@@ -255,6 +257,20 @@ const Profile = () => {
 
               {role === "Student" && (
                 <>
+                  {/* Unified S1-10 Profile Completeness Summary */}
+                  <div className="col-span-1 md:col-span-2 mb-2">
+                    <ProfileCompletenessCard refreshKey={user?.updatedAt || 0} />
+                  </div>
+
+                  {/* S1-11 Profile Validation & Visibility Policy Controls */}
+                  <div className="col-span-1 md:col-span-2 mb-2">
+                    <ProfileValidationVisibilityCard
+                      role={role}
+                      refreshKey={user?.updatedAt || 0}
+                      onPolicyUpdated={reloadUser}
+                    />
+                  </div>
+
                   {/* CV status banner */}
                   <div className="col-span-1 md:col-span-2 p-5 rounded-2xl border flex flex-col sm:flex-row items-center justify-between gap-4 transition-all border-slate-200 shadow-sm bg-gradient-to-r from-indigo-50/50 to-white mb-2">
                     <div className="flex items-center gap-3.5 text-left">
@@ -276,21 +292,115 @@ const Profile = () => {
                         </p>
                       </div>
                     </div>
-                    {hasCv ? (
+                    <div className="flex flex-wrap gap-2 shrink-0">
                       <Link
-                        to="/dashboard/student/ai-cv-builder"
-                        className="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-[#3730a3] border border-indigo-200/50 text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-xs shrink-0 active:scale-95 text-center"
+                        to="/dashboard/student/resume-versions"
+                        className="px-4 py-2 bg-white hover:bg-indigo-50 text-[#3730a3] border border-indigo-200 text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-xs active:scale-95 text-center"
                       >
-                        Edit CV
+                        Resume Versions
                       </Link>
-                    ) : (
                       <Link
-                        to="/dashboard/student/ai-cv-builder"
-                        className="px-4 py-2 bg-[#3730a3] hover:bg-[#2e288a] text-white text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-sm shrink-0 active:scale-95 text-center"
+                        to="/dashboard/student/documents"
+                        className="px-4 py-2 bg-white hover:bg-indigo-50 text-[#3730a3] border border-indigo-200 text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-xs active:scale-95 text-center"
                       >
-                        Create CV Now
+                        Documents
                       </Link>
-                    )}
+                      {hasCv ? (
+                        <Link
+                          to="/dashboard/student/ai-cv-builder"
+                          className="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-[#3730a3] border border-indigo-200/50 text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-xs active:scale-95 text-center"
+                        >
+                          Edit CV
+                        </Link>
+                      ) : (
+                        <Link
+                          to="/dashboard/student/ai-cv-builder"
+                          className="px-4 py-2 bg-[#3730a3] hover:bg-[#2e288a] text-white text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-sm active:scale-95 text-center"
+                        >
+                          Create CV Now
+                        </Link>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Academic Profile shortcut */}
+                  <div className="col-span-1 md:col-span-2 p-4 rounded-2xl border border-slate-200 bg-slate-50/70 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                    <div>
+                      <h4 className="font-bold text-slate-800 text-sm">Academic Profile &amp; History</h4>
+                      <p className="text-[11px] font-semibold text-slate-500 mt-0.5">
+                        Batch: {user?.academic_batch || "Not set"} • CGPA: {user?.cgpa ?? "—"} • Status: {user?.academic_status || "Active"}
+                      </p>
+                    </div>
+                    <Link
+                      to="/dashboard/student/academic-profile"
+                      className="px-4 py-2 bg-white hover:bg-indigo-50 text-[#3730a3] border border-indigo-200 text-xs font-bold rounded-xl transition-all shrink-0"
+                    >
+                      Manage Academic Profile
+                    </Link>
+                  </div>
+
+                  {/* Technical Skills shortcut */}
+                  <div className="col-span-1 md:col-span-2 p-4 rounded-2xl border border-slate-200 bg-slate-50/70 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                    <div>
+                      <h4 className="font-bold text-slate-800 text-sm">Technical Skills</h4>
+                      <p className="text-[11px] font-semibold text-slate-500 mt-0.5">
+                        {user?.student_skills || "No structured technical skills added yet"}
+                      </p>
+                    </div>
+                    <Link
+                      to="/dashboard/student/skills"
+                      className="px-4 py-2 bg-white hover:bg-indigo-50 text-[#3730a3] border border-indigo-200 text-xs font-bold rounded-xl transition-all shrink-0"
+                    >
+                      Manage Technical Skills
+                    </Link>
+                  </div>
+
+                  {/* Projects shortcut */}
+                  <div className="col-span-1 md:col-span-2 p-4 rounded-2xl border border-slate-200 bg-slate-50/70 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                    <div>
+                      <h4 className="font-bold text-slate-800 text-sm">Projects Portfolio</h4>
+                      <p className="text-[11px] font-semibold text-slate-500 mt-0.5">
+                        Showcase your academic and personal projects with repository &amp; demo links
+                      </p>
+                    </div>
+                    <Link
+                      to="/dashboard/student/projects"
+                      className="px-4 py-2 bg-white hover:bg-indigo-50 text-[#3730a3] border border-indigo-200 text-xs font-bold rounded-xl transition-all shrink-0"
+                    >
+                      Manage Projects
+                    </Link>
+                  </div>
+
+                  {/* Certifications shortcut */}
+                  <div className="col-span-1 md:col-span-2 p-4 rounded-2xl border border-slate-200 bg-slate-50/70 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                    <div>
+                      <h4 className="font-bold text-slate-800 text-sm">Certifications &amp; Credentials</h4>
+                      <p className="text-[11px] font-semibold text-slate-500 mt-0.5">
+                        Add professional &amp; academic credentials with expiry tracking and proof documents
+                      </p>
+                    </div>
+                    <Link
+                      to="/dashboard/student/certifications"
+                      className="px-4 py-2 bg-white hover:bg-indigo-50 text-[#3730a3] border border-indigo-200 text-xs font-bold rounded-xl transition-all shrink-0"
+                    >
+                      Manage Certifications
+                    </Link>
+                  </div>
+
+                  {/* Internships shortcut */}
+                  <div className="col-span-1 md:col-span-2 p-4 rounded-2xl border border-slate-200 bg-slate-50/70 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                    <div>
+                      <h4 className="font-bold text-slate-800 text-sm">Internship &amp; Work Experience</h4>
+                      <p className="text-[11px] font-semibold text-slate-500 mt-0.5">
+                        Maintain your internship timeline, role achievements, skills used, and related projects
+                      </p>
+                    </div>
+                    <Link
+                      to="/dashboard/student/internships"
+                      className="px-4 py-2 bg-white hover:bg-indigo-50 text-[#3730a3] border border-indigo-200 text-xs font-bold rounded-xl transition-all shrink-0"
+                    >
+                      Manage Internships
+                    </Link>
                   </div>
 
                   <div className="space-y-1.5">
@@ -331,9 +441,9 @@ const Profile = () => {
                       name="student_enrollment"
                       value={formData.student_enrollment || ""}
                       onChange={handleChange}
-                      disabled={!isEditing}
+                      disabled={!isEditing || Boolean(user?.isVerifiedByTPO)}
                       className={`w-full px-4 py-2.5 border rounded-xl text-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary-500/20 ${
-                        isEditing
+                        isEditing && !user?.isVerifiedByTPO
                           ? "bg-white border-gray-300 text-gray-900 focus:border-primary-500"
                           : "bg-gray-50 border-gray-200 text-gray-800 cursor-not-allowed"
                       }`}

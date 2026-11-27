@@ -50,6 +50,13 @@ const StudentExamResult = lazy(() => import("./student/pages/ExamResult"));
 const StudentInterviews = lazy(() => import("./student/pages/StudentInterviews"));
 const Plans = lazy(() => import("./student/pages/Plans"));
 const StudentResumeBuilder = lazy(() => import("./student/pages/ResumeBuilder"));
+const StudentAcademicProfile = lazy(() => import("./student/pages/AcademicProfilePage"));
+const StudentTechnicalSkills = lazy(() => import("./student/pages/TechnicalSkillsPage"));
+const StudentProjects = lazy(() => import("./student/pages/ProjectsPage"));
+const StudentCertifications = lazy(() => import("./student/pages/CertificationsPage"));
+const StudentInternships = lazy(() => import("./student/pages/InternshipsPage"));
+const StudentResumeVersions = lazy(() => import("./student/pages/ResumeVersionsPage"));
+const StudentDocuments = lazy(() => import("./student/pages/DocumentsPage"));
 const PreparationDashboard = lazy(() => import("./student/pages/preparation/PreparationDashboard"));
 const PreviousYearPapers = lazy(() => import("./student/pages/preparation/PreviousYearPapers"));
 const MockTests = lazy(() => import("./student/pages/preparation/MockTests"));
@@ -177,6 +184,13 @@ const router = createBrowserRouter([
       { path: "student/exam-result/:id", element: <StudentExamResult /> },
       { path: "student/my-interviews", element: <StudentInterviews /> },
       { path: "student/profile", element: <Profile /> },
+      { path: "student/academic-profile", element: <StudentAcademicProfile /> },
+      { path: "student/skills", element: <StudentTechnicalSkills /> },
+      { path: "student/projects", element: <StudentProjects /> },
+      { path: "student/certifications", element: <StudentCertifications /> },
+      { path: "student/internships", element: <StudentInternships /> },
+      { path: "student/resume-versions", element: <StudentResumeVersions /> },
+      { path: "student/documents", element: <StudentDocuments /> },
       { path: "student/plans", element: <Plans /> },
       { path: "student/ai-cv-builder", element: <StudentResumeBuilder /> },
       { path: "student/preparation", element: <PreparationDashboard /> },

@@ -100,19 +100,36 @@ export const updateUserProfile = async (req, res) => {
       throw new NotFoundError("User not found");
     }
 
-    // 2. Extract and prepare update object
-    const updateData = { ...req.body };
+    // 2. Extract and prepare whitelisted update object (prevents mass assignment)
+    const ALLOWED_PROFILE_FIELDS = {
+      Admin: ["admin_name"],
+      Student: [
+        "student_name",
+        "student_contact",
+        "student_skills",
+        "student_current_sem",
+        "student_total_backlog",
+        ...(user.isVerifiedByTPO ? [] : ["student_enrollment"]),
+      ],
+      Company: ["company_name", "company_contact", "company_address", "company_website"],
+      College: ["college_name", "college_code", "college_contact", "college_address", "college_website"],
+      University: [
+        "university_name",
+        "university_establishment",
+        "university_contact_no",
+        "university_address",
+        "university_website",
+      ],
+      TPO: ["tpo_name", "tpo_contact"],
+    };
 
-    // We shouldn't allow password changes directly in profile details or role changes
-    delete updateData.password;
-    delete updateData.role;
-    // Remove individual passwords just in case they're named differently
-    delete updateData.admin_password;
-    delete updateData.student_password;
-    delete updateData.company_password;
-    delete updateData.college_password;
-    delete updateData.university_password;
-    delete updateData.tpo_password;
+    const allowedKeys = ALLOWED_PROFILE_FIELDS[role] || [];
+    const updateData = {};
+    for (const key of allowedKeys) {
+      if (req.body[key] !== undefined) {
+        updateData[key] = req.body[key];
+      }
+    }
 
     // 3. Handle File Upload
     let oldPublicId = user[publicIdKey];

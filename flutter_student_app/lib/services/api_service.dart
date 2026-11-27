@@ -111,6 +111,29 @@ class ApiService {
     }
   }
 
+  Future<Map<String, dynamic>> uploadMultipart(
+    String endpoint, {
+    required String filePath,
+    String fieldName = 'document',
+    Map<String, dynamic> fields = const {},
+    String method = 'POST',
+  }) async {
+    try {
+      final formData = FormData.fromMap({
+        ...fields,
+        fieldName: await MultipartFile.fromFile(filePath),
+      });
+      final response = method.toUpperCase() == 'PUT'
+          ? await _dio.put(endpoint, data: formData)
+          : await _dio.post(endpoint, data: formData);
+      return response.data is String
+          ? jsonDecode(response.data)
+          : response.data;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   ApiException _handleError(DioException e) {
     String message = 'An unexpected error occurred';
     int? statusCode = e.response?.statusCode;

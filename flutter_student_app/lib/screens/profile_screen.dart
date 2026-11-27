@@ -3,6 +3,10 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../services/auth_service.dart';
 import '../services/api_service.dart';
+import '../services/profile_completeness_service.dart';
+import '../services/profile_policy_service.dart';
+import '../widgets/profile_completeness_card.dart';
+import '../widgets/profile_policy_card.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -19,6 +23,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     super.initState();
     _checkCvStatus();
+    Future.microtask(() {
+      if (mounted) {
+        context.read<ProfileCompletenessService>().loadMyCompleteness();
+        context.read<ProfilePolicyService>().loadMyPolicy();
+      }
+    });
   }
 
   Future<void> _checkCvStatus() async {
@@ -354,7 +364,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: Column(
           children: [
             _buildHeroBanner(context, user, auth.userName, email),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
+            Consumer<ProfileCompletenessService>(
+              builder: (context, completenessService, _) => ProfileCompletenessCard(
+                completeness: completenessService.completeness,
+                isLoading: completenessService.isLoading,
+                errorMessage: completenessService.errorMessage,
+                onRefresh: () => completenessService.loadMyCompleteness(),
+              ),
+            ),
+            Consumer<ProfilePolicyService>(
+              builder: (context, policyService, _) => ProfilePolicyCard(
+                policy: policyService.policy,
+                isLoading: policyService.isLoading,
+                isMutating: policyService.isMutating,
+                errorMessage: policyService.errorMessage,
+                onRefresh: () => policyService.loadMyPolicy(),
+                onChangeVisibility: (vis) async {
+                  await policyService.changeVisibility(vis);
+                },
+              ),
+            ),
             _buildCvStatusBanner(),
 
             // Subscription Card
@@ -436,22 +466,48 @@ class _ProfileScreenState extends State<ProfileScreen> {
               icon: Icons.school,
               iconColor: const Color(0xFF8B5CF6),
               iconBgColor: const Color(0xFFEDE9FE),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                clipBehavior: Clip.none,
-                child: Row(
-                  children: [
-                    _EducationBox(icon: Icons.badge_outlined, label: 'Enrollment ID', value: enrollment),
-                    const SizedBox(width: 12),
-                    _EducationBox(icon: Icons.calendar_month_outlined, label: 'Semester', value: semester),
-                    const SizedBox(width: 12),
-                    _EducationBox(icon: Icons.business_outlined, label: 'Branch', value: branch),
-                    const SizedBox(width: 12),
-                    _EducationBox(icon: Icons.workspace_premium_outlined, label: 'Degree', value: degree),
-                    const SizedBox(width: 12),
-                    _EducationBox(icon: Icons.account_balance_outlined, label: 'College', value: college),
-                  ],
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    clipBehavior: Clip.none,
+                    child: Row(
+                      children: [
+                        _EducationBox(icon: Icons.badge_outlined, label: 'Enrollment ID', value: enrollment),
+                        const SizedBox(width: 12),
+                        _EducationBox(icon: Icons.calendar_month_outlined, label: 'Semester', value: semester),
+                        const SizedBox(width: 12),
+                        _EducationBox(icon: Icons.business_outlined, label: 'Branch', value: branch),
+                        const SizedBox(width: 12),
+                        _EducationBox(icon: Icons.workspace_premium_outlined, label: 'Degree', value: degree),
+                        const SizedBox(width: 12),
+                        _EducationBox(icon: Icons.account_balance_outlined, label: 'College', value: college),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  SizedBox(
+                    height: 38,
+                    child: OutlinedButton.icon(
+                      onPressed: () => Navigator.pushNamed(context, '/academic-profile').then((_) {
+                        if (context.mounted) {
+                          context.read<AuthService>().checkAuth();
+                        }
+                      }),
+                      icon: const Icon(Icons.school_outlined, size: 16),
+                      label: const Text(
+                        'Manage Academic Profile & History',
+                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFF2563EB),
+                        side: const BorderSide(color: Color(0xFFBFDBFE)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
 
@@ -461,9 +517,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
               icon: Icons.star_border_rounded,
               iconColor: const Color(0xFFF59E0B),
               iconBgColor: const Color(0xFFFEF3C7),
-              child: skillsList.isEmpty
-                  ? const Text('No skills listed yet', style: TextStyle(color: Colors.grey))
-                  : Wrap(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (skillsList.isEmpty)
+                    const Text('No skills listed yet', style: TextStyle(color: Colors.grey))
+                  else
+                    Wrap(
                       spacing: 8,
                       runSpacing: 8,
                       children: skillsList.map((skill) {
@@ -484,6 +544,152 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         );
                       }).toList(),
                     ),
+                  const SizedBox(height: 14),
+                  SizedBox(
+                    height: 38,
+                    child: OutlinedButton.icon(
+                      onPressed: () => Navigator.pushNamed(context, '/skills').then((_) {
+                        if (context.mounted) {
+                          context.read<AuthService>().checkAuth();
+                        }
+                      }),
+                      icon: const Icon(Icons.code, size: 16),
+                      label: const Text(
+                        'Manage Technical Skills',
+                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFFD97706),
+                        side: const BorderSide(color: Color(0xFFFDE68A)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Projects Portfolio Card
+            _ProfileCard(
+              title: 'Projects Portfolio',
+              icon: Icons.layers_outlined,
+              iconColor: const Color(0xFF2563EB),
+              iconBgColor: const Color(0xFFDBEAFE),
+              child: SizedBox(
+                width: double.infinity,
+                height: 40,
+                child: OutlinedButton.icon(
+                  onPressed: () => Navigator.pushNamed(context, '/projects'),
+                  icon: const Icon(Icons.folder_special_outlined, size: 16),
+                  label: const Text(
+                    'Manage Projects Portfolio',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFF2563EB),
+                    side: const BorderSide(color: Color(0xFFBFDBFE)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+              ),
+            ),
+
+            // Certifications & Credentials Card
+            _ProfileCard(
+              title: 'Certifications & Credentials',
+              icon: Icons.verified_outlined,
+              iconColor: const Color(0xFF059669),
+              iconBgColor: const Color(0xFFD1FAE5),
+              child: SizedBox(
+                width: double.infinity,
+                height: 40,
+                child: OutlinedButton.icon(
+                  onPressed: () => Navigator.pushNamed(context, '/certifications'),
+                  icon: const Icon(Icons.workspace_premium_outlined, size: 16),
+                  label: const Text(
+                    'Manage Certifications',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFF059669),
+                    side: const BorderSide(color: Color(0xFFA7F3D0)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+              ),
+            ),
+
+            // Internship Experience Card
+            _ProfileCard(
+              title: 'Internship Experience',
+              icon: Icons.work_outline,
+              iconColor: const Color(0xFF4F46E5),
+              iconBgColor: const Color(0xFFE0E7FF),
+              child: SizedBox(
+                width: double.infinity,
+                height: 40,
+                child: OutlinedButton.icon(
+                  onPressed: () => Navigator.pushNamed(context, '/internships'),
+                  icon: const Icon(Icons.work_history_outlined, size: 16),
+                  label: const Text(
+                    'Manage Internships',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFF4F46E5),
+                    side: const BorderSide(color: Color(0xFFC7D2FE)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+              ),
+            ),
+
+            // Multiple Resume Versions Card
+            _ProfileCard(
+              title: 'Resume Versions & Documents',
+              icon: Icons.description_outlined,
+              iconColor: const Color(0xFF3730A3),
+              iconBgColor: const Color(0xFFE0E7FF),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  SizedBox(
+                    width: double.infinity,
+                    height: 40,
+                    child: OutlinedButton.icon(
+                      onPressed: () => Navigator.pushNamed(context, '/resume-versions'),
+                      icon: const Icon(Icons.layers_outlined, size: 16),
+                      label: const Text(
+                        'Manage Resume Versions',
+                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFF3730A3),
+                        side: const BorderSide(color: Color(0xFFC7D2FE)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 40,
+                    child: OutlinedButton.icon(
+                      onPressed: () => Navigator.pushNamed(context, '/documents'),
+                      icon: const Icon(Icons.folder_outlined, size: 16),
+                      label: const Text(
+                        'Uploaded Resume Documents',
+                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFF0F766E),
+                        side: const BorderSide(color: Color(0xFF99F6E4)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
 
             const SizedBox(height: 24),

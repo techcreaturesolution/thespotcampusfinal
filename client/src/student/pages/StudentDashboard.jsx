@@ -3,6 +3,7 @@ import { useOutletContext, Link } from "react-router-dom";
 import { FiBriefcase, FiFileText, FiVideo, FiUser, FiAward, FiInfo, FiCheck, FiPlay, FiAlertCircle, FiCpu } from "react-icons/fi";
 import customFetch from "../../utils/customFetch";
 import DashboardCard from "../../common/components/DashboardCard";
+import ProfileCompletenessCard from "../../common/components/ProfileCompletenessCard";
 
 const StudentDashboard = ({ user: propUser }) => {
   const outletContext = useOutletContext() || {};
@@ -110,6 +111,9 @@ const StudentDashboard = ({ user: propUser }) => {
           </div>
         </div>
       </div>
+
+      {/* Unified S1-10 Profile Completeness Overview */}
+      <ProfileCompletenessCard compact refreshKey={user?.updatedAt || 0} />
 
       {/* Student Stats Cards Grid */}
       {stats && (

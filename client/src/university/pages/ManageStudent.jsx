@@ -7,6 +7,7 @@ import Loading from "../../common/components/Loading";
 import PageHeader from "../../common/components/PageHeader";
 import DataTable from "../../common/components/DataTable";
 import IconButton from "../../common/components/IconButton";
+import AcademicProfileModal from "../../common/components/AcademicProfileModal";
 
 const HEADER_BY_ROLE = {
   Admin: { title: "Students", subtitle: "Browse and manage student profiles across all colleges." },
@@ -20,6 +21,7 @@ const ManageStudent = () => {
   const header = HEADER_BY_ROLE[role] || HEADER_BY_ROLE.Admin;
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedStudent, setSelectedStudent] = useState(null);
 
   const fetchData = async () => {
     try {
@@ -124,14 +126,29 @@ const ManageStudent = () => {
           {
             key: "actions",
             label: "Actions",
-            className: "w-24 text-right",
+            className: "w-28 text-right",
             render: (s) => (
-              <IconButton variant="danger" title="Delete Student Record" onClick={() => handleDelete(s._id)}>
-                <FiTrash2 className="w-3.5 h-3.5" />
-              </IconButton>
+              <div className="flex items-center justify-end gap-1.5">
+                <IconButton
+                  variant="neutral"
+                  title="View Academic Profile"
+                  onClick={() => setSelectedStudent(s)}
+                >
+                  <FiBookOpen className="w-3.5 h-3.5 text-[#3730a3]" />
+                </IconButton>
+                <IconButton variant="danger" title="Delete Student Record" onClick={() => handleDelete(s._id)}>
+                  <FiTrash2 className="w-3.5 h-3.5" />
+                </IconButton>
+              </div>
             ),
           },
         ]}
+      />
+      <AcademicProfileModal
+        student={selectedStudent}
+        role={role || "University"}
+        onClose={() => setSelectedStudent(null)}
+        onUpdated={fetchData}
       />
     </div>
   );

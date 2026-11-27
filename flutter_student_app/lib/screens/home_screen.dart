@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/auth_service.dart';
 import '../services/api_service.dart';
+import '../services/profile_completeness_service.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // HOME SCREEN
@@ -55,6 +56,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     _fetchDashboardData();
     _fetchPrepAnalytics();
     _calculateStreak();
+    Future.microtask(() {
+      if (mounted) {
+        Provider.of<ProfileCompletenessService>(context, listen: false)
+            .loadMyCompleteness(silent: true);
+      }
+    });
     _progressAnimController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1600),
@@ -117,6 +124,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Future<void> _fetchDashboardData() async {
     _fetchPrepAnalytics(); // Refresh analytics when dashboard refreshes
     try {
+      final completenessService =
+          Provider.of<ProfileCompletenessService>(context, listen: false);
+      completenessService.loadMyCompleteness(silent: true);
       final api = Provider.of<ApiService>(context, listen: false);
       final results = await Future.wait([
         api.get('/jobs/student'),
@@ -182,27 +192,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         });
       }
     }
-  }
-
-  int _calculateProfileCompleteness(Map<String, dynamic>? user) {
-    if (user == null) return 0;
-    int filledFields = 0;
-    const int totalFields = 8;
-    if (user['student_name'] != null &&
-        user['student_name'].toString().isNotEmpty) filledFields++;
-    if (user['student_email'] != null &&
-        user['student_email'].toString().isNotEmpty) filledFields++;
-    if (user['student_contact'] != null &&
-        user['student_contact'].toString().isNotEmpty) filledFields++;
-    if (user['student_enrollment'] != null &&
-        user['student_enrollment'].toString().isNotEmpty) filledFields++;
-    if (user['student_skills'] != null &&
-        user['student_skills'].toString().isNotEmpty) filledFields++;
-    if (user['student_current_sem'] != null &&
-        user['student_current_sem'].toString().isNotEmpty) filledFields++;
-    if (user['branch_id'] != null) filledFields++;
-    if (user['degree_id'] != null) filledFields++;
-    return ((filledFields / totalFields) * 100).toInt();
   }
 
   Map<String, dynamic>? _getUpcomingInterview() {
@@ -296,7 +285,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthService>(context);
     final user = auth.user;
-    final completeness = _calculateProfileCompleteness(user);
+    final completeness = Provider.of<ProfileCompletenessService>(context).percentage;
     final upcomingInterview = _getUpcomingInterview();
     final scheduledCount = _interviews
         .where(
@@ -559,16 +548,23 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Profile complete
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text('Profile Complete', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: _text1)),
-                        const Spacer(),
-                        Text('$completeness%', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: _success)),
-                        const SizedBox(width: 4),
-                        const Icon(Icons.arrow_forward_ios, size: 8, color: _text2),
-                      ],
+                    // Profile complete (server-authoritative S1-10)
+                    InkWell(
+                      onTap: () => Navigator.pushNamed(context, '/profile'),
+                      borderRadius: BorderRadius.circular(8),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 2),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text('Profile Complete', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: _text1)),
+                            const Spacer(),
+                            Text('$completeness%', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: _success)),
+                            const SizedBox(width: 4),
+                            const Icon(Icons.arrow_forward_ios, size: 8, color: _text2),
+                          ],
+                        ),
+                      ),
                     ),
                     const SizedBox(height: 6),
                     ClipRRect(

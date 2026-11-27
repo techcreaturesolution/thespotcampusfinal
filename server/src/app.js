@@ -52,6 +52,15 @@ import { getActivePlans } from "./modules/subscription/subscription.controller.j
 import PreparationRouter from "./modules/preparation/preparation.route.js";
 import UploadRouter from "./modules/upload/upload.route.js";
 import JobFinderRouter from "./modules/jobFinder/jobFinder.route.js";
+import AcademicProfileRouter from "./modules/academicProfile/academicProfile.route.js";
+import SkillsRouter from "./modules/skills/skills.route.js";
+import ProjectsRouter from "./modules/projects/projects.route.js";
+import CertificationsRouter from "./modules/certifications/certification.route.js";
+import InternshipsRouter from "./modules/internships/internship.route.js";
+import ResumeVersionsRouter from "./modules/resumeVersions/resumeVersion.route.js";
+import DocumentsRouter from "./modules/documents/document.route.js";
+import ProfileCompletenessRouter from "./modules/profileCompleteness/profileCompleteness.route.js";
+import ProfilePolicyRouter from "./modules/profilePolicy/profilePolicy.route.js";
 
 import { authenticateUser, requireStudentSubscription } from "./middleware/authMiddleware.js";
 
@@ -184,6 +193,15 @@ app.use("/api/branch", authenticateUser, BranchRouter);
 app.use("/api/degree", authenticateUser, DegreeRouter);
 app.use("/api/degreeMaster", DegreeMasterRoutes);
 app.use("/api/student", authenticateUser, StudentRouter);
+app.use("/api/academic-profile", authenticateUser, AcademicProfileRouter);
+app.use("/api/skills", authenticateUser, SkillsRouter);
+app.use("/api/projects", authenticateUser, ProjectsRouter);
+app.use("/api/certifications", authenticateUser, CertificationsRouter);
+app.use("/api/internships", authenticateUser, InternshipsRouter);
+app.use("/api/resume-versions", ResumeVersionsRouter);
+app.use("/api/documents", authenticateUser, DocumentsRouter);
+app.use("/api/profile-completeness", authenticateUser, ProfileCompletenessRouter);
+app.use("/api/profile-policy", ProfilePolicyRouter);
 app.use("/api/cv-templates", authenticateUser, CvTemplateRouter);
 app.use("/api/register", StudentRouter);
 app.use("/api/tpo", authenticateUser, TPORouter);

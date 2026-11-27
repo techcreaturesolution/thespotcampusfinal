@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { STATUS } from "../../utils/constants.js";
+import { STATUS, ACADEMIC_STATUS, PROFILE_VISIBILITY, PROFILE_VISIBILITY_OVERRIDE } from "../../utils/constants.js";
 
 const StudentSchema = new mongoose.Schema(
   {
@@ -21,6 +21,7 @@ const StudentSchema = new mongoose.Schema(
     },
     student_enrollment: {
       type: String,
+      trim: true,
     },
     student_name: {
       type: String,
@@ -33,9 +34,56 @@ const StudentSchema = new mongoose.Schema(
     },
     student_current_sem: {
       type: String,
+      trim: true,
     },
     student_total_backlog: {
       type: String,
+      default: "0",
+    },
+    academic_year: {
+      type: String,
+      trim: true,
+    },
+    academic_batch: {
+      type: String,
+      trim: true,
+    },
+    academic_status: {
+      type: String,
+      enum: Object.values(ACADEMIC_STATUS),
+      default: ACADEMIC_STATUS.ACTIVE,
+    },
+    cgpa: {
+      type: Number,
+      min: 0,
+      max: 10,
+      default: null,
+    },
+    percentage: {
+      type: Number,
+      min: 0,
+      max: 100,
+      default: null,
+    },
+    admission_year: {
+      type: Number,
+      min: 1990,
+      max: 2100,
+      default: null,
+    },
+    expected_graduation_year: {
+      type: Number,
+      min: 1990,
+      max: 2100,
+      default: null,
+    },
+    academic_profile_initialized: {
+      type: Boolean,
+      default: false,
+    },
+    academic_profile_updated_at: {
+      type: Date,
+      default: null,
     },
     student_skills: {
       type: String,
@@ -60,6 +108,34 @@ const StudentSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    profile_visibility: {
+      type: String,
+      enum: Object.values(PROFILE_VISIBILITY),
+      default: PROFILE_VISIBILITY.PRIVATE,
+    },
+    is_published: {
+      type: Boolean,
+      default: false,
+    },
+    published_at: {
+      type: Date,
+      default: null,
+    },
+    visibility_updated_at: {
+      type: Date,
+      default: null,
+    },
+    visibility_override: {
+      type: String,
+      enum: Object.values(PROFILE_VISIBILITY_OVERRIDE),
+      default: PROFILE_VISIBILITY_OVERRIDE.NONE,
+    },
+    visibility_override_reason: {
+      type: String,
+      trim: true,
+      maxlength: 300,
+      default: "",
+    },
     student_password: {
       type: String,
     },
@@ -67,9 +143,22 @@ const StudentSchema = new mongoose.Schema(
       type: String,
       default: "Student",
     },
+    is_deleted: {
+      type: Boolean,
+      default: false,
+    },
+    deleted_at: {
+      type: Date,
+      default: null,
+    },
   },
   { timestamps: true },
 );
+
+StudentSchema.index({ college_id: 1, degree_id: 1, branch_id: 1 });
+StudentSchema.index({ university_id: 1 });
+StudentSchema.index({ college_id: 1, student_enrollment: 1 });
+StudentSchema.index({ is_published: 1, profile_visibility: 1, is_deleted: 1 });
 
 StudentSchema.methods.toJSON = function () {
   const obj = this.toObject();

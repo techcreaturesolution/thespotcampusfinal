@@ -37,6 +37,8 @@ backend/uploads/*
 !backend/uploads/.gitkeep
 server/uploads/*
 !server/uploads/.gitkeep
+server/private_uploads/*
+!server/private_uploads/.gitkeep
 
 # Flutter
 flutter_student_app/.dart_tool/

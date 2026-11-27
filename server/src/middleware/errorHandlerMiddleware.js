@@ -35,7 +35,11 @@ const errorHandlerMiddleware = (err, req, res, _next) => {
     console.error("Failed to write to server_errors.log:", logErr);
   }
 
-  res.status(statusCode).json({ msg });
+  res.status(statusCode).json({
+    msg,
+    ...(err.code ? { code: err.code } : {}),
+    ...(err.details ? { details: err.details } : {}),
+  });
 };
 
 export default errorHandlerMiddleware;

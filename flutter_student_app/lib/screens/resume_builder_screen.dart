@@ -427,6 +427,11 @@ class _ResumeBuilderScreenState extends State<ResumeBuilderScreen> {
             ),
           ),
           actions: [
+            TextButton.icon(
+              icon: const Icon(Icons.layers_outlined, size: 16, color: Color(0xFF3730A3)),
+              label: const Text('Versions', style: TextStyle(fontSize: 12, color: Color(0xFF3730A3), fontWeight: FontWeight.bold)),
+              onPressed: () => Navigator.pushNamed(context, '/resume-versions'),
+            ),
             Padding(
               padding: const EdgeInsets.only(right: 12),
               child: TextButton.icon(

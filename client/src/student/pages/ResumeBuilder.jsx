@@ -800,6 +800,13 @@ const ResumeBuilder = () => {
             {showPreview ? <><FiEdit className="w-3.5 h-3.5" /> Edit Details</> : <><FiEye className="w-3.5 h-3.5" /> View Resume</>}
           </button>
 
+          <Link
+            to="/dashboard/student/resume-versions"
+            className="bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-[#3730a3] font-extrabold py-2.5 px-4 rounded-xl text-[10px] uppercase tracking-wider transition-all flex items-center gap-1.5 shadow-xs"
+          >
+            <FiLayers className="w-3.5 h-3.5" /> Multiple Versions
+          </Link>
+
           <button
             type="button"
             onClick={() => changeTemplate("")}

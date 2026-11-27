@@ -4,6 +4,15 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'services/auth_service.dart';
 import 'services/api_service.dart';
+import 'services/academic_profile_service.dart';
+import 'services/technical_skills_service.dart';
+import 'services/projects_service.dart';
+import 'services/certifications_service.dart';
+import 'services/internships_service.dart';
+import 'services/resume_versions_service.dart';
+import 'services/documents_service.dart';
+import 'services/profile_completeness_service.dart';
+import 'services/profile_policy_service.dart';
 import 'screens/splash_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
@@ -13,6 +22,13 @@ import 'screens/job_detail_screen.dart';
 import 'screens/exam_screen.dart';
 import 'screens/my_applications_screen.dart';
 import 'screens/profile_screen.dart';
+import 'screens/academic_profile_screen.dart';
+import 'screens/technical_skills_screen.dart';
+import 'screens/projects_screen.dart';
+import 'screens/certifications_screen.dart';
+import 'screens/internships_screen.dart';
+import 'screens/resume_versions_screen.dart';
+import 'screens/documents_screen.dart';
 import 'screens/interview_list_screen.dart';
 import 'screens/plans_screen.dart';
 import 'screens/preparation/preparation_dashboard_screen.dart';
@@ -40,6 +56,33 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthService()),
         Provider(create: (_) => ApiService()),
+        ChangeNotifierProvider(
+          create: (context) => AcademicProfileService(context.read<ApiService>()),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => TechnicalSkillsService(context.read<ApiService>()),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => ProjectsService(context.read<ApiService>()),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => CertificationsService(context.read<ApiService>()),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => InternshipsService(context.read<ApiService>()),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => ResumeVersionsService(context.read<ApiService>()),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => DocumentsService(context.read<ApiService>()),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => ProfileCompletenessService(context.read<ApiService>()),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => ProfilePolicyService(context.read<ApiService>()),
+        ),
       ],
       child: const SpotCampusApp(),
     ),
@@ -109,6 +152,13 @@ class SpotCampusApp extends StatelessWidget {
         '/jobs': (context) => const JobListScreen(),
         '/my-applications': (context) => const MyApplicationsScreen(),
         '/profile': (context) => const ProfileScreen(),
+        '/academic-profile': (context) => const AcademicProfileScreen(),
+        '/skills': (context) => const TechnicalSkillsScreen(),
+        '/projects': (context) => const ProjectsScreen(),
+        '/certifications': (context) => const CertificationsScreen(),
+        '/internships': (context) => const InternshipsScreen(),
+        '/resume-versions': (context) => const ResumeVersionsScreen(),
+        '/documents': (context) => const DocumentsScreen(),
         '/interviews': (context) => const InterviewListScreen(),
         '/plans': (context) => const PlansScreen(),
         '/preparation': (context) => const PreparationDashboardScreen(),
