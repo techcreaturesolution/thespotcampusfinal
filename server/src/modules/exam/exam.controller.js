@@ -51,6 +51,14 @@ export const createExamFromJD = async (req, res) => {
       });
     }
 
+    // Company ownership validation
+    if (req.user.role !== "Admin" && job.job_company_id?.toString() !== company_id) {
+      return res.status(StatusCodes.FORBIDDEN).json({
+        success: false,
+        message: "Access denied: you can only generate exams for your own jobs",
+      });
+    }
+
     const jobDescription = `
 Title: ${job.job_title}
 Position: ${job.job_position}
@@ -123,6 +131,21 @@ Answer all questions within the time limit. Tab switching and camera monitoring 
   }
 };
 
+// Helper: sanitize exam questions for candidate so isCorrect is not revealed
+const sanitizeExamQuestions = (questions) => {
+  if (!Array.isArray(questions)) return [];
+  return questions.map((q) => {
+    const qObj = typeof q.toObject === "function" ? q.toObject() : { ...q };
+    if (Array.isArray(qObj.options)) {
+      qObj.options = qObj.options.map((opt) => ({
+        _id: opt._id,
+        optionText: opt.optionText,
+      }));
+    }
+    return qObj;
+  });
+};
+
 export const getExam = async (req, res) => {
   try {
     const { id } = req.params;
@@ -131,6 +154,14 @@ export const getExam = async (req, res) => {
     if (exam.job_id && exam.job_id.job_status === "0") {
       throw new NotFoundError(`Exam is no longer active`);
     }
+
+    // Never leak answer keys to candidates / students taking the exam
+    if (req.user && req.user.role === "Student") {
+      const sanitized = exam.toObject();
+      sanitized.questions = sanitizeExamQuestions(sanitized.questions);
+      return res.status(StatusCodes.OK).json({ exam: sanitized });
+    }
+
     res.status(StatusCodes.OK).json({ exam });
   } catch (error) {
     res
@@ -147,6 +178,14 @@ export const getExamById = async (req, res) => {
     if (exam.job_id && exam.job_id.job_status === "0") {
       throw new NotFoundError(`Exam is no longer active`);
     }
+
+    // Never leak answer keys to candidates / students
+    if (req.user && req.user.role === "Student") {
+      const sanitized = exam.toObject();
+      sanitized.questions = sanitizeExamQuestions(sanitized.questions);
+      return res.status(StatusCodes.OK).json({ exam: sanitized });
+    }
+
     res.status(StatusCodes.OK).json({ exam });
   } catch (error) {
     res
@@ -158,10 +197,17 @@ export const getExamById = async (req, res) => {
 export const updateExam = async (req, res) => {
   try {
     const { id } = req.params;
+    const existingExam = await tbl_exam.findById(id);
+    if (!existingExam) throw new NotFoundError(`No exam with id: ${id}`);
+
+    // Company ownership check
+    if (req.user.role !== "Admin" && existingExam.company_id.toString() !== req.user.userId) {
+      return res.status(StatusCodes.FORBIDDEN).json({ error: "Access denied: cannot modify another company's exam" });
+    }
+
     const updatedExam = await tbl_exam.findByIdAndUpdate(id, req.body, {
       new: true,
     });
-    if (!updatedExam) throw new NotFoundError(`No exam with id: ${id}`);
     res
       .status(StatusCodes.OK)
       .json({ msg: "Exam modified", exam: updatedExam });
@@ -175,8 +221,15 @@ export const updateExam = async (req, res) => {
 export const deleteExam = async (req, res) => {
   try {
     const { id } = req.params;
+    const existingExam = await tbl_exam.findById(id);
+    if (!existingExam) throw new NotFoundError(`No exam with id: ${id}`);
+
+    // Company ownership check
+    if (req.user.role !== "Admin" && existingExam.company_id.toString() !== req.user.userId) {
+      return res.status(StatusCodes.FORBIDDEN).json({ error: "Access denied: cannot delete another company's exam" });
+    }
+
     const removedExam = await tbl_exam.findByIdAndDelete(id);
-    if (!removedExam) throw new NotFoundError(`No exam with id: ${id}`);
     res
       .status(StatusCodes.OK)
       .json({ msg: "Exam deleted", exam: removedExam });
@@ -190,13 +243,20 @@ export const deleteExam = async (req, res) => {
 export const updateProctoringSettings = async (req, res) => {
   try {
     const { id } = req.params;
+    const existingExam = await tbl_exam.findById(id);
+    if (!existingExam) throw new NotFoundError(`No exam with id: ${id}`);
+
+    // Company ownership check
+    if (req.user.role !== "Admin" && existingExam.company_id.toString() !== req.user.userId) {
+      return res.status(StatusCodes.FORBIDDEN).json({ error: "Access denied: cannot update proctoring settings for another company's exam" });
+    }
+
     const { proctoring } = req.body;
     const updatedExam = await tbl_exam.findByIdAndUpdate(
       id,
       { proctoring },
       { new: true }
     );
-    if (!updatedExam) throw new NotFoundError(`No exam with id: ${id}`);
     res.status(StatusCodes.OK).json({
       msg: "Proctoring settings updated",
       exam: updatedExam,

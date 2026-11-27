@@ -50,7 +50,7 @@ const jobPostingSchema = new mongoose.Schema(
     lastSeenAt: { type: Date, default: Date.now, index: true },
     active: { type: Boolean, default: true },
     applyClicks: { type: Number, default: 0 },
-    postedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'tbl_user' },
+    postedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'tbl_admin' },
   },
   { timestamps: true },
 );

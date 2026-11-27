@@ -18,5 +18,7 @@ void main() {
     );
 
     expect(find.byType(MaterialApp), findsOneWidget);
+    // Advance clock past splash/auth timers so no pending timers remain on disposal
+    await tester.pump(const Duration(seconds: 4));
   });
 }

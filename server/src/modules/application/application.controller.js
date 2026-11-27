@@ -95,12 +95,82 @@ export const createApplication = async (req, res) => {
 export const updateApplication = async (req, res) => {
   try {
     const { id } = req.params;
-    const updatedApplication = await tbl_application.findByIdAndUpdate(
-      id,
-      req.body,
-      { new: true }
-    );
-    if (!updatedApplication) throw new NotFoundError(`No application with id: ${id}`);
+    const application = await tbl_application.findById(id).populate("job_id");
+    if (!application) throw new NotFoundError(`No application with id: ${id}`);
+
+    const user = req.user;
+    if (!user) {
+      return res.status(StatusCodes.UNAUTHORIZED).json({ error: "Authentication required" });
+    }
+
+    const updates = {};
+
+    if (user.role === "Student") {
+      // Validate application ownership: Student can only update their own application
+      if (application.student_id.toString() !== user.userId) {
+        return res.status(StatusCodes.FORBIDDEN).json({ error: "Access denied: cannot modify another student's application" });
+      }
+      // Restrict fields a student can modify (prevent mass assignment)
+      if (req.body.student_decision !== undefined) {
+        updates.student_decision = req.body.student_decision;
+      }
+      if (req.body.student_reason !== undefined) {
+        updates.student_reason = req.body.student_reason;
+      }
+    } else if (user.role === "Company") {
+      // Validate company ownership: Job must belong to the requesting company
+      const companyId = application.job_id?.job_company_id?.toString() || application.job_id?.toString();
+      if (companyId !== user.userId) {
+        return res.status(StatusCodes.FORBIDDEN).json({ error: "Access denied: cannot modify applications for jobs belonging to another company" });
+      }
+      // Restrict fields a company can modify
+      if (req.body.application_status !== undefined) updates.application_status = req.body.application_status;
+      if (req.body.application_current_status !== undefined) updates.application_current_status = req.body.application_current_status;
+      if (req.body.company_reason !== undefined) updates.company_reason = req.body.company_reason;
+      if (req.body.current_round !== undefined) updates.current_round = req.body.current_round;
+      if (req.body.total_rounds !== undefined) updates.total_rounds = req.body.total_rounds;
+      if (req.body.round_status !== undefined) updates.round_status = req.body.round_status;
+      if (req.body.final_result !== undefined) updates.final_result = req.body.final_result;
+    } else if (user.role === "Admin") {
+      const allowedAdminFields = [
+        "application_status",
+        "application_current_status",
+        "company_reason",
+        "student_reason",
+        "student_decision",
+        "current_round",
+        "total_rounds",
+        "round_status",
+        "final_result",
+      ];
+      allowedAdminFields.forEach((f) => {
+        if (req.body[f] !== undefined) updates[f] = req.body[f];
+      });
+    } else if (user.role === "College" || user.role === "TPO") {
+      // Validate institutional access
+      const student = await tbl_student.findById(application.student_id);
+      if (!student) {
+        return res.status(StatusCodes.NOT_FOUND).json({ error: "Student associated with application not found" });
+      }
+      if (user.role === "College" && student.college_id?.toString() !== user.userId) {
+        return res.status(StatusCodes.FORBIDDEN).json({ error: "Access denied: student does not belong to your college" });
+      }
+      if (user.role === "TPO") {
+        const tpo = await tbl_tpo.findById(user.userId);
+        if (!tpo || student.college_id?.toString() !== tpo.tpo_college_id?.toString()) {
+          return res.status(StatusCodes.FORBIDDEN).json({ error: "Access denied: student does not belong to your institution" });
+        }
+      }
+      if (req.body.application_status !== undefined) updates.application_status = req.body.application_status;
+    } else {
+      return res.status(StatusCodes.FORBIDDEN).json({ error: "Access denied" });
+    }
+
+    if (Object.keys(updates).length === 0) {
+      return res.status(StatusCodes.BAD_REQUEST).json({ error: "No authorized or valid fields provided to update" });
+    }
+
+    const updatedApplication = await tbl_application.findByIdAndUpdate(id, updates, { new: true });
     res.status(StatusCodes.OK).json({ msg: "Application updated", application: updatedApplication });
   } catch (error) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
@@ -110,8 +180,24 @@ export const updateApplication = async (req, res) => {
 export const deleteApplication = async (req, res) => {
   try {
     const { id } = req.params;
+    const application = await tbl_application.findById(id);
+    if (!application) throw new NotFoundError(`No application with id: ${id}`);
+
+    const user = req.user;
+    if (!user) {
+      return res.status(StatusCodes.UNAUTHORIZED).json({ error: "Authentication required" });
+    }
+
+    // Only the student applicant or an Admin can delete an application
+    if (user.role === "Student") {
+      if (application.student_id.toString() !== user.userId) {
+        return res.status(StatusCodes.FORBIDDEN).json({ error: "Access denied: cannot delete another student's application" });
+      }
+    } else if (user.role !== "Admin") {
+      return res.status(StatusCodes.FORBIDDEN).json({ error: "Access denied: only applicant student or administrator can delete this application" });
+    }
+
     const removedApplication = await tbl_application.findByIdAndDelete(id);
-    if (!removedApplication) throw new NotFoundError(`No application with id: ${id}`);
     res.status(StatusCodes.OK).json({ msg: "Application deleted", application: removedApplication });
   } catch (error) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });

@@ -157,7 +157,7 @@ class _TestResultScreenState extends State<TestResultScreen> {
                           textBaseline: TextBaseline.alphabetic,
                           children: [
                             Text(
-                              '$percent',
+                              percent,
                               style: TextStyle(
                                 color: passed ? const Color(0xFF059669) : const Color(0xFFDC2626),
                                 fontSize: 32,
@@ -237,7 +237,7 @@ class _TestResultScreenState extends State<TestResultScreen> {
 
                 final isSkipped = a['is_skipped'] ?? false;
                 final isCorrect = a['is_correct'] ?? false;
-                final userSelected = a['selected_option'];
+                final userSelected = a['selected_option'] ?? a['selected_option_index'];
 
                 return Container(
                   margin: const EdgeInsets.only(bottom: 16),

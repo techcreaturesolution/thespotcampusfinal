@@ -2,8 +2,6 @@ import React, { useState, useEffect } from "react";
 import { FiX, FiCpu } from "react-icons/fi";
 
 const AddBranchModal = ({ isOpen, onClose, degrees = [], branch, onSubmit }) => {
-  if (!isOpen) return null;
-
   const [form, setForm] = useState({
     degree_id: "",
     branch_name: "",
@@ -25,6 +23,8 @@ const AddBranchModal = ({ isOpen, onClose, degrees = [], branch, onSubmit }) => 
       });
     }
   }, [branch, isOpen]);
+
+  if (!isOpen) return null;
 
   const handleSubmit = (e) => {
     e.preventDefault();

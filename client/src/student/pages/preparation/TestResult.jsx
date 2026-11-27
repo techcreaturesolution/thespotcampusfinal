@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import { toast } from "react-toastify";
 import { FiCheck, FiX, FiMinus, FiArrowLeft, FiAward, FiClock, FiTarget, FiActivity, FiEye } from "react-icons/fi";
 import customFetch from "../../../utils/customFetch";
 import Loading from "../../../common/components/Loading";

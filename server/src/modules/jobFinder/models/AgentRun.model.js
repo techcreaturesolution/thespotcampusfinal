@@ -8,7 +8,7 @@ const agentRunSchema = new mongoose.Schema(
     trigger: { type: String, enum: ['schedule', 'manual'], default: 'manual' },
     rule: { type: mongoose.Schema.Types.ObjectId, ref: 'AutoImportRule' },
     ruleName: String,
-    user: { type: mongoose.Schema.Types.ObjectId, ref: 'tbl_user' },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'tbl_admin' },
     status: { type: String, enum: ['completed', 'failed'], default: 'completed' },
     method: String,
     found: { type: Number, default: 0 },

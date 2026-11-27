@@ -2,13 +2,13 @@ import React, { useState } from "react";
 import { FiX, FiCpu } from "react-icons/fi";
 
 const AddBranchModal = ({ isOpen, onClose, degrees, onSubmit }) => {
-  if (!isOpen) return null;
-
   const [form, setForm] = useState({
     degree_id: "",
     branch_name: "",
     branch_code: "",
   });
+
+  if (!isOpen) return null;
 
   const handleSubmit = (e) => {
     e.preventDefault();

@@ -1,7 +1,7 @@
 import { Router } from "express";
 const router = Router();
 import upload from "../../middleware/multerMiddleware.js";
-import { authenticateUser } from "../../middleware/authMiddleware.js";
+import { authenticateUser, authorizePermissions } from "../../middleware/authMiddleware.js";
 import {
   createTemplate,
   deleteTemplate,
@@ -17,9 +17,9 @@ router.route("/compile").post(authenticateUser, compileResumeWithAi);
 router.route("/download-pdf").get(authenticateUser, downloadResumePdf);
 
 // Admin endpoints
-router.route("/admin").post(authenticateUser, upload.single("thumbnail"), createTemplate);
+router.route("/admin").post(authenticateUser, authorizePermissions("Admin"), upload.single("thumbnail"), createTemplate);
 router.route("/admin/:id")
-  .delete(authenticateUser, deleteTemplate)
-  .patch(authenticateUser, upload.single("thumbnail"), updateTemplate);
+  .delete(authenticateUser, authorizePermissions("Admin"), deleteTemplate)
+  .patch(authenticateUser, authorizePermissions("Admin"), upload.single("thumbnail"), updateTemplate);
 
 export default router;

@@ -63,6 +63,9 @@ import ProfileCompletenessRouter from "./modules/profileCompleteness/profileComp
 import ProfilePolicyRouter from "./modules/profilePolicy/profilePolicy.route.js";
 
 import { authenticateUser, requireStudentSubscription } from "./middleware/authMiddleware.js";
+import { uploadProfileImage, validateUploadedFile } from "./middleware/fileUploadMiddleware.js";
+import { studentValidation } from "./middleware/validationMiddleware.js";
+import { createStudent } from "./modules/student/student.controller.js";
 
 const allowedOrigins = [
   "https://thespotcampus.netlify.app",
@@ -203,7 +206,7 @@ app.use("/api/documents", authenticateUser, DocumentsRouter);
 app.use("/api/profile-completeness", authenticateUser, ProfileCompletenessRouter);
 app.use("/api/profile-policy", ProfilePolicyRouter);
 app.use("/api/cv-templates", authenticateUser, CvTemplateRouter);
-app.use("/api/register", StudentRouter);
+app.post("/api/register", uploadProfileImage, validateUploadedFile, studentValidation, createStudent);
 app.use("/api/tpo", authenticateUser, TPORouter);
 app.use("/api/auth", authRouter);
 app.use("/api/login", LoginRouter);

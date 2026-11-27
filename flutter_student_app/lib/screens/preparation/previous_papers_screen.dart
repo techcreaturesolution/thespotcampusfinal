@@ -435,7 +435,7 @@ class _PreviousPapersScreenState extends State<PreviousPapersScreen> {
         children: [
           Expanded(
             child: DropdownButtonFormField<String>(
-              value: _companyFilter.isEmpty ? null : _companyFilter,
+              initialValue: _companyFilter.isEmpty ? null : _companyFilter,
               decoration: const InputDecoration(hintText: 'Company', contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8), isDense: true, border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(10)))),
               items: [const DropdownMenuItem(value: '', child: Text('All')), ..._companies.map((c) => DropdownMenuItem(value: c, child: Text(c, style: const TextStyle(fontSize: 12))))],
               onChanged: (v) { setState(() { _companyFilter = v ?? ''; _page = 1; }); _fetchQuestions(); },
@@ -444,7 +444,7 @@ class _PreviousPapersScreenState extends State<PreviousPapersScreen> {
           const SizedBox(width: 10),
           Expanded(
             child: DropdownButtonFormField<String>(
-              value: _difficultyFilter.isEmpty ? null : _difficultyFilter,
+              initialValue: _difficultyFilter.isEmpty ? null : _difficultyFilter,
               decoration: const InputDecoration(hintText: 'Difficulty', contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8), isDense: true, border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(10)))),
               items: ['', 'easy', 'medium', 'hard'].map((d) => DropdownMenuItem(value: d, child: Text(d.isEmpty ? 'All' : d, style: const TextStyle(fontSize: 12)))).toList(),
               onChanged: (v) { setState(() { _difficultyFilter = v ?? ''; _page = 1; }); _fetchQuestions(); },

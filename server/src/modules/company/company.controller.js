@@ -57,6 +57,14 @@ export const getCompany = async (req, res) => {
 export const updateCompany = async (req, res) => {
   try {
     const { id } = req.params;
+
+    // Verify authorization: Company can only update their own profile, or Admin
+    if (req.user.role === "Company" && req.user.userId !== id) {
+      return res.status(StatusCodes.FORBIDDEN).json({ error: "Access denied: cannot modify another company's profile" });
+    } else if (req.user.role !== "Company" && req.user.role !== "Admin") {
+      return res.status(StatusCodes.FORBIDDEN).json({ error: "Access denied" });
+    }
+
     const existingCompany = await tbl_company.findById(id);
     if (!existingCompany) throw new NotFoundError(`No company with id: ${id}`);
 

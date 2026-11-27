@@ -50,7 +50,11 @@ import 'screens/job_finder/market_job_finder_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env");
+  try {
+    await dotenv.load(fileName: ".env");
+  } catch (e) {
+    debugPrint("Notice: .env file not found or failed to load, falling back to default AppConstants: $e");
+  }
   runApp(
     MultiProvider(
       providers: [

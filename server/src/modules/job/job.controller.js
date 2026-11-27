@@ -248,6 +248,13 @@ export const getJob = async (req, res) => {
 export const updateJob = async (req, res) => {
   try {
     const { id } = req.params;
+    const existingJob = await tbl_jobpost.findById(id);
+    if (!existingJob) throw new NotFoundError(`No job with id: ${id}`);
+
+    // Verify ownership: must be the posting company or Admin
+    if (req.user.role !== "Admin" && existingJob.job_company_id?.toString() !== req.user.userId) {
+      return res.status(StatusCodes.FORBIDDEN).json({ error: "Access denied: cannot update job posted by another company" });
+    }
     
     if (req.body.approved_colleges && req.body.approved_colleges.length > 0 && req.body.target_degree) {
       const colleges = await tbl_college.find({ _id: { $in: req.body.approved_colleges } });
@@ -313,6 +320,14 @@ export const updateJob = async (req, res) => {
 export const deleteJob = async (req, res) => {
   try {
     const { id } = req.params;
+    const existingJob = await tbl_jobpost.findById(id);
+    if (!existingJob) throw new NotFoundError(`No job with id: ${id}`);
+
+    // Verify ownership: must be the posting company or Admin
+    if (req.user.role !== "Admin" && existingJob.job_company_id?.toString() !== req.user.userId) {
+      return res.status(StatusCodes.FORBIDDEN).json({ error: "Access denied: cannot delete job posted by another company" });
+    }
+
     const removedJob = await tbl_jobpost.findByIdAndDelete(id);
     if (!removedJob) throw new NotFoundError(`No job with id: ${id}`);
 
