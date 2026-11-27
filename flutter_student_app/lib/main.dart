@@ -30,10 +30,15 @@ import 'screens/resume_builder_screen.dart';
 import 'screens/resume_preview_screen.dart';
 import 'screens/bookmarks_screen.dart';
 import 'screens/forgot_password_screen.dart';
+import 'screens/job_finder/market_job_finder_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env");
+  try {
+    await dotenv.load(fileName: ".env");
+  } catch (e) {
+    debugPrint("Notice: .env file not found or failed to load, falling back to default AppConstants: $e");
+  }
   runApp(
     MultiProvider(
       providers: [
@@ -120,6 +125,7 @@ class SpotCampusApp extends StatelessWidget {
         '/resume': (context) => const ResumeBuilderScreen(),
         '/resume-preview': (context) => const ResumePreviewScreen(),
         '/bookmarks': (context) => const BookmarksScreen(),
+        '/market-job-finder': (context) => const MarketJobFinderScreen(),
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/job-detail') {

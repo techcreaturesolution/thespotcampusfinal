@@ -4,8 +4,6 @@ import { toast } from "react-toastify";
 import customFetch from "../../utils/customFetch";
 
 const UploadPdfModal = ({ isOpen, onClose, pdf, subjects = [], onSubmit, isSaving }) => {
-  if (!isOpen) return null;
-
   const [categories, setCategories] = useState([]);
   const [form, setForm] = useState({
     title: "",
@@ -57,6 +55,8 @@ const UploadPdfModal = ({ isOpen, onClose, pdf, subjects = [], onSubmit, isSavin
       setFile(null);
     }
   }, [pdf, categories]);
+
+  if (!isOpen) return null;
 
   const handleSubmit = (e) => {
     e.preventDefault();

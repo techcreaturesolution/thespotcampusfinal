@@ -49,6 +49,23 @@ export const getActiveMockTests = async (req, res) => {
   res.status(StatusCodes.OK).json({ mockTests });
 };
 
+// Helper: Sanitize question for student-facing test start (never leak answers or explanations)
+const sanitizeQuestionsForStudent = (questions) => {
+  if (!Array.isArray(questions)) return [];
+  return questions.map((q) => {
+    const obj = typeof q.toObject === "function" ? q.toObject() : { ...q };
+    delete obj.correct_option_index;
+    delete obj.explanation;
+    if (Array.isArray(obj.options)) {
+      obj.options = obj.options.map((opt) => ({
+        _id: opt._id,
+        text: opt.text,
+      }));
+    }
+    return obj;
+  });
+};
+
 // Student: Start mock test
 export const startMockTest = async (req, res) => {
   const { id } = req.params;
@@ -56,15 +73,24 @@ export const startMockTest = async (req, res) => {
   const mockTest = await MockTest.findById(id);
   if (!mockTest) return res.status(StatusCodes.NOT_FOUND).json({ msg: "Mock test not found" });
 
+  const durationMinutes = mockTest.duration_minutes || 30;
+
   // Check for existing in-progress attempt
   const existing = await TestAttempt.findOne({ student_id: studentId, mock_test_id: id, status: "in_progress" });
   if (existing) {
     const questionIds = existing.answers.map((a) => a.question_id);
     const questions = await Question.find({ _id: { $in: questionIds } });
-    const durationMinutes = mockTest.duration_minutes || 30;
     const elapsedMs = Date.now() - new Date(existing.started_at).getTime();
     const remaining_seconds = Math.max(0, Math.ceil((durationMinutes * 60 * 1000 - elapsedMs) / 1000));
-    return res.status(StatusCodes.OK).json({ attempt: existing, questions, resumed: true, remaining_seconds });
+    
+    // Sanitize questions so correct answers are not leaked on resume
+    const sanitizedQuestions = sanitizeQuestionsForStudent(questions);
+    return res.status(StatusCodes.OK).json({ 
+      attempt: existing, 
+      questions: sanitizedQuestions, 
+      resumed: true, 
+      remaining_seconds 
+    });
   }
 
   // Get questions
@@ -88,19 +114,74 @@ export const startMockTest = async (req, res) => {
     mock_test_id: id,
     subject_id: mockTest.subject_id,
     total_questions: questions.length,
-    max_score: questions.length * mockTest.marks_per_question,
-    answers: questions.map((q) => ({ question_id: q._id })),
+    max_score: questions.length * (mockTest.marks_per_question || 1),
+    answers: questions.map((q) => ({ question_id: q._id, selected_option: -1 })),
   });
 
   await MockTest.findByIdAndUpdate(id, { $inc: { attempts_count: 1 } });
+  
+  // Sanitize questions so correct answers are not exposed in initial test load
+  const sanitizedQuestions = sanitizeQuestionsForStudent(questions);
+
   res.status(StatusCodes.CREATED).json({
     attempt,
-    questions,
-    remaining_seconds: (mockTest.duration_minutes || 30) * 60
+    questions: sanitizedQuestions,
+    remaining_seconds: durationMinutes * 60,
   });
 };
 
-// Student: Submit mock test
+// Student: Save attempt progress (intermediate answer saving & recovery)
+export const saveAttemptProgress = async (req, res) => {
+  const { attemptId } = req.params;
+  const { answers, time_taken_seconds } = req.body;
+  const attempt = await TestAttempt.findById(attemptId);
+  if (!attempt) return res.status(StatusCodes.NOT_FOUND).json({ msg: "Attempt not found" });
+  if (attempt.student_id.toString() !== req.user.userId) {
+    return res.status(StatusCodes.FORBIDDEN).json({ msg: "Unauthorized" });
+  }
+  if (attempt.status === "completed") {
+    return res.status(StatusCodes.BAD_REQUEST).json({ msg: "Attempt already completed" });
+  }
+
+  if (Array.isArray(answers)) {
+    const answerMap = new Map();
+    answers.forEach((ans) => {
+      const qId = ans.question_id?.toString();
+      const sel = ans.selected_option !== undefined 
+        ? ans.selected_option 
+        : ans.selected_option_index;
+      if (qId) {
+        answerMap.set(qId, {
+          selected_option: sel !== undefined && sel !== null ? Number(sel) : -1,
+          time_spent_seconds: ans.time_spent_seconds || 0,
+        });
+      }
+    });
+
+    attempt.answers = attempt.answers.map((a) => {
+      const qIdStr = a.question_id.toString();
+      if (answerMap.has(qIdStr)) {
+        const entry = answerMap.get(qIdStr);
+        return {
+          ...a.toObject(),
+          selected_option: entry.selected_option,
+          is_skipped: entry.selected_option === -1,
+          time_spent_seconds: entry.time_spent_seconds,
+        };
+      }
+      return a;
+    });
+  }
+
+  if (time_taken_seconds !== undefined) {
+    attempt.time_taken_seconds = time_taken_seconds;
+  }
+
+  await attempt.save();
+  res.status(StatusCodes.OK).json({ msg: "Progress saved", attempt });
+};
+
+// Student: Submit mock test (Server-authoritative evaluation and timer enforcement)
 export const submitMockTest = async (req, res) => {
   const { attemptId } = req.params;
   const { answers, time_taken_seconds } = req.body;
@@ -110,29 +191,78 @@ export const submitMockTest = async (req, res) => {
     return res.status(StatusCodes.FORBIDDEN).json({ msg: "Unauthorized" });
   }
 
+  // Prevent duplicate submissions
+  if (attempt.status === "completed") {
+    return res.status(StatusCodes.BAD_REQUEST).json({ 
+      msg: "This test attempt has already been submitted and completed.",
+      attempt 
+    });
+  }
+
   const mockTest = await MockTest.findById(attempt.mock_test_id);
+  const durationMinutes = mockTest?.duration_minutes || 30;
+  const marksPerQuestion = mockTest?.marks_per_question || 1;
+  const negativeMarkValue = mockTest?.negative_marking ? (mockTest.negative_mark_value ?? 0.25) : 0;
+
+  // Server-authoritative timing calculation
+  const elapsedSeconds = Math.max(0, Math.floor((Date.now() - new Date(attempt.started_at).getTime()) / 1000));
+  const finalTimeTaken = time_taken_seconds ? Math.min(time_taken_seconds, durationMinutes * 60) : elapsedSeconds;
+
+  // Fetch actual questions from database for secure authoritative grading
+  const questionIds = attempt.answers.map((a) => a.question_id);
+  const dbQuestions = await Question.find({ _id: { $in: questionIds } });
+  const questionMap = new Map(dbQuestions.map((q) => [q._id.toString(), q]));
+
   let correct = 0, wrong = 0, skipped = 0, score = 0;
 
   const updatedAnswers = attempt.answers.map((a) => {
-    const submitted = answers?.find((s) => s.question_id === a.question_id.toString());
-    if (!submitted || submitted.selected_option === -1) {
-      skipped++;
-      return { ...a.toObject(), is_skipped: true };
+    const qIdStr = a.question_id.toString();
+    const dbQ = questionMap.get(qIdStr);
+
+    // Look for submitted answer in request payload; handle both selected_option and selected_option_index
+    const submitted = answers?.find((s) => (s.question_id?.toString() || s.question_id) === qIdStr);
+
+    let selectedOpt = -1;
+    let timeSpent = a.time_spent_seconds || 0;
+
+    if (submitted) {
+      if (submitted.selected_option !== undefined && submitted.selected_option !== null) {
+        selectedOpt = Number(submitted.selected_option);
+      } else if (submitted.selected_option_index !== undefined && submitted.selected_option_index !== null) {
+        selectedOpt = Number(submitted.selected_option_index);
+      }
+      if (submitted.time_spent_seconds) timeSpent = Number(submitted.time_spent_seconds);
+    } else if (a.selected_option !== undefined && a.selected_option !== null && a.selected_option !== -1) {
+      selectedOpt = a.selected_option;
     }
-    const isCorrect = submitted.is_correct;
+
+    if (selectedOpt === -1 || !dbQ) {
+      skipped++;
+      return {
+        ...a.toObject(),
+        selected_option: -1,
+        is_correct: false,
+        is_skipped: true,
+        time_spent_seconds: timeSpent,
+      };
+    }
+
+    // Authoritative check against database correct_option_index (NEVER trust client is_correct)
+    const isCorrect = selectedOpt === dbQ.correct_option_index;
     if (isCorrect) {
       correct++;
-      score += mockTest?.marks_per_question || 1;
+      score += marksPerQuestion;
     } else {
       wrong++;
-      if (mockTest?.negative_marking) score -= mockTest.negative_mark_value || 0.25;
+      score -= negativeMarkValue;
     }
+
     return {
       ...a.toObject(),
-      selected_option: submitted.selected_option,
+      selected_option: selectedOpt,
       is_correct: isCorrect,
       is_skipped: false,
-      time_spent_seconds: submitted.time_spent_seconds || 0,
+      time_spent_seconds: timeSpent,
     };
   });
 
@@ -143,7 +273,7 @@ export const submitMockTest = async (req, res) => {
   attempt.skipped = skipped;
   attempt.score = Math.max(score, 0);
   attempt.accuracy = accuracy;
-  attempt.time_taken_seconds = time_taken_seconds || 0;
+  attempt.time_taken_seconds = finalTimeTaken;
   attempt.status = "completed";
   attempt.completed_at = new Date();
   await attempt.save();
@@ -160,6 +290,12 @@ export const getTestResult = async (req, res) => {
   const attempt = await TestAttempt.findById(attemptId)
     .populate("mock_test_id", "title duration_minutes negative_marking marks_per_question passing_percentage");
   if (!attempt) return res.status(StatusCodes.NOT_FOUND).json({ msg: "Attempt not found" });
+
+  // Ownership validation: only the candidate student or admin can access results
+  if (attempt.student_id.toString() !== req.user.userId && req.user.role !== "Admin") {
+    return res.status(StatusCodes.FORBIDDEN).json({ msg: "Unauthorized access to test result" });
+  }
+
   const questionIds = attempt.answers.map((a) => a.question_id);
   const questions = await Question.find({ _id: { $in: questionIds } });
   
@@ -167,7 +303,12 @@ export const getTestResult = async (req, res) => {
   const elapsedMs = Date.now() - new Date(attempt.started_at).getTime();
   const remaining_seconds = Math.max(0, Math.ceil((durationMinutes * 60 * 1000 - elapsedMs) / 1000));
   
-  res.status(StatusCodes.OK).json({ attempt, questions, remaining_seconds });
+  // If attempt is not completed yet, sanitize questions to prevent leak during unauthorized access
+  const questionsToReturn = attempt.status === "completed" 
+    ? questions 
+    : sanitizeQuestionsForStudent(questions);
+
+  res.status(StatusCodes.OK).json({ attempt, questions: questionsToReturn, remaining_seconds });
 };
 
 // Student: Get my attempts

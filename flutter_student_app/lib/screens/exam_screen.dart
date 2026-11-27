@@ -324,12 +324,12 @@ class _ExamScreenState extends State<ExamScreen> with WidgetsBindingObserver {
                   color: Colors.red.withValues(alpha: 0.85),
                   borderRadius: BorderRadius.circular(4),
                 ),
-                child: Row(
+                child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const _CameraLiveDot(),
-                    const SizedBox(width: 4),
-                    const Text(
+                    _CameraLiveDot(),
+                    SizedBox(width: 4),
+                    Text(
                       'LIVE',
                       style: TextStyle(
                         color: Colors.white,

@@ -5,8 +5,6 @@ import customFetch from "../../utils/customFetch";
 import Loading from "../../common/components/Loading";
 
 const CreateExamFromJDModal = ({ isOpen, onClose, jobId, onSuccess }) => {
-  if (!isOpen) return null;
-
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
@@ -33,7 +31,7 @@ const CreateExamFromJDModal = ({ isOpen, onClose, jobId, onSuccess }) => {
   });
 
   useEffect(() => {
-    if (!jobId) return;
+    if (!isOpen || !jobId) return;
     const fetchJob = async () => {
       try {
         setLoading(true);
@@ -50,7 +48,9 @@ const CreateExamFromJDModal = ({ isOpen, onClose, jobId, onSuccess }) => {
       }
     };
     fetchJob();
-  }, [jobId]);
+  }, [jobId, isOpen]);
+
+  if (!isOpen) return null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();

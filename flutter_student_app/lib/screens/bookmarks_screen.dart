@@ -113,7 +113,7 @@ class _BookmarksScreenState extends State<BookmarksScreen> {
       color = const Color(0xFF10B981);
     } else if (itemType == 'question') {
       title = item['question_text']?.toString() ?? 'Question';
-      if (title.length > 50) title = title.substring(0, 50) + '...';
+      if (title.length > 50) title = '${title.substring(0, 50)}...';
       icon = Icons.help_outline;
       color = const Color(0xFFF59E0B);
     } else if (itemType == 'pdf') {

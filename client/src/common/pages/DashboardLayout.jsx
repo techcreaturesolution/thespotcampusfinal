@@ -6,7 +6,7 @@ import {
   FiHome, FiBriefcase, FiUsers, FiBookOpen,
   FiLogOut, FiMenu, FiX, FiUser, FiFileText, FiGrid,
   FiMessageSquare, FiVideo, FiLayers, FiDollarSign, FiCpu, FiBook,
-  FiBookmark, FiChevronDown, FiChevronUp,
+  FiBookmark, FiChevronDown, FiChevronUp, FiSearch,
 } from "react-icons/fi";
 import customFetch from "../../utils/customFetch";
 import AdminDashboard from "../../admin/pages/AdminDashboard";
@@ -84,6 +84,7 @@ const DashboardLayout = () => {
         ];
       case "Student":
         return [...base,
+        { path: "/dashboard/student/job-finder", icon: <FiSearch />, label: "Job Finder (Market)" },
         { path: "/dashboard/student/opening-list", icon: <FiBriefcase />, label: "Job Openings" },
         { path: "/dashboard/student/apply-list", icon: <FiFileText />, label: "My Applications" },
         { path: "/dashboard/student/preparation", icon: <FiBook />, label: "Preparation" },

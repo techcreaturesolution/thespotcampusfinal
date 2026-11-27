@@ -17,14 +17,27 @@ export const createOrder = async (req, res) => {
       return res.status(StatusCodes.NOT_FOUND).json({ error: "Student profile not found" });
     }
 
-    const { amount, currency, receipt, notes, plan_name, description } = req.body;
-    if (!plan_name || !amount) {
-      return res.status(StatusCodes.BAD_REQUEST).json({ error: "plan_name and amount are required to purchase a plan" });
+    const { receipt, notes, plan_name, description } = req.body;
+    if (!plan_name) {
+      return res.status(StatusCodes.BAD_REQUEST).json({ error: "plan_name is required to purchase a plan" });
     }
 
+    // Authoritative server-side plan lookup (never trust client-supplied amount)
+    const plan = await RecruitmentPlan.findOne({
+      plan_name,
+      plan_for: "student",
+      is_active: true,
+    });
+    if (!plan) {
+      return res.status(StatusCodes.NOT_FOUND).json({ error: "Active student plan not found" });
+    }
+
+    const authoritativeAmount = plan.price;
+    const authoritativeCurrency = plan.currency || "INR";
+
     const options = {
-      amount: amount * 100,
-      currency: currency || "INR",
+      amount: Math.round(authoritativeAmount * 100),
+      currency: authoritativeCurrency,
       receipt: receipt || `student_rcpt_${Date.now()}`,
       notes: notes || {},
     };
@@ -39,9 +52,9 @@ export const createOrder = async (req, res) => {
       user_enrollment: student.student_enrollment || "N/A",
       user_email: student.student_email || "N/A",
       user_contact: student.student_contact || "N/A",
-      plan_name,
-      description: description || `Student Subscription Plan - ${plan_name}`,
-      amount,
+      plan_name: plan.plan_name,
+      description: description || `Student Subscription Plan - ${plan.plan_name}`,
+      amount: authoritativeAmount,
       currency: options.currency,
     });
 
@@ -54,6 +67,24 @@ export const createOrder = async (req, res) => {
 export const verifyPayment = async (req, res) => {
   try {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+      return res.status(StatusCodes.BAD_REQUEST).json({ msg: "Missing Razorpay verification fields" });
+    }
+
+    const payment = await tbl_payment.findOne({ orderId: razorpay_order_id });
+    if (!payment) {
+      return res.status(StatusCodes.NOT_FOUND).json({ msg: "Payment record not found" });
+    }
+
+    // Ownership check
+    if (req.user.role !== "Admin" && payment.user_id.toString() !== req.user.userId) {
+      return res.status(StatusCodes.FORBIDDEN).json({ msg: "Access denied for this payment order" });
+    }
+
+    // Idempotency guard
+    if (payment.status === "Paid") {
+      return res.status(StatusCodes.OK).json({ msg: "Payment already verified", payment });
+    }
 
     const body = razorpay_order_id + "|" + razorpay_payment_id;
     const expectedSignature = crypto
@@ -61,12 +92,11 @@ export const verifyPayment = async (req, res) => {
       .update(body.toString())
       .digest("hex");
 
-    if (expectedSignature === razorpay_signature) {
-      const payment = await tbl_payment.findOne({ orderId: razorpay_order_id });
-      if (!payment) {
-        return res.status(StatusCodes.NOT_FOUND).json({ msg: "Payment record not found" });
-      }
+    const sigBuf = Buffer.from(String(razorpay_signature), "utf8");
+    const expBuf = Buffer.from(expectedSignature, "utf8");
+    const isValidSignature = sigBuf.length === expBuf.length && crypto.timingSafeEqual(sigBuf, expBuf);
 
+    if (isValidSignature) {
       // Query the validity_days of this student plan
       const plan = await RecruitmentPlan.findOne({
         plan_name: payment.plan_name,

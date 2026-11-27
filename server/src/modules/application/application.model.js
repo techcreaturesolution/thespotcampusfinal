@@ -58,4 +58,10 @@ const ApplicationSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
+ApplicationSchema.index(
+  { student_id: 1, job_id: 1 },
+  { unique: true, partialFilterExpression: { student_id: { $exists: true }, job_id: { $exists: true } } }
+);
+ApplicationSchema.index({ job_id: 1, createdAt: -1 });
+
 export default mongoose.model("tbl_application", ApplicationSchema);

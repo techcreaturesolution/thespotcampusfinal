@@ -1,7 +1,7 @@
 import { Router } from "express";
 const router = Router();
 import upload from "../../middleware/multerMiddleware.js";
-import { authenticateUser } from "../../middleware/authMiddleware.js";
+import { authenticateUser, authorizePermissions } from "../../middleware/authMiddleware.js";
 
 import {
   getAllColleges,
@@ -18,8 +18,8 @@ router.route("/").get(getAllColleges).post(upload.single("college_logo"), create
 router
   .route("/:id")
   .get(getCollege)
-  .patch(upload.single("college_logo"), updateCollege)
-  .delete(deleteCollege);
-router.route("/:id/status/:status").patch(updateStatus);
+  .patch(authenticateUser, authorizePermissions("Admin", "University", "College"), upload.single("college_logo"), updateCollege)
+  .delete(authenticateUser, authorizePermissions("Admin"), deleteCollege);
+router.route("/:id/status/:status").patch(authenticateUser, authorizePermissions("Admin"), updateStatus);
 
 export default router;

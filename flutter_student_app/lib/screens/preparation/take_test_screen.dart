@@ -36,11 +36,11 @@ class _TakeTestScreenState extends State<TakeTestScreen> {
     if (_attempt['answers'] != null) {
       final answersList = _attempt['answers'] as List;
       for (var ans in answersList) {
-        final qId = ans['question_id'];
-        final optIdx = ans['selected_option_index'];
+        final qId = ans['question_id'] is Map ? ans['question_id']['_id'] : ans['question_id'];
+        final optIdx = ans['selected_option'] ?? ans['selected_option_index'];
         final qIndex = _questions.indexWhere((q) => q['_id'] == qId);
-        if (qIndex != -1 && optIdx != null) {
-          _answers[qIndex] = optIdx;
+        if (qIndex != -1 && optIdx != null && optIdx != -1) {
+          _answers[qIndex] = (optIdx as num).toInt();
         }
       }
     }
@@ -77,6 +77,7 @@ class _TakeTestScreenState extends State<TakeTestScreen> {
       final answersList = _answers.entries.map((e) {
         return {
           'question_id': _questions[e.key]['_id'],
+          'selected_option': e.value,
           'selected_option_index': e.value,
           'time_spent_seconds': 0 // optional, tracking per question could be added
         };
@@ -241,7 +242,25 @@ class _TakeTestScreenState extends State<TakeTestScreen> {
                   ...List.generate(options.length, (idx) {
                     final isSelected = selectedAns == idx;
                     return GestureDetector(
-                      onTap: () => setState(() => _answers[_currentIndex] = idx),
+                      onTap: () {
+                        setState(() => _answers[_currentIndex] = idx);
+                        final attemptId = _attempt['_id'];
+                        final qId = q['_id'];
+                        if (attemptId != null && qId != null) {
+                          Provider.of<ApiService>(context, listen: false).post(
+                            '/preparation/mock-tests/save/$attemptId',
+                            {
+                              'answers': [
+                                {
+                                  'question_id': qId,
+                                  'selected_option': idx,
+                                  'selected_option_index': idx
+                                }
+                              ]
+                            },
+                          ).catchError((_) => <String, dynamic>{});
+                        }
+                      },
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 200),
                         margin: const EdgeInsets.only(bottom: 12),

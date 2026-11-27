@@ -40,9 +40,9 @@ class _ResumeBuilderScreenState extends State<ResumeBuilderScreen> {
   final _certCtrl = TextEditingController();
   final _langCtrl = TextEditingController();
 
-  Map<String, dynamic> _eduInput = {};
-  Map<String, dynamic> _expInput = {};
-  Map<String, dynamic> _projInput = {};
+  final Map<String, dynamic> _eduInput = {};
+  final Map<String, dynamic> _expInput = {};
+  final Map<String, dynamic> _projInput = {};
 
   @override
   void initState() {

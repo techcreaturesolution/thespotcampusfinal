@@ -28,7 +28,9 @@ const Bookmarks = () => {
       await customFetch.post("/preparation/bookmarks/toggle", { item_type: itemType, item_id: itemId });
       fetchBookmarks();
       toast.success("Bookmark removed");
-    } catch {}
+    } catch {
+      toast.error("Failed to remove bookmark");
+    }
   };
 
   const handleStartTest = async (id) => {

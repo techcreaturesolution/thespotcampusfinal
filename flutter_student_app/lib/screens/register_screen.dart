@@ -384,7 +384,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             // SECTION 1: Personal Details
-                            Row(
+                            const Row(
                               children: [
                                 Icon(Icons.person, color: Colors.white, size: 20),
                                 SizedBox(width: 8),
@@ -508,7 +508,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             const SizedBox(height: 20),
                             
                             // SECTION 2: Academic Details
-                            Row(
+                            const Row(
                               children: [
                                 Icon(Icons.school, color: Colors.white, size: 20),
                                 SizedBox(width: 8),
@@ -869,7 +869,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
         const SizedBox(height: 8),
         DropdownButtonFormField<T>(
-          value: value,
+          initialValue: value,
           focusNode: focusNode,
           isExpanded: true,
           icon: Icon(Icons.arrow_drop_down, color: Colors.white.withOpacity(0.8)),

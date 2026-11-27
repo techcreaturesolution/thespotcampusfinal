@@ -52,7 +52,10 @@ class _InterviewListScreenState extends State<InterviewListScreen> {
 
   Future<void> _joinInterview(String roomId) async {
     final baseUrlClean = AppConstants.baseUrl.replaceAll('/api', '');
-    final url = Uri.parse('$baseUrlClean/dashboard/video-interview/$roomId');
+    final webBase = baseUrlClean.contains('localhost') || baseUrlClean.contains('127.0.0.1') || baseUrlClean.contains('10.0.2.2')
+        ? 'http://localhost:5173'
+        : 'https://thespotcampus.netlify.app';
+    final url = Uri.parse('$webBase/dashboard/video-interview/$roomId');
     try {
       await launchUrl(url, mode: LaunchMode.externalApplication);
     } catch (e) {

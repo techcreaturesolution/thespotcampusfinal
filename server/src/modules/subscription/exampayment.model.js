@@ -6,7 +6,6 @@ const AIPaymentSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "tbl_company",
       required: true,
-      unique: true,
     },
     examId: {
       type: String,
@@ -42,5 +41,7 @@ const AIPaymentSchema = new mongoose.Schema(
   },
   { timestamps: true },
 );
+
+AIPaymentSchema.index({ user_id: 1, examId: 1 });
 
 export default mongoose.model("exam_payment", AIPaymentSchema);

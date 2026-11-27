@@ -24,7 +24,7 @@ const ManagePdfs = () => {
   };
 
   const fetchSubjects = async () => {
-    try { const { data } = await customFetch.get("/preparation/subjects"); setSubjects(data.subjects); } catch {}
+    try { const { data } = await customFetch.get("/preparation/subjects"); setSubjects(data.subjects); } catch (err) { console.error(err); }
   };
 
   const handleSubmit = async (formDataState, fileState) => {

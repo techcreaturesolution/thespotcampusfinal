@@ -42,8 +42,8 @@ const compileHtmlTemplate = (html, css, resumeData, student) => {
     const loopKeys = ["education", "experience", "projects", "skills", "certifications", "languages"];
 
     for (const key of loopKeys) {
-      const openRegex = new RegExp(`\\{\\{\\s*#${key}\\s*\\\}\\}`, "gi");
-      const closeRegex = new RegExp(`\\{\\{\\s*\\/${key}\\s*\\\}\\}`, "gi");
+      const openRegex = new RegExp(`\\{\\{\\s*#${key}\\s*\\}\\}`, "gi");
+      const closeRegex = new RegExp(`\\{\\{\\s*\\/${key}\\s*\\}\\}`, "gi");
 
       const openMatches = [...processed.matchAll(openRegex)];
       const closeMatches = [...processed.matchAll(closeRegex)];

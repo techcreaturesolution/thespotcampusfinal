@@ -2,8 +2,6 @@ import React, { useState, useEffect } from "react";
 import { FiX } from "react-icons/fi";
 
 const CreatePlanModal = ({ isOpen, onClose, plan, onSubmit, isSaving }) => {
-  if (!isOpen) return null;
-
   const [form, setForm] = useState({
     plan_for: "student",
     plan_name: "",
@@ -63,6 +61,8 @@ const CreatePlanModal = ({ isOpen, onClose, plan, onSubmit, isSaving }) => {
     e.preventDefault();
     onSubmit({ ...form, price: Number(form.price) });
   };
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
