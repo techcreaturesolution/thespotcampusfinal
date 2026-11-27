@@ -2,8 +2,6 @@ import React, { useState, useEffect } from "react";
 import { FiX, FiLayers, FiUploadCloud, FiCheck } from "react-icons/fi";
 
 const CreateCvTemplateModal = ({ isOpen, onClose, template, onSubmit, isSubmitting }) => {
-  if (!isOpen) return null;
-
   const [name, setName] = useState("");
   const [thumbnailFile, setThumbnailFile] = useState(null);
   const [previewThumbnail, setPreviewThumbnail] = useState(null);
@@ -19,6 +17,8 @@ const CreateCvTemplateModal = ({ isOpen, onClose, template, onSubmit, isSubmitti
       setThumbnailFile(null);
     }
   }, [template]);
+
+  if (!isOpen) return null;
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];

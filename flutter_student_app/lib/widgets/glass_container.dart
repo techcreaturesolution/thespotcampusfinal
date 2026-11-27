@@ -13,7 +13,7 @@ class GlassContainer extends StatelessWidget {
   final Color color;
 
   const GlassContainer({
-    Key? key,
+    super.key,
     required this.child,
     this.blur = 10.0,
     this.opacity = 0.15,
@@ -23,7 +23,7 @@ class GlassContainer extends StatelessWidget {
     this.width,
     this.height,
     this.color = Colors.white,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

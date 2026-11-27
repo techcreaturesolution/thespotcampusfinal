@@ -10,6 +10,11 @@ export const getAllPaper = async (req, res) => {
     const exam = await tbl_exam.findOne({ job_id: req.params.id }).populate("job_id");
     if (!exam) throw new NotFoundError(`No exam found for job id: ${req.params.id}`);
 
+    // Verify company ownership or Admin
+    if (req.user.role !== "Admin" && exam.company_id?.toString() !== req.user.userId) {
+      return res.status(StatusCodes.FORBIDDEN).json({ error: "Access denied: cannot access exam papers for another company" });
+    }
+
     const papers = await tbl_paper
       .find({ exam_id: req.params.id })
       .populate("student_id")
@@ -115,10 +120,9 @@ export const createPaper = async (req, res) => {
         paper.proctoring = {};
       }
 
-      // Sync final proctoring score and violations count from client
+      // Sync final proctoring duration from client (trustScore remains server-computed)
       if (req.body.proctoring) {
-        paper.proctoring.trustScore = req.body.proctoring.trustScore ?? paper.proctoring.trustScore;
-        paper.proctoring.totalViolations = req.body.proctoring.totalViolations ?? paper.proctoring.totalViolations;
+        paper.proctoring.totalViolations = paper.proctoring.violations?.length ?? paper.proctoring.totalViolations;
 
         // Merge violations if needed
         if (req.body.proctoring.violations && req.body.proctoring.violations.length > 0) {
@@ -177,6 +181,11 @@ export const recordViolation = async (req, res) => {
     const paper = await tbl_paper.findById(paperId);
     if (!paper) return res.status(404).json({ message: "Paper not found" });
 
+    // Validate that candidate is updating their own paper
+    if (req.user.role !== "Admin" && paper.student_id?.toString() !== req.user.userId) {
+      return res.status(StatusCodes.FORBIDDEN).json({ message: "Unauthorized to record violation for this paper" });
+    }
+
     paper.proctoring.violations.push({
       type,
       details,
@@ -211,6 +220,11 @@ export const saveCameraSnapshot = async (req, res) => {
 
     const paper = await tbl_paper.findById(paperId);
     if (!paper) return res.status(404).json({ message: "Paper not found" });
+
+    // Validate that candidate is updating their own paper
+    if (req.user.role !== "Admin" && paper.student_id?.toString() !== req.user.userId) {
+      return res.status(StatusCodes.FORBIDDEN).json({ message: "Unauthorized to upload snapshot for this paper" });
+    }
 
     paper.proctoring.cameraSnapshots.push({
       imageUrl,
@@ -259,6 +273,11 @@ export const autoSubmitPaper = async (req, res) => {
     const paper = await tbl_paper.findById(paperId);
     if (!paper) return res.status(404).json({ message: "Paper not found" });
 
+    // Validate ownership
+    if (req.user.role !== "Admin" && paper.student_id?.toString() !== req.user.userId) {
+      return res.status(StatusCodes.FORBIDDEN).json({ message: "Unauthorized to submit this paper" });
+    }
+
     if (answers) {
       paper.answers = answers;
       const exam = await tbl_exam.findOne({ job_id: paper.exam_id });
@@ -277,9 +296,9 @@ export const autoSubmitPaper = async (req, res) => {
       }
     }
 
+    // Server-computed trustScore preserved on auto-submit
     if (req.body.proctoring) {
-      paper.proctoring.trustScore = req.body.proctoring.trustScore ?? paper.proctoring.trustScore;
-      paper.proctoring.totalViolations = req.body.proctoring.totalViolations ?? paper.proctoring.totalViolations;
+      paper.proctoring.totalViolations = paper.proctoring.violations?.length ?? paper.proctoring.totalViolations;
     }
 
     paper.status = "auto_submitted";
@@ -369,9 +388,18 @@ export const startExamSession = async (req, res) => {
 export const deletePaper = async (req, res) => {
   try {
     const { id } = req.params;
-    const removedPaper = await tbl_paper.findByIdAndDelete(id);
-    if (!removedPaper) throw new NotFoundError(`no Paper with id : ${id}`);
+    const existingPaper = await tbl_paper.findById(id);
+    if (!existingPaper) throw new NotFoundError(`no Paper with id : ${id}`);
 
+    // Verify company ownership or Admin
+    if (req.user.role !== "Admin") {
+      const exam = await tbl_exam.findOne({ job_id: existingPaper.exam_id });
+      if (!exam || exam.company_id?.toString() !== req.user.userId) {
+        return res.status(StatusCodes.FORBIDDEN).json({ error: "Access denied: cannot delete paper belonging to another company's exam" });
+      }
+    }
+
+    const removedPaper = await tbl_paper.findByIdAndDelete(id);
     res
       .status(StatusCodes.OK)
       .json({ msg: "Paper deleted", paper: removedPaper });
@@ -390,6 +418,21 @@ export const getPaperWithProctoring = async (req, res) => {
       .populate("student_id");
 
     if (!paper) throw new NotFoundError(`No paper with id: ${paperId}`);
+
+    // Verify access rights: student herself, or company owning the exam, or admin
+    if (req.user.role === "Student") {
+      const studentId = paper.student_id?._id?.toString() || paper.student_id?.toString();
+      if (studentId !== req.user.userId) {
+        return res.status(StatusCodes.FORBIDDEN).json({ error: "Access denied to candidate proctoring data" });
+      }
+    } else if (req.user.role === "Company") {
+      const exam = await tbl_exam.findOne({ job_id: paper.exam_id });
+      if (!exam || exam.company_id?.toString() !== req.user.userId) {
+        return res.status(StatusCodes.FORBIDDEN).json({ error: "Access denied to candidate proctoring data for other companies" });
+      }
+    } else if (req.user.role !== "Admin") {
+      return res.status(StatusCodes.FORBIDDEN).json({ error: "Access denied" });
+    }
 
     res.status(StatusCodes.OK).json({ paper });
   } catch (error) {

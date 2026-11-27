@@ -73,6 +73,14 @@ export const getCollege = async (req, res) => {
 export const updateCollege = async (req, res) => {
   try {
     const { id } = req.params;
+
+    // Verify authorization: College can only update their own profile, or Admin
+    if (req.user.role === "College" && req.user.userId !== id) {
+      return res.status(StatusCodes.FORBIDDEN).json({ error: "Access denied: cannot modify another college's profile" });
+    } else if (req.user.role !== "College" && req.user.role !== "Admin") {
+      return res.status(StatusCodes.FORBIDDEN).json({ error: "Access denied" });
+    }
+
     const existingCollege = await tbl_college.findById(id);
     if (!existingCollege) throw new NotFoundError(`No college with id: ${id}`);
 

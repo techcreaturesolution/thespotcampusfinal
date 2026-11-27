@@ -15,9 +15,19 @@ export const login = async (req, res) => {
     let detectedRole = "";
     let userPassword = "";
 
+    const isAccountInactive = (account, statusField) => {
+      if (!account) return false;
+      if (account.is_active === false) return true;
+      const val = statusField ? account[statusField] : undefined;
+      return val === false || ["Inactive", "Suspended", "Disabled", "Rejected"].includes(val);
+    };
+
     // 0. Search in Admin
     user = await tbl_admin.findOne({ admin_email: email }).select("+admin_password");
     if (user) {
+      if (isAccountInactive(user, "admin_status")) {
+        return res.status(StatusCodes.UNAUTHORIZED).json({ msg: "Your account is inactive or suspended." });
+      }
       detectedRole = "Admin";
       userPassword = user.admin_password;
     }
@@ -32,6 +42,9 @@ export const login = async (req, res) => {
           return res
             .status(StatusCodes.UNAUTHORIZED)
             .json({ msg: "Your account is pending verification by your college TPO. Please contact your TPO." });
+        }
+        if (isAccountInactive(user, "student_status")) {
+          return res.status(StatusCodes.UNAUTHORIZED).json({ msg: "Your account is inactive or suspended." });
         }
         detectedRole = "Student";
         userPassword = user.student_password;
@@ -87,6 +100,9 @@ export const login = async (req, res) => {
     if (!user) {
       user = await tbl_tpo.findOne({ tpo_email: email }).select("+tpo_password");
       if (user) {
+        if (isAccountInactive(user, "tpo_status")) {
+          return res.status(StatusCodes.UNAUTHORIZED).json({ msg: "Your account is inactive or suspended." });
+        }
         detectedRole = "TPO";
         userPassword = user.tpo_password;
       }

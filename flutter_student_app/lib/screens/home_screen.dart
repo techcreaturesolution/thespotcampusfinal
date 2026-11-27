@@ -189,17 +189,29 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     int filledFields = 0;
     const int totalFields = 8;
     if (user['student_name'] != null &&
-        user['student_name'].toString().isNotEmpty) filledFields++;
+        user['student_name'].toString().isNotEmpty) {
+      filledFields++;
+    }
     if (user['student_email'] != null &&
-        user['student_email'].toString().isNotEmpty) filledFields++;
+        user['student_email'].toString().isNotEmpty) {
+      filledFields++;
+    }
     if (user['student_contact'] != null &&
-        user['student_contact'].toString().isNotEmpty) filledFields++;
+        user['student_contact'].toString().isNotEmpty) {
+      filledFields++;
+    }
     if (user['student_enrollment'] != null &&
-        user['student_enrollment'].toString().isNotEmpty) filledFields++;
+        user['student_enrollment'].toString().isNotEmpty) {
+      filledFields++;
+    }
     if (user['student_skills'] != null &&
-        user['student_skills'].toString().isNotEmpty) filledFields++;
+        user['student_skills'].toString().isNotEmpty) {
+      filledFields++;
+    }
     if (user['student_current_sem'] != null &&
-        user['student_current_sem'].toString().isNotEmpty) filledFields++;
+        user['student_current_sem'].toString().isNotEmpty) {
+      filledFields++;
+    }
     if (user['branch_id'] != null) filledFields++;
     if (user['degree_id'] != null) filledFields++;
     return ((filledFields / totalFields) * 100).toInt();
@@ -324,19 +336,19 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   // ── Shimmer skeleton ───────────────────────────────────────────────────────
   Widget _buildSkeleton() {
-    return SafeArea(
+    return const SafeArea(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16),
         child: Column(
           children: [
             _ShimmerBox(height: 64, radius: 0, margin: EdgeInsets.zero),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             _ShimmerBox(height: 140, radius: 24, margin: EdgeInsets.zero),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
             _ShimmerBox(height: 110, radius: 16, margin: EdgeInsets.zero),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
             _ShimmerBox(height: 160, radius: 16, margin: EdgeInsets.zero),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
             _ShimmerBox(height: 120, radius: 16, margin: EdgeInsets.zero),
           ],
         ),
@@ -493,10 +505,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             ],
           ),
           const SizedBox(height: 16),
-          Row(
+          const Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Expanded(
+              Expanded(
                 child: Text(
                   '❝ Discipline today, success tomorrow.\n    You\'ve got this! ❞',
                   style: TextStyle(
@@ -729,7 +741,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       }
     }
     
-    final int dailyGoal = 40;
+    const int dailyGoal = 40;
     final double dailyProgress = (todayQuestions / dailyGoal).clamp(0.0, 1.0);
     final int dailyPercent = (dailyProgress * 100).toInt();
 
@@ -738,16 +750,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          const Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Preparation Insights',
+              Text('Preparation Insights',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: _text1)),
               Row(
                 children: [
-                  const Text('This Week', style: TextStyle(fontSize: 11, color: _text2)),
-                  const SizedBox(width: 4),
-                  const Icon(Icons.keyboard_arrow_down, size: 14, color: _text2),
+                  Text('This Week', style: TextStyle(fontSize: 11, color: _text2)),
+                  SizedBox(width: 4),
+                  Icon(Icons.keyboard_arrow_down, size: 14, color: _text2),
                 ],
               ),
             ],
@@ -1041,8 +1053,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           ),
           const SizedBox(height: 12),
           _jobs.isEmpty
-              ? Padding(
-                  padding: const EdgeInsets.only(right: 16),
+              ? const Padding(
+                  padding: EdgeInsets.only(right: 16),
                   child: Text('No jobs available at the moment.', style: TextStyle(color: _text2, fontSize: 13)),
                 )
               : SizedBox(
@@ -1090,7 +1102,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                             const SizedBox(height: 12),
                             Text(companyName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11, color: _text1), maxLines: 1, overflow: TextOverflow.ellipsis),
                             const SizedBox(height: 4),
-                            Text(job['job_title'] ?? 'Role', style: TextStyle(fontSize: 10, color: _text2), maxLines: 1, overflow: TextOverflow.ellipsis),
+                            Text(job['job_title'] ?? 'Role', style: const TextStyle(fontSize: 10, color: _text2), maxLines: 1, overflow: TextOverflow.ellipsis),
                             const SizedBox(height: 8),
                             Text('₹ $salary', style: const TextStyle(fontSize: 10, color: _text2)),
                             Text('📍 $city', style: const TextStyle(fontSize: 10, color: _text2)),
@@ -1188,7 +1200,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(_formatInterviewTime(interview['scheduled_at']), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11, color: _text1)),
-                    Text(interview['job_id']?['job_title'] ?? 'Technical Round', style: TextStyle(fontSize: 10, color: _text2), maxLines: 1, overflow: TextOverflow.ellipsis),
+                    Text(interview['job_id']?['job_title'] ?? 'Technical Round', style: const TextStyle(fontSize: 10, color: _text2), maxLines: 1, overflow: TextOverflow.ellipsis),
                   ],
                 ),
               ),
@@ -1222,8 +1234,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   Widget _buildRecentActivity() {
     if (_recentActivity.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 20),
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 20),
         child: Center(child: Text('No recent activity', style: TextStyle(color: _text2, fontSize: 12))),
       );
     }
@@ -1296,7 +1308,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               children: [
                 Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 10, color: _text1)),
                 const SizedBox(height: 2),
-                Text(subtitle, style: TextStyle(fontSize: 9, color: _text2)),
+                Text(subtitle, style: const TextStyle(fontSize: 9, color: _text2)),
               ],
             ),
           ),
@@ -1309,12 +1321,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   // ── 9. QUICK ACTIONS ─────────────────────────────────────────────────────────
   Widget _buildQuickActions() {
     final actions = <_QA>[
-      _QA(icon: Icons.travel_explore, label: 'Job Finder', color: const Color(0xFF4F46E5), route: '/market-job-finder'),
-      _QA(icon: Icons.work, label: 'Jobs', color: const Color(0xFF2563EB), route: '/jobs'),
-      _QA(icon: Icons.assignment, label: 'Applications', color: const Color(0xFF4F46E5), route: '/my-applications'),
-      _QA(icon: Icons.description, label: 'Resume', color: const Color(0xFF8B5CF6), route: '/resume'),
-      _QA(icon: Icons.video_call, label: 'Interview', color: const Color(0xFFEF4444), route: '/interviews'),
-      _QA(icon: Icons.bookmark, label: 'Bookmarks', color: const Color(0xFFF59E0B), route: '/bookmarks'),
+      const _QA(icon: Icons.travel_explore, label: 'Job Finder', color: Color(0xFF4F46E5), route: '/market-job-finder'),
+      const _QA(icon: Icons.work, label: 'Jobs', color: Color(0xFF2563EB), route: '/jobs'),
+      const _QA(icon: Icons.assignment, label: 'Applications', color: Color(0xFF4F46E5), route: '/my-applications'),
+      const _QA(icon: Icons.description, label: 'Resume', color: Color(0xFF8B5CF6), route: '/resume'),
+      const _QA(icon: Icons.video_call, label: 'Interview', color: Color(0xFFEF4444), route: '/interviews'),
+      const _QA(icon: Icons.bookmark, label: 'Bookmarks', color: Color(0xFFF59E0B), route: '/bookmarks'),
     ];
 
     return Padding(

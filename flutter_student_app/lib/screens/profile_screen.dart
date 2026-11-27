@@ -126,8 +126,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         color: const Color(0xFFDBEAFE),
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: Row(
-                        children: const [
+                      child: const Row(
+                        children: [
                           Icon(Icons.verified, color: Color(0xFF2563EB), size: 12),
                           SizedBox(width: 4),
                           Text('Verified Account', style: TextStyle(color: Color(0xFF2563EB), fontSize: 10, fontWeight: FontWeight.w800)),
@@ -383,10 +383,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         child: const Icon(Icons.star, color: Color(0xFFF59E0B), size: 20),
                       ),
                       const SizedBox(width: 16),
-                      Expanded(
+                      const Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
+                          children: [
                             Text(
                               'Active Plans & Packages',
                               style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13, color: Color(0xFF1F2937)),

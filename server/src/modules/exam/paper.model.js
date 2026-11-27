@@ -93,4 +93,7 @@ const PaperSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
+PaperSchema.index({ exam_id: 1, student_id: 1 });
+PaperSchema.index({ student_id: 1, createdAt: -1 });
+
 export default mongoose.model("tbl_paper", PaperSchema);

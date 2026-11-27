@@ -3,9 +3,14 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AppConstants {
   static const String appName = 'The Spot Campus';
-  // Dynamic Base URL loaded from .env
-  static final String baseUrl =
-      dotenv.env['BASE_URL'] ?? 'http://localhost:5006/api';
+  // Dynamic Base URL loaded from .env with safe fallback
+  static String get baseUrl {
+    try {
+      return dotenv.env['BASE_URL'] ?? 'http://localhost:5006/api';
+    } catch (_) {
+      return 'http://localhost:5006/api';
+    }
+  }
 
   static const String tokenKey = 'auth_token';
   static const String roleKey = 'user_role';

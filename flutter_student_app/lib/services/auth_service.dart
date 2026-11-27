@@ -36,7 +36,10 @@ class AuthService extends ChangeNotifier {
       if (token != null) {
         final response = await _dio.get(
           '/login/current-user',
-          options: Options(headers: {'Cookie': 'token=$token'}),
+          options: Options(headers: {
+            'Cookie': 'token=$token',
+            'Authorization': 'Bearer $token',
+          }),
         );
 
         if (response.statusCode == 200) {

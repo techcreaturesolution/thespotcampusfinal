@@ -3,8 +3,6 @@ import { FiX } from "react-icons/fi";
 import customFetch from "../../utils/customFetch";
 
 const CreateQuestionModal = ({ isOpen, onClose, question, subjects = [], onSubmit, isSaving }) => {
-  if (!isOpen) return null;
-
   const [categories, setCategories] = useState([]);
   const [form, setForm] = useState({
     subject_id: "",
@@ -107,6 +105,8 @@ const CreateQuestionModal = ({ isOpen, onClose, question, subjects = [], onSubmi
     };
     onSubmit(payload);
   };
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">

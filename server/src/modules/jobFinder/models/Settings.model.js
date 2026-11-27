@@ -24,7 +24,7 @@ const settingsSchema = new mongoose.Schema(
     cleanup: {
       enabled: { type: Boolean, default: true },
     },
-    updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'tbl_user' },
+    updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'tbl_admin' },
   },
   { timestamps: true },
 );

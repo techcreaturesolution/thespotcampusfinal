@@ -26,13 +26,21 @@ const errorHandlerMiddleware = (err, req, res, _next) => {
     msg = err.message;
   }
 
-  // Log detailed error stack to a file in the workspace
+  // Log detailed error stack to a file in the workspace (with path & secret redaction)
   try {
     const logPath = path.resolve(process.cwd(), "server_errors.log");
-    const logMessage = `[${new Date().toISOString()}] ${statusCode} - ${err.message}\n${err.stack}\n\n`;
+    const sanitizedStack = (err.stack || "")
+      .replace(/[A-Za-z]:\\[^ \n\r\t]+/g, "[LOCAL_PATH]")
+      .replace(/(?:sk-[A-Za-z0-9_-]{20,}|rzp_[A-Za-z0-9_]+|Bearer\s+[A-Za-z0-9._-]+)/gi, "[REDACTED_SECRET]");
+    const logMessage = `[${new Date().toISOString()}] ${statusCode} - ${err.message}\n${sanitizedStack}\n\n`;
     fs.appendFileSync(logPath, logMessage);
   } catch (logErr) {
     console.error("Failed to write to server_errors.log:", logErr);
+  }
+
+  // Sanitize internal server errors in production to avoid leaking internals to clients
+  if (process.env.NODE_ENV === "production" && statusCode === StatusCodes.INTERNAL_SERVER_ERROR) {
+    msg = "An internal server error occurred. Please try again later.";
   }
 
   res.status(statusCode).json({ msg });
