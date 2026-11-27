@@ -60,3 +60,6 @@ flutter_student_app/pubspec.lock
 # Puppeteer cache
 server/.cache/
 .cache/
+
+# Archives
+*.zip
